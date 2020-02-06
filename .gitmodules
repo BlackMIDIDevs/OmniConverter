@@ -1,0 +1,3 @@
+[submodule "MIDIModificationFramework"]
+	path = MIDIModificationFramework
+	url = https://github.com/arduano/MIDIModificationFramework.git

@@ -30,15 +30,15 @@ namespace OmniConverter
         private Double CFMin { get; } = Properties.Settings.Default.CFValue - Properties.Settings.Default.CFFluctuation;
         private Double CFMax { get; } = Properties.Settings.Default.CFValue + Properties.Settings.Default.CFFluctuation;
 
-        public BASSMIDI(String MIDI, Int32 TrackToExport, WaveFormat WF)
+        public BASSMIDI(WaveFormat WF)
         {
             lock (Lock)
             {
                 WaveFormat = WF;
-                InitializeSettings(TrackToExport);
+                InitializeSettings();
 
-                Handle = BassMidi.BASS_MIDI_StreamCreateFile(MIDI, 0L, 0L, Flags, WaveFormat.SampleRate);
-                if (!CheckError(MIDI, Handle, String.Format("Unable to create stream for {0} ({1}).", MIDI, UniqueID)))
+                Handle = BassMidi.BASS_MIDI_StreamCreate(16, Flags, WaveFormat.SampleRate);
+                if (!CheckError(Handle, "Unable to create stream."))
                 {
                     ErroredOut = true;
                     return;
@@ -48,33 +48,24 @@ namespace OmniConverter
                     BASSError ERR = Bass.BASS_ErrorGetCode();
 
                     Debug.ShowMsgBox(
-                        "BASSMIDI error", 
-                        String.Format("Unable to create stream for {0} ({1}).\n\nError encountered: {2}", MIDI, UniqueID, ERR),
+                        "BASSMIDI error",
+                        String.Format("Unable to create stream.\n\nError encountered: {0}", ERR),
                         null, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     ErroredOut = true;
                     return;
                 }
-                Debug.PrintToConsole("ok", String.Format("{0} - Stream for file {1} is open.", UniqueID, MIDI));
+                Debug.PrintToConsole("ok", String.Format("{0} - Stream is open.", UniqueID));
 
                 Int32 Tracks = BassMidi.BASS_MIDI_StreamGetTrackCount(Handle);
                 Debug.PrintToConsole("ok", String.Format("{0} - Total tracks = {1}", UniqueID, Tracks));
-
-                if (TrackToExport != -1)
-                {
-                    for (int i = 0; i < Tracks; i++)
-                        Bass.BASS_ChannelSetAttribute(Handle, BASSAttribute.BASS_ATTRIB_MIDI_TRACK_VOL + i, 0.0f);
-
-                    Bass.BASS_ChannelSetAttribute(Handle, BASSAttribute.BASS_ATTRIB_MIDI_TRACK_VOL + TrackToExport, 1.0f);
-                    Debug.PrintToConsole("ok", String.Format("{0} - Track {1} is ready for export.", UniqueID, Tracks));
-                }
 
                 SetSoundFonts();
             }
         }
 
         // This is a really unstable mode, touching anything in its code might break it
-        public BASSMIDI(Boolean RTS, String MIDI, WaveFormat WF)
+        public BASSMIDI(Boolean RTS, WaveFormat WF)
         {
             if (!RTS)
             {
@@ -89,92 +80,40 @@ namespace OmniConverter
 
                 RTSMode = RTS;
                 WaveFormat = WF;
-                InitializeSettings(-1);
+                InitializeSettings();
 
                 // Remove DECAYEND since it's not applicable to this type of stream
                 Flags &= ~BASSFlag.BASS_MIDI_DECAYEND;
 
                 // Create stream which will feed the events to
                 Handle = BassMidi.BASS_MIDI_StreamCreate(16, Flags, WaveFormat.SampleRate);
-                if (!CheckError(MIDI, Handle, String.Format("Unable to create RTS stream for {0} ({1}).", MIDI, UniqueID)))
+                if (!CheckError(Handle, String.Format("Unable to create RTS stream ({0}).", UniqueID)))
                 {
                     ErroredOut = true;
                     return;
                 }
-                Debug.PrintToConsole("ok", String.Format("{0} - RTS stream for file {1} is open.", UniqueID, MIDI));
-
-                // Parse events
-                try
-                {
-                    // Load the MIDI from where we should extract the events
-                    Int32 TempHandle = BassMidi.BASS_MIDI_StreamCreateFile(MIDI, 0L, 0L, Flags, WaveFormat.SampleRate);
-                    if (!CheckError(MIDI, TempHandle, String.Format("Unable to load events for stream {1}.", MIDI, UniqueID)))
-                    {
-                        ErroredOut = true;
-                        return;
-                    }
-                    Debug.PrintToConsole("ok", String.Format("{0} - Temporary stream for chunks copying is ready.", UniqueID, MIDI));
-
-                    // Prepare events buffer and temporary chunk
-                    BASS_MIDI_EVENT[] TChunk;
-                    Int32 BMES = Marshal.SizeOf(typeof(BASS_MIDI_EVENT));
-                    EventC = (UInt32)BassMidi.BASS_MIDI_StreamGetEvents(TempHandle, -1, 0, null);
-                    EventS = new BASS_MIDI_EVENT[EventC];
-                    Debug.PrintToConsole("ok", String.Format("{0} - Events buffer and temporary chunk prepared.", UniqueID));
-                    Debug.PrintToConsole("ok", 
-                        String.Format("{0} - Size: {1} ({2} events)", UniqueID, DataCheck.BytesToHumanReadableSize(Convert.ToUInt32(BMES) * EventC), EventC));
-
-                    Parallel.For(0, EventC / 50000000, new ParallelOptions { MaxDegreeOfParallelism = MT }, Chunk =>
-                    {
-                        Debug.PrintToConsole("ok", String.Format("{0} - Preparing C{1}", UniqueID, Chunk));
-
-                        Int32 SC = Math.Min(50000000, (Int32)EventC - ((Int32)Chunk * 50000000));
-                        Debug.PrintToConsole("ok", 
-                            String.Format("{0} C{1} - Size: {2} ({3} events)", 
-                            UniqueID, Chunk, DataCheck.BytesToHumanReadableSize(Convert.ToUInt32(BMES) * Convert.ToUInt32(SC)), SC));
-
-                        TChunk = new BASS_MIDI_EVENT[SC];
-                        Int32 R = BassMidi.BASS_MIDI_StreamGetEvents(TempHandle, -1, 0, TChunk, (Int32)Chunk * 50000000, SC);
-                        if (R < 1) return;
-
-                        TChunk.CopyTo(EventS, Chunk * 50000000);
-                        TChunk = null;
-                    });
-                }
-                catch
-                {
-                    Debug.ShowMsgBox("BASSMIDI error", "This file is too big for RTS mode.", null, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    ErroredOut = true;
-                    return;
-                }
-
-                Debug.PrintToConsole("ok", String.Format("{0} - Total tracks = {1}", UniqueID, BassMidi.BASS_MIDI_StreamGetTrackCount(Handle)));
+                Debug.PrintToConsole("ok", String.Format("{0} - RTS stream.", UniqueID));
 
                 SetSoundFonts();
             }
         }
 
-        private bool CheckError(String MIDI, Int32 H, String Error)
+        private bool CheckError(Int32 H, String Error)
         {
             if (H == 0)
             {
                 Error += String.Format("\n\nError encountered: {0}", Bass.BASS_ErrorGetCode());
-                Debug.ShowMsgBox("BASSMIDI error",  Error, null, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.ShowMsgBox("BASSMIDI error", Error, null, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return false;
             }
 
             return true;
         }
-        
-        private void InitializeSettings(Int32 TrackToExport)
+
+        private void InitializeSettings()
         {
             Debug.PrintToConsole("ok", String.Format("Stream unique ID: {0}", UniqueID));
-
-            Debug.PrintToConsole(
-                "ok",
-                String.Format("{0} - Preparing stream for {1}...", UniqueID, TrackToExport == -1 ? "all tracks" : String.Format("track {0}", TrackToExport))
-                );
 
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIDI_VOICES, Properties.Settings.Default.VoiceLimit);
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_MIDI_AUTOFONT, 0);
@@ -198,7 +137,7 @@ namespace OmniConverter
             Debug.PrintToConsole("ok", String.Format("{0} - Loaded {1} SoundFonts.", UniqueID, Program.SFArray.BMFEArray.Count));
         }
 
-        public unsafe int NRead(float[] buffer, int offset, int count)
+        public unsafe int Read(float[] buffer, int offset, int count)
         {
             lock (Lock)
             {
@@ -226,42 +165,20 @@ namespace OmniConverter
             }
         }
 
-        public unsafe int RTRead(float[] buffer, int offset, int count)
+        public unsafe int SendEventRaw(uint data, int channel)
         {
-            lock (Lock)
-            {
-                fixed (float* buff = buffer)
-                {
-                    double FPSSim = RTSR.NextDouble() * (CFMin - CFMax) + CFMax;
-                    int TLen = Convert.ToInt32(Bass.BASS_ChannelSeconds2Bytes(Handle, FPSSim));
-                    byte[] TBuf = new byte[TLen];
-
-                    int ret = Bass.BASS_ChannelGetData(Handle, TBuf, TLen);
-                    if (ret == 0)
-                    {
-                        BASSError BE = Bass.BASS_ErrorGetCode();
-                        if (BE != BASSError.BASS_ERROR_ENDED)
-                        {
-                            Debug.ShowMsgBox(
-                                "Data parsing error",
-                                "An error has occured while parsing the audio data from the BASS RTS stream.",
-                                null, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-
-                        Debug.PrintToConsole("wrn", BE.ToString());
-                    }
-
-
-                    Buffer.BlockCopy(TBuf, 0, buffer, 0, TLen);
-
-                    return ret;
-                }
-            }
+            var mode = BASSMIDIEventMode.BASS_MIDI_EVENTS_RAW | BASSMIDIEventMode.BASS_MIDI_EVENTS_NORSTATUS;
+            return BassMidi.BASS_MIDI_StreamEvents(Handle, mode, channel, (IntPtr)(&data), 3);
         }
 
-        public unsafe int Read(float[] buffer, int offset, int count)
+        public unsafe int SendEndEvent()
         {
-            return RTSMode ? RTRead(buffer, offset, count) : NRead(buffer, offset, count);
+            var ev = new[] { 
+                new BASS_MIDI_EVENT(BASSMIDIEvent.MIDI_EVENT_END_TRACK, 0, 0, 0, 0),
+                new BASS_MIDI_EVENT(BASSMIDIEvent.MIDI_EVENT_END, 0, 0, 0, 0),
+            };
+            var mode = BASSMIDIEventMode.BASS_MIDI_EVENTS_TIME | BASSMIDIEventMode.BASS_MIDI_EVENTS_STRUCT;
+            return BassMidi.BASS_MIDI_StreamEvents(Handle, mode, ev);
         }
 
         public long Position

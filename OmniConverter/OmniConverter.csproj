@@ -66,7 +66,9 @@
     <Reference Include="Octokit, Version=0.36.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.36.0\lib\net46\Octokit.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -101,6 +103,7 @@
     </Compile>
     <Compile Include="Extensions\AntiClipping.cs" />
     <Compile Include="Extensions\BASSMIDI.cs" />
+    <Compile Include="Extensions\MIDI.cs" />
     <Compile Include="Extensions\UpdateSystem\DLEngine.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -235,6 +238,12 @@
     <Content Include="Resources\Images\OCLogo.png" />
     <Content Include="Resources\Images\Octocat.png" />
     <Content Include="Resources\Icons\Warning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MIDIModificationFramework\MIDIModificationFramework.csproj">
+      <Project>{49122f52-0b71-46be-9f86-17a53c7ff333}</Project>
+      <Name>MIDIModificationFramework</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.0\build\Fody.targets')" />

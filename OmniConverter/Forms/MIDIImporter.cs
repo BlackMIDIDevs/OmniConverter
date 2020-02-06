@@ -75,8 +75,8 @@ namespace OmniConverter
 
             if (Program.MIDIList.Count > 0)
             {
-                Index = Enumerable.Range(0, Program.MIDIList.Count).Aggregate((max, i) => ((MIDI)Program.MIDIList[max]).GetID > ((MIDI)Program.MIDIList[i]).GetID ? max : i);
-                CurrentMaxIndex = ((MIDI)Program.MIDIList[Index]).GetID;
+                Index = Enumerable.Range(0, Program.MIDIList.Count).Aggregate((max, i) => ((MIDI)Program.MIDIList[max]).ID > ((MIDI)Program.MIDIList[i]).ID ? max : i);
+                CurrentMaxIndex = ((MIDI)Program.MIDIList[Index]).ID;
             }
 
             Int32 MT = Properties.Settings.Default.MultiThreadedMode ? Properties.Settings.Default.MultiThreadedLimitV : 1;
@@ -219,46 +219,7 @@ namespace OmniConverter
 
             try
             {
-                // Get size of MIDI
-                Int64 sizen = new FileInfo(str).Length;
-                string size = DataCheck.BytesToHumanReadableSize((ulong)sizen);
-                Debug.PrintToConsole("ok", String.Format("{0} - Size: {1} bytes ({2})", ID, sizen, size));
-
-                Int32 time = BassMidi.BASS_MIDI_StreamCreateFile(str, 0L, 0L, BASSFlag.BASS_STREAM_DECODE, 0);
-                if (time == 0)
-                {
-                    BASSError ERR = Bass.BASS_ErrorGetCode();
-                    Debug.PrintToConsole("err", String.Format("{0} - ERR {1}", ID, ERR));
-                    return String.Format("BASSMIDI was unable to load and analyze the file. Given code: {0}.", ERR);
-                }
-
-                Int64 pos = Bass.BASS_ChannelGetLength(time);
-                Double num9 = Bass.BASS_ChannelBytes2Seconds(time, pos);
-                TimeSpan span = TimeSpan.FromSeconds(num9);
-
-                // Get length of MIDI
-                string Length = span.Minutes.ToString() + ":" + span.Seconds.ToString().PadLeft(2, '0') + "." + span.Milliseconds.ToString().PadLeft(3, '0');
-                Debug.PrintToConsole("ok", String.Format("{0} - Length: {1} seconds ({2})", ID, num9, Length));
-
-                Int32 Tracks = BassMidi.BASS_MIDI_StreamGetTrackCount(time);
-                Debug.PrintToConsole("ok", String.Format("{0} - Tracks: {1}", ID, Tracks));
-
-                UInt64 count = 0;
-                for (int i = 0; i < Tracks; i++)
-                {
-                    UInt32 TN = (UInt32)BassMidi.BASS_MIDI_StreamGetEvents(time, i, BASSMIDIEvent.MIDI_EVENT_NOTES, null);
-                    Debug.PrintToConsole("ok", String.Format("{0} - Notes in track {1}: {2}", ID, i, TN));
-                    count += TN;
-                }
-                Debug.PrintToConsole("ok", String.Format("{0} - Total notes count: {1}", ID, count));
-
-                // All good
-                CMI++;
-
-                MIDIStruct = new MIDI(CMI, Path.GetFileName(str), str, TimeSpan.FromSeconds(num9), Tracks, (long)count, (ulong)new FileInfo(str).Length);
-
-                if (!Bass.BASS_StreamFree(time))
-                    return "BASS failed to free up the stream used for the MIDI analysis.";
+                MIDIStruct = MIDI.LoadFromFile(CMI, str, Path.GetFileName(str), (p, t) => Console.WriteLine(p + "/" + t));
 
                 Debug.PrintToConsole("ok", String.Format("{0} - Analysis finished for MIDI {1}.", ID, str));
                 return "No error.";

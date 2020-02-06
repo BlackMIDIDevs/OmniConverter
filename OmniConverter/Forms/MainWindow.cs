@@ -81,26 +81,26 @@ namespace OmniConverter
                     {
                         Boolean NMT = I < 1;
 
-                        L = MFile.GetTimeLength;
-                        FN += String.Format("{0}{1}", NMT ? "" : Sep, MFile.GetName);
-                        FP += String.Format("{0}{1}", NMT ? "" : Sep, MFile.GetPath);
-                        NC += String.Format("{0}{1}", NMT ? "" : Sep, MFile.GetNoteCount.ToString("N0", new CultureInfo("is-IS")));
+                        L = MFile.TimeLength;
+                        FN += String.Format("{0}{1}", NMT ? "" : Sep, MFile.Name);
+                        FP += String.Format("{0}{1}", NMT ? "" : Sep, MFile.Path);
+                        NC += String.Format("{0}{1}", NMT ? "" : Sep, MFile.NoteCount.ToString("N0", new CultureInfo("is-IS")));
                         TL += String.Format("{0}{1}:{2}.{3}", NMT ? "" : Sep, L.Minutes, L.Seconds.ToString().PadLeft(2, '0'), L.Milliseconds.ToString().PadLeft(3, '0'));
-                        T += String.Format("{0}{1}", NMT ? "" : Sep, MFile.GetTracks.ToString("N0", new CultureInfo("is-IS")));
-                        S += String.Format("{0}{1}", NMT ? "" : Sep, DataCheck.BytesToHumanReadableSize(MFile.GetSize));
+                        T += String.Format("{0}{1}", NMT ? "" : Sep, MFile.Tracks.ToString("N0", new CultureInfo("is-IS")));
+                        S += String.Format("{0}{1}", NMT ? "" : Sep, DataCheck.BytesToHumanReadableSize(MFile.Size));
 
                         I++;
                     }
                 }
                 else
                 {
-                    L = ((MIDI)MIDIQueue.SelectedItem).GetTimeLength;
-                    FN = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).GetName);
-                    FP = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).GetPath);
-                    NC = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).GetNoteCount.ToString("N0", new CultureInfo("is-IS")));
+                    L = ((MIDI)MIDIQueue.SelectedItem).TimeLength;
+                    FN = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).Name);
+                    FP = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).Path);
+                    NC = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).NoteCount.ToString("N0", new CultureInfo("is-IS")));
                     TL = String.Format("{0}:{1}.{2}", L.Minutes, L.Seconds.ToString().PadLeft(2, '0'), L.Milliseconds.ToString().PadLeft(3, '0'));
-                    T = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).GetTracks.ToString("N0", new CultureInfo("is-IS")));
-                    S = String.Format("{0}", DataCheck.BytesToHumanReadableSize(((MIDI)MIDIQueue.SelectedItem).GetSize));
+                    T = String.Format("{0}", ((MIDI)MIDIQueue.SelectedItem).Tracks.ToString("N0", new CultureInfo("is-IS")));
+                    S = String.Format("{0}", DataCheck.BytesToHumanReadableSize(((MIDI)MIDIQueue.SelectedItem).Size));
                 }
 
                 FNVal.Text = FN;
@@ -151,7 +151,7 @@ namespace OmniConverter
             foreach (MIDI Item in MIDIQueue.SelectedItems)
             {
                 Program.MIDIList.Remove(Item);
-                Debug.PrintToConsole("ok", String.Format("Removed {0} from list.", Item.GetName));
+                Debug.PrintToConsole("ok", String.Format("Removed {0} from list.", Item.Name));
             }
 
             RebindList();

@@ -4,36 +4,6 @@ using Un4seen.Bass.AddOn.Midi;
 
 namespace OmniConverter
 {
-    public class MIDI
-    {
-        private Int64 ID;
-        private String FileName;
-        private String FilePath;
-        private TimeSpan TimeLength;
-        private Int32 Tracks;
-        private Int64 NoteCount;
-        private UInt64 Size;
-
-        public MIDI(Int64 I, String FN, String FP, TimeSpan TL, Int32 T, Int64 NC, UInt64 S)
-        {
-            ID = I;
-            FileName = FN;
-            FilePath = FP;
-            TimeLength = TL;
-            Tracks = T;
-            NoteCount = NC;
-            Size = S;
-        }
-
-        public Int64 GetID { get { return ID; } }
-        public String GetName { get { return FileName; } }
-        public String GetPath { get { return FilePath; } }
-        public TimeSpan GetTimeLength { get { return TimeLength; } }
-        public Int32 GetTracks { get { return Tracks; } }
-        public Int64 GetNoteCount { get { return NoteCount; } }
-        public UInt64 GetSize { get { return Size; } }
-    }
-
     public class SoundFont
     {
         private String SoundFontPath;
