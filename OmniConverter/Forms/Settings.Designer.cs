@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.AudioSettings = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.EnableRCOverride = new System.Windows.Forms.CheckBox();
             this.EnableLoudMax = new System.Windows.Forms.CheckBox();
             this.NoteOff1 = new System.Windows.Forms.CheckBox();
             this.FXDisable = new System.Windows.Forms.CheckBox();
@@ -53,17 +55,25 @@
             this.PostConvSettings = new System.Windows.Forms.GroupBox();
             this.DoActionAfterRenderVal = new System.Windows.Forms.ComboBox();
             this.DoActionAfterRender = new System.Windows.Forms.CheckBox();
+            this.ReverbL = new System.Windows.Forms.Label();
+            this.ReverbV = new System.Windows.Forms.NumericUpDown();
+            this.ChorusV = new System.Windows.Forms.NumericUpDown();
+            this.ChorusL = new System.Windows.Forms.Label();
             this.AudioSettings.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MaxVoices)).BeginInit();
             this.EventsSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MTLimitVal)).BeginInit();
             this.PostConvSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReverbV)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ChorusV)).BeginInit();
             this.SuspendLayout();
             // 
             // AudioSettings
             // 
             this.AudioSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.AudioSettings.Controls.Add(this.groupBox1);
             this.AudioSettings.Controls.Add(this.EnableLoudMax);
             this.AudioSettings.Controls.Add(this.NoteOff1);
             this.AudioSettings.Controls.Add(this.FXDisable);
@@ -75,10 +85,36 @@
             this.AudioSettings.Controls.Add(this.Label6);
             this.AudioSettings.Location = new System.Drawing.Point(14, 14);
             this.AudioSettings.Name = "AudioSettings";
-            this.AudioSettings.Size = new System.Drawing.Size(430, 187);
+            this.AudioSettings.Size = new System.Drawing.Size(430, 266);
             this.AudioSettings.TabIndex = 0;
             this.AudioSettings.TabStop = false;
             this.AudioSettings.Text = "Audio settings";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.ChorusV);
+            this.groupBox1.Controls.Add(this.ChorusL);
+            this.groupBox1.Controls.Add(this.ReverbV);
+            this.groupBox1.Controls.Add(this.ReverbL);
+            this.groupBox1.Controls.Add(this.EnableRCOverride);
+            this.groupBox1.Location = new System.Drawing.Point(6, 185);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(415, 73);
+            this.groupBox1.TabIndex = 46;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Control Event Override";
+            // 
+            // EnableRCOverride
+            // 
+            this.EnableRCOverride.AutoSize = true;
+            this.EnableRCOverride.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.EnableRCOverride.Location = new System.Drawing.Point(6, 22);
+            this.EnableRCOverride.Name = "EnableRCOverride";
+            this.EnableRCOverride.Size = new System.Drawing.Size(240, 20);
+            this.EnableRCOverride.TabIndex = 45;
+            this.EnableRCOverride.Text = "Override MIDI reverb and chrous events";
+            this.EnableRCOverride.UseVisualStyleBackColor = true;
+            this.EnableRCOverride.CheckedChanged += new System.EventHandler(this.EnableRCOverride_CheckedChanged);
             // 
             // EnableLoudMax
             // 
@@ -222,7 +258,7 @@
             this.EventsSettings.Controls.Add(this.PerTrackStorage);
             this.EventsSettings.Controls.Add(this.PerTrackExportEach);
             this.EventsSettings.Controls.Add(this.MTMode);
-            this.EventsSettings.Location = new System.Drawing.Point(14, 208);
+            this.EventsSettings.Location = new System.Drawing.Point(14, 286);
             this.EventsSettings.Name = "EventsSettings";
             this.EventsSettings.Size = new System.Drawing.Size(430, 205);
             this.EventsSettings.TabIndex = 1;
@@ -357,7 +393,7 @@
             // 
             this.OkBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.OkBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.OkBtn.Location = new System.Drawing.Point(370, 510);
+            this.OkBtn.Location = new System.Drawing.Point(370, 582);
             this.OkBtn.Name = "OkBtn";
             this.OkBtn.Size = new System.Drawing.Size(75, 23);
             this.OkBtn.TabIndex = 3;
@@ -371,7 +407,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PostConvSettings.Controls.Add(this.DoActionAfterRenderVal);
             this.PostConvSettings.Controls.Add(this.DoActionAfterRender);
-            this.PostConvSettings.Location = new System.Drawing.Point(14, 419);
+            this.PostConvSettings.Location = new System.Drawing.Point(14, 497);
             this.PostConvSettings.Name = "PostConvSettings";
             this.PostConvSettings.Size = new System.Drawing.Size(430, 79);
             this.PostConvSettings.TabIndex = 4;
@@ -405,11 +441,58 @@
             this.DoActionAfterRender.UseVisualStyleBackColor = true;
             this.DoActionAfterRender.CheckedChanged += new System.EventHandler(this.DoActionAfterRender_CheckedChanged);
             // 
+            // ReverbL
+            // 
+            this.ReverbL.AutoSize = true;
+            this.ReverbL.BackColor = System.Drawing.SystemColors.Control;
+            this.ReverbL.Enabled = false;
+            this.ReverbL.Location = new System.Drawing.Point(4, 49);
+            this.ReverbL.Name = "ReverbL";
+            this.ReverbL.Size = new System.Drawing.Size(83, 15);
+            this.ReverbL.TabIndex = 46;
+            this.ReverbL.Text = "Reverb (0-127)";
+            // 
+            // ReverbV
+            // 
+            this.ReverbV.Enabled = false;
+            this.ReverbV.Location = new System.Drawing.Point(91, 46);
+            this.ReverbV.Maximum = new decimal(new int[] {
+            127,
+            0,
+            0,
+            0});
+            this.ReverbV.Name = "ReverbV";
+            this.ReverbV.Size = new System.Drawing.Size(39, 23);
+            this.ReverbV.TabIndex = 47;
+            // 
+            // ChorusV
+            // 
+            this.ChorusV.Enabled = false;
+            this.ChorusV.Location = new System.Drawing.Point(218, 46);
+            this.ChorusV.Maximum = new decimal(new int[] {
+            127,
+            0,
+            0,
+            0});
+            this.ChorusV.Name = "ChorusV";
+            this.ChorusV.Size = new System.Drawing.Size(39, 23);
+            this.ChorusV.TabIndex = 49;
+            // 
+            // ChorusL
+            // 
+            this.ChorusL.AutoSize = true;
+            this.ChorusL.Enabled = false;
+            this.ChorusL.Location = new System.Drawing.Point(131, 49);
+            this.ChorusL.Name = "ChorusL";
+            this.ChorusL.Size = new System.Drawing.Size(85, 15);
+            this.ChorusL.TabIndex = 48;
+            this.ChorusL.Text = "Chorus (0-127)";
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(458, 546);
+            this.ClientSize = new System.Drawing.Size(458, 618);
             this.ControlBox = false;
             this.Controls.Add(this.PostConvSettings);
             this.Controls.Add(this.OkBtn);
@@ -426,12 +509,16 @@
             this.Load += new System.EventHandler(this.Settings_Load);
             this.AudioSettings.ResumeLayout(false);
             this.AudioSettings.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MaxVoices)).EndInit();
             this.EventsSettings.ResumeLayout(false);
             this.EventsSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MTLimitVal)).EndInit();
             this.PostConvSettings.ResumeLayout(false);
             this.PostConvSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ReverbV)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ChorusV)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -463,5 +550,11 @@
         private System.Windows.Forms.GroupBox PostConvSettings;
         private System.Windows.Forms.ComboBox DoActionAfterRenderVal;
         private System.Windows.Forms.CheckBox DoActionAfterRender;
+        private System.Windows.Forms.GroupBox groupBox1;
+        internal System.Windows.Forms.CheckBox EnableRCOverride;
+        private System.Windows.Forms.Label ReverbL;
+        private System.Windows.Forms.NumericUpDown ChorusV;
+        private System.Windows.Forms.Label ChorusL;
+        private System.Windows.Forms.NumericUpDown ReverbV;
     }
 }

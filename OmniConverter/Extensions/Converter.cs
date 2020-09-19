@@ -146,6 +146,15 @@ namespace OmniConverter
                         }
                         else if (e is ControlChangeEvent)
                         {
+                            if(Properties.Settings.Default.RVOverrideToggle)
+                            {
+                                for (int i = 0; i <= 15; ++i)
+                                {
+                                    bass.SendReverbEvent(i, Properties.Settings.Default.ReverbValue);
+                                    bass.SendChorusEvent(i, Properties.Settings.Default.ChorusValue);
+                                }
+                            }
+                            
                             var ev = e as ControlChangeEvent;
                             bass.SendEventRaw((uint)(0xB0 | (ev.Controller << 8) | (ev.Value << 16)), ev.Channel + 1);
                         }

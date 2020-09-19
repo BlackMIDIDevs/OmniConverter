@@ -21,6 +21,10 @@ namespace OmniConverter
             NoteOff1.Checked = Properties.Settings.Default.NoteOff1;
             EnableLoudMax.Checked = Properties.Settings.Default.LoudMax;
 
+            EnableRCOverride.Checked = Properties.Settings.Default.RVOverrideToggle;
+            ReverbV.Value = Properties.Settings.Default.ReverbValue;
+            ChorusV.Value = Properties.Settings.Default.ChorusValue;
+
             MTMode.Checked = Properties.Settings.Default.MultiThreadedMode;
             PerTrackMode.Checked = Properties.Settings.Default.PerTrackExport;
             PerTrackExportEach.Checked = Properties.Settings.Default.PerTrackSeparateFiles;
@@ -87,6 +91,14 @@ namespace OmniConverter
             DoActionAfterRenderVal.Enabled = DoActionAfterRender.Checked;
         }
 
+        private void EnableRCOverride_CheckedChanged(object sender, EventArgs e)
+        {
+            ReverbL.Enabled = EnableRCOverride.Checked;
+            ReverbV.Enabled = EnableRCOverride.Checked;
+            ChorusL.Enabled = EnableRCOverride.Checked;
+            ChorusV.Enabled = EnableRCOverride.Checked;
+        }
+
         private void OkBtn_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.VoiceLimit = (Int32)MaxVoices.Value;
@@ -96,6 +108,10 @@ namespace OmniConverter
             Properties.Settings.Default.DisableEffects = FXDisable.Checked;
             Properties.Settings.Default.NoteOff1 = NoteOff1.Checked;
             Properties.Settings.Default.LoudMax = EnableLoudMax.Checked;
+
+            Properties.Settings.Default.RVOverrideToggle = EnableRCOverride.Checked;
+            Properties.Settings.Default.ReverbValue = (Int32)ReverbV.Value;
+            Properties.Settings.Default.ChorusValue = (Int32)ChorusV.Value;
 
             Properties.Settings.Default.MultiThreadedMode = MTMode.Checked;
             Properties.Settings.Default.PerTrackExport = PerTrackMode.Checked;
