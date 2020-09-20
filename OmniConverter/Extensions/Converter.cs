@@ -97,8 +97,9 @@ namespace OmniConverter
                 using (var bass = new BASSMIDI(format))
                 {
                     ISampleSource bassSource;
-                    if (loudmax) bassSource = new AntiClipping(bass, 0.1);
-                    else bassSource = bass;
+                    /*if (loudmax) bassSource = new AntiClipping(bass, 0.1);
+                    else bassSource = bass;*/
+                    bassSource = bass; //Why the hell was it running loudmax twice lol
                     float[] buffer = new float[2048 * 16];
                     long prevWriteTime = 0;
                     double time = 0;
