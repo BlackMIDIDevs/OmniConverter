@@ -53,7 +53,7 @@ namespace OmniConverter
 
             MIDIQueue.DataSource = null;
             MIDIQueue.DataSource = Program.MIDIList;
-            MIDIQueue.DisplayMember = "GetName";
+            MIDIQueue.DisplayMember = "Name";
 
             Debug.PrintToConsole("ok", "MIDIQueue bound successfully.");
         }
