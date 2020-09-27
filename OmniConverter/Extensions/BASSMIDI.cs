@@ -165,6 +165,16 @@ namespace OmniConverter
             }
         }
 
+        public unsafe bool SendReverbEvent(int channel, int param)
+        {
+            return BassMidi.BASS_MIDI_StreamEvent(Handle, channel, BASSMIDIEvent.MIDI_EVENT_REVERB, param);
+        }
+
+        public unsafe bool SendChorusEvent(int channel, int param)
+        {
+            return BassMidi.BASS_MIDI_StreamEvent(Handle, channel, BASSMIDIEvent.MIDI_EVENT_CHORUS, param);
+        }
+
         public unsafe int SendEventRaw(uint data, int channel)
         {
             var mode = BASSMIDIEventMode.BASS_MIDI_EVENTS_RAW | BASSMIDIEventMode.BASS_MIDI_EVENTS_NORSTATUS;

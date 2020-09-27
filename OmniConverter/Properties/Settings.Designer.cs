@@ -22,7 +22,56 @@ namespace OmniConverter.Properties {
                 return defaultInstance;
             }
         }
+
+        //start of added code
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RVOverrideToggle
+        {
+            get
+            {
+                return ((bool)(this["RVOverrideToggle"]));
+            }
+            set
+            {
+                this["RVOverrideToggle"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ReverbValue
+        {
+            get
+            {
+                return ((int)(this["ReverbValue"]));
+            }
+            set
+            {
+                this["ReverbValue"] = value;
+            }
+        }
         
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ChorusValue
+        {
+            get
+            {
+                return ((int)(this["ChorusValue"]));
+            }
+            set
+            {
+                this["ChorusValue"] = value;
+            }
+        }
+
+        //end of added code
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]

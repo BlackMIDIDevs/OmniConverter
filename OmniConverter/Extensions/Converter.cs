@@ -4,6 +4,7 @@ using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -97,8 +98,9 @@ namespace OmniConverter
                 using (var bass = new BASSMIDI(format))
                 {
                     ISampleSource bassSource;
-                    if (loudmax) bassSource = new AntiClipping(bass, 0.1);
-                    else bassSource = bass;
+                    /*if (loudmax) bassSource = new AntiClipping(bass, 0.1);
+                    else bassSource = bass;*/
+                    bassSource = bass; //Why the hell was it running loudmax twice lol
                     float[] buffer = new float[2048 * 16];
                     long prevWriteTime = 0;
                     double time = 0;
@@ -146,6 +148,15 @@ namespace OmniConverter
                         }
                         else if (e is ControlChangeEvent)
                         {
+                            if(Properties.Settings.Default.RVOverrideToggle)
+                            {
+                                for(int i = 0; i <= 15; i++)
+                                {
+                                    bass.SendReverbEvent(i, Properties.Settings.Default.ReverbValue);
+                                    bass.SendChorusEvent(i, Properties.Settings.Default.ChorusValue);
+                                }
+                            }
+                            
                             var ev = e as ControlChangeEvent;
                             bass.SendEventRaw((uint)(0xB0 | (ev.Controller << 8) | (ev.Value << 16)), ev.Channel + 1);
                         }
@@ -423,12 +434,12 @@ namespace OmniConverter
                         ParallelOptions PO = new ParallelOptions { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token };
                         Debug.PrintToConsole("ok", String.Format("ParallelOptions prepared, MaxDegreeOfParallelism = {0}", MT));
 
-                        Parallel.For(0, MFile.Tracks, PO, (T, LS) =>
+                        ParallelFor(0, MFile.Tracks, Environment.ProcessorCount, new CancellationToken(false), T =>
                         {
                             if (StopRequested)
                             {
                                 Debug.PrintToConsole("ok", "Stop requested. Stopping Parallel.For...");
-                                LS.Stop();
+                                //LS.Stop();
                                 return;
                             }
 
@@ -574,6 +585,42 @@ namespace OmniConverter
 
             if (!StopRequested && !IsCrash)
                 Form.Invoke((MethodInvoker)delegate { ((Form)Form).Close(); });
+        }
+
+        static void ParallelFor(int from, int to, int threads, CancellationToken cancel, Action<int> func)
+        {
+            Dictionary<int, Task> tasks = new Dictionary<int, Task>();
+            BlockingCollection<int> completed = new BlockingCollection<int>();
+
+            void RunTask(int i)
+            {
+                var t = new Task(() =>
+                {
+                    try
+                    {
+                        func(i);
+                        completed.Add(i);
+                    }
+                    catch (Exception e) { }
+                });
+                tasks.Add(i, t);
+                t.Start();
+            }
+
+            void TryTake()
+            {
+                var t = completed.Take(cancel);
+                tasks[t].Wait();
+                tasks.Remove(t);
+            }
+
+            for (int i = from; i < to; i++)
+            {
+                RunTask(i);
+                if (tasks.Count > threads) TryTake();
+            }
+
+            while (completed.Count > 0 || tasks.Count > 0) TryTake();
         }
     }
 }
