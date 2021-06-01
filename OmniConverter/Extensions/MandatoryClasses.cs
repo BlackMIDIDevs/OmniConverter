@@ -66,6 +66,17 @@ namespace OmniConverter
         public Boolean GetXGMode { get { return XGMode; } }
     }
 
+    public class VST
+    {
+        private string VSTPath;
+        private Int32 VSTHandle { get; set; }
+
+        public VST()
+        {
+            VSTPath = null;
+        }
+    }
+
     public class SoundFonts
     {
         public List<SoundFont> List;

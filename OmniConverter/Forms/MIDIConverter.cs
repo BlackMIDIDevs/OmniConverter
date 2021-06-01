@@ -136,8 +136,8 @@ namespace OmniConverter
                     UInt64 InvalidFiles = Cnv.MDV.GetInvalidMIDIsCount();
                     UInt64 TotalFiles = Cnv.MDV.GetTotalMIDIsCount();
 
-                    Int32 Tracks = Cnv.MDV.GetTotalTracks();
-                    Int32 CurrentTrack = Cnv.MDV.GetCurrentTrack();
+                    Int64 Tracks = Cnv.MDV.GetTotalTracks();
+                    Int64 CurrentTrack = Cnv.MDV.GetCurrentTrack();
 
                     switch (Cnv.GetStatus())
                     {

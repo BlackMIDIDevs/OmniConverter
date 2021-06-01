@@ -83,5 +83,14 @@
     <Setting Name="CFFluctuation" Type="System.Double" Scope="Application">
       <Value Profile="(Default)">5.556E-05</Value>
     </Setting>
+    <Setting Name="RVOverrideToggle" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ReverbValue" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="ChorusValue" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -91,7 +91,7 @@ namespace OmniConverter
             get => position;
             set
             {
-                if (value > Length || value < 0) throw new Exception("Position out of range");
+                if (value > Length || value < 0) throw new Exception(String.Format("Position out of range!\n\nValue: {0}\nMaximum value: {1}", value, Length));
                 position = value;
             }
         }

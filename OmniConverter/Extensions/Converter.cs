@@ -22,8 +22,8 @@ namespace OmniConverter
         private UInt64 InvalidMIDIs;
         private UInt64 TotalMIDIsCount;
 
-        private Int32 Tracks = 0;
-        private Int32 CurrentTrack = 0;
+        private Int64 Tracks = 0;
+        private Int64 CurrentTrack = 0;
 
         public MIDIsValidity()
         {
@@ -43,11 +43,11 @@ namespace OmniConverter
         public UInt64 GetInvalidMIDIsCount() { return InvalidMIDIs; }
         public UInt64 GetTotalMIDIsCount() { return TotalMIDIsCount; }
 
-        public void SetTotalTracks(Int32 T) { Tracks = T; }
+        public void SetTotalTracks(Int64 T) { Tracks = T; }
         public void AddTrack() { CurrentTrack++; }
         public void ResetCurrentTrack() { CurrentTrack = 0; }
-        public Int32 GetTotalTracks() { return Tracks; }
-        public Int32 GetCurrentTrack() { return CurrentTrack; }
+        public Int64 GetTotalTracks() { return Tracks; }
+        public Int64 GetCurrentTrack() { return CurrentTrack; }
     }
 
     class WaveSampleWriter : ISampleWriter, IDisposable
@@ -105,7 +105,7 @@ namespace OmniConverter
                     long prevWriteTime = 0;
                     double time = 0;
                     int read;
-                    foreach (var e in events)
+                    foreach (MIDIEvent e in events)
                     {
                         cancel.ThrowIfCancellationRequested();
 
@@ -371,8 +371,6 @@ namespace OmniConverter
 
                         Destination.Dispose();
                         FOpen.Dispose();
-
-                        PO.CancellationToken.ThrowIfCancellationRequested();
                     });
                 }
                 catch (OperationCanceledException) { }
@@ -429,12 +427,10 @@ namespace OmniConverter
 
                     try
                     {
-                        Debug.PrintToConsole("ok", "Preparing Parallel.For loop...");
                         CTS = new CancellationTokenSource();
-                        ParallelOptions PO = new ParallelOptions { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token };
-                        Debug.PrintToConsole("ok", String.Format("ParallelOptions prepared, MaxDegreeOfParallelism = {0}", MT));
+                        Debug.PrintToConsole("ok", String.Format("Preparing loop... MaxDegreeOfParallelism = {0}", MT));
 
-                        ParallelFor(0, MFile.Tracks, Environment.ProcessorCount, new CancellationToken(false), T =>
+                        ParallelFor(0, MFile.Tracks, MT, CTS.Token, T =>
                         {
                             if (StopRequested)
                             {
@@ -443,81 +439,82 @@ namespace OmniConverter
                                 return;
                             }
 
-                            TrackThreadStatus Trck = new TrackThreadStatus(T);
-                            Trck.Dock = DockStyle.Top;
-                            ThreadsPanel.Invoke((MethodInvoker)delegate
+                            if (MFile.NoteCount > 0)
                             {
-                                Debug.PrintToConsole("ok", "Added TrackThreadStatus control for MIDI.");
-                                ThreadsPanel.Controls.Add(Trck);
-                            });
-
-                            ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
-                            ISampleWriter Writer;
-                            WaveWriter SDestination = null;
-                            FileStream SFOpen = null;
-                            if (Properties.Settings.Default.PerTrackSeparateFiles)
-                            {
-                                // Check if we need to export each track to a file
-                                String Folder = OPath;
-                                if (Properties.Settings.Default.PerTrackSeparateFiles)
+                                TrackThreadStatus Trck = new TrackThreadStatus(T);
+                                Trck.Dock = DockStyle.Top;
+                                ThreadsPanel.Invoke((MethodInvoker)delegate
                                 {
-                                    // We do, create folder
-                                    Folder += String.Format("\\{0}\\", Path.GetFileNameWithoutExtension(MFile.Name));
-
-                                    if (!Directory.Exists(Folder))
-                                        Directory.CreateDirectory(Folder);
-                                }
-                                else Folder += " ";
-
-                                // Prepare the filename
-                                String SOutputDir = String.Format("{0}Track {1}.{2}",
-                                    Folder, T, Properties.Settings.Default.Codec);
-
-                                // Check if file already exists
-                                if (File.Exists(SOutputDir))
-                                    SOutputDir = String.Format("{0}Track {1} - {2}.{3}",
-                                        Folder, T, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), Properties.Settings.Default.Codec);
-
-                                Debug.PrintToConsole("ok", String.Format("{0} - Output file: {1}", T, SOutputDir));
-
-                                SFOpen = File.Open(SOutputDir, FileMode.Create);
-                                SDestination = new WaveWriter(SFOpen, WF);
-                                Writer = new WaveSampleWriter(SDestination);
-                            }
-                            else Writer = MSM.GetWriter();
-
-                            Task ConvThread = Task.Run(() =>
-                            {
-                                Worker.Convert(Writer, WF, false, PO.CancellationToken);
-                            });
-
-                            while (!ConvThread.IsCompleted)
-                            {
-                                if (StopRequested)
-                                    break;
-
-                                Trck.Invoke((MethodInvoker)delegate
-                                {
-                                    Trck.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
+                                    Debug.PrintToConsole("ok", "Added TrackThreadStatus control for MIDI.");
+                                    ThreadsPanel.Controls.Add(Trck);
                                 });
 
-                                Thread.Sleep(200);
+                                ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
+                                ISampleWriter Writer;
+                                WaveWriter SDestination = null;
+                                FileStream SFOpen = null;
+                                if (Properties.Settings.Default.PerTrackSeparateFiles)
+                                {
+                                    // Check if we need to export each track to a file
+                                    String Folder = OPath;
+                                    if (Properties.Settings.Default.PerTrackSeparateFiles)
+                                    {
+                                        // We do, create folder
+                                        Folder += String.Format("\\{0}\\", Path.GetFileNameWithoutExtension(MFile.Name));
+
+                                        if (!Directory.Exists(Folder))
+                                            Directory.CreateDirectory(Folder);
+                                    }
+                                    else Folder += " ";
+
+                                    // Prepare the filename
+                                    String SOutputDir = String.Format("{0}Track {1}.{2}",
+                                        Folder, T, Properties.Settings.Default.Codec);
+
+                                    // Check if file already exists
+                                    if (File.Exists(SOutputDir))
+                                        SOutputDir = String.Format("{0}Track {1} - {2}.{3}",
+                                            Folder, T, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), Properties.Settings.Default.Codec);
+
+                                    Debug.PrintToConsole("ok", String.Format("{0} - Output file: {1}", T, SOutputDir));
+
+                                    SFOpen = File.Open(SOutputDir, FileMode.Create);
+                                    SDestination = new WaveWriter(SFOpen, WF);
+                                    Writer = new WaveSampleWriter(SDestination);
+                                }
+                                else Writer = MSM.GetWriter();
+
+                                Task ConvThread = Task.Run(() =>
+                                {
+                                    Worker.Convert(Writer, WF, false, CTS.Token);
+                                });
+
+                                while (!ConvThread.IsCompleted)
+                                {
+                                    if (StopRequested)
+                                        break;
+
+                                    Trck.Invoke((MethodInvoker)delegate
+                                    {
+                                        Trck.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
+                                    });
+
+                                    Thread.Sleep(10);
+                                }
+
+                                ConvThread.Wait();
+
+                                if (SDestination != null) SDestination.Dispose();
+                                if (SFOpen != null) SFOpen.Dispose();
+
+                                ThreadsPanel.Invoke((MethodInvoker)delegate
+                                {
+                                    Debug.PrintToConsole("ok", String.Format("{0} - Removed TrackThreadStatus control for MIDI.", T));
+                                    ThreadsPanel.Controls.Remove(Trck);
+                                });
+
+                                if (!StopRequested) MDV.AddTrack();
                             }
-
-                            ConvThread.Wait();
-
-                            if (SDestination != null) SDestination.Dispose();
-                            if (SFOpen != null) SFOpen.Dispose();
-
-                            ThreadsPanel.Invoke((MethodInvoker)delegate
-                            {
-                                Debug.PrintToConsole("ok", String.Format("{0} - Removed TrackThreadStatus control for MIDI.", T));
-                                ThreadsPanel.Controls.Remove(Trck);
-                            });
-
-                            if (!StopRequested) MDV.AddTrack();
-
-                            PO.CancellationToken.ThrowIfCancellationRequested();
                         });
                     }
                     catch (OperationCanceledException) { }
@@ -587,12 +584,12 @@ namespace OmniConverter
                 Form.Invoke((MethodInvoker)delegate { ((Form)Form).Close(); });
         }
 
-        static void ParallelFor(int from, int to, int threads, CancellationToken cancel, Action<int> func)
+        static void ParallelFor(Int64 from, Int64 to, int threads, CancellationToken cancel, Action<Int64> func)
         {
-            Dictionary<int, Task> tasks = new Dictionary<int, Task>();
-            BlockingCollection<int> completed = new BlockingCollection<int>();
+            Dictionary<Int64, Task> tasks = new Dictionary<Int64, Task>();
+            BlockingCollection<Int64> completed = new BlockingCollection<Int64>();
 
-            void RunTask(int i)
+            void RunTask(Int64 i)
             {
                 var t = new Task(() =>
                 {
@@ -614,7 +611,7 @@ namespace OmniConverter
                 tasks.Remove(t);
             }
 
-            for (int i = from; i < to; i++)
+            for (Int64 i = from; i < to; i++)
             {
                 RunTask(i);
                 if (tasks.Count > threads) TryTake();

@@ -5,7 +5,7 @@ namespace OmniConverter
 {
     public partial class TrackThreadStatus : UserControl
     {
-        public TrackThreadStatus(Int32 Track)
+        public TrackThreadStatus(Int64 Track)
         {
             InitializeComponent();
 

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Un4seen.Bass;
+using Un4seen.Bass.AddOn.Vst;
 using Un4seen.Bass.AddOn.Midi;
 
 // Written with help from Arduano
@@ -135,6 +136,14 @@ namespace OmniConverter
             BassMidi.BASS_MIDI_StreamSetFonts(Handle, Program.SFArray.BMFEArray.ToArray(), Program.SFArray.BMFEArray.Count);
             BassMidi.BASS_MIDI_StreamLoadSamples(Handle);
             Debug.PrintToConsole("ok", String.Format("{0} - Loaded {1} SoundFonts.", UniqueID, Program.SFArray.BMFEArray.Count));
+        }
+
+        private void SetVSTs()
+        {
+            foreach (VST iVST in Program.VSTArray)
+            {
+                //
+            }
         }
 
         public unsafe int Read(float[] buffer, int offset, int count)

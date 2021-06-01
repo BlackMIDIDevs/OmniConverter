@@ -29,6 +29,7 @@ namespace OmniConverter
         public static readonly Color Error = Color.DarkRed;
 
         public static List<MIDI> MIDIList = new List<MIDI>();
+        public static List<VST> VSTArray = new List<VST>();
         public static SoundFonts SFArray = new SoundFonts();
 
         /// <summary>
