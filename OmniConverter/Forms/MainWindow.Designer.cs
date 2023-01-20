@@ -358,6 +358,7 @@
             // 
             // MIDIQueue
             // 
+            this.MIDIQueue.AllowDrop = true;
             this.MIDIQueue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -372,6 +373,8 @@
             this.MIDIQueue.TabIndex = 1;
             this.MIDIQueue.SelectedIndexChanged += new System.EventHandler(this.MIDIQueue_SelectedIndexChanged);
             this.MIDIQueue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MIDIQueue_KeyDown);
+            this.MIDIQueue.DragEnter += new System.Windows.Forms.DragEventHandler(this.MIDIQueue_DragEnter);
+            this.MIDIQueue.DragDrop += new System.Windows.Forms.DragEventHandler(this.MIDIQueue_DragDrop);
             // 
             // OCContextMenu
             // 
