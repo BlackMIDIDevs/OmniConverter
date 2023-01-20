@@ -151,6 +151,7 @@ namespace OmniConverter
             foreach (MIDI Item in MIDIQueue.SelectedItems)
             {
                 Program.MIDIList.Remove(Item);
+                Item.Dispose();
                 Debug.PrintToConsole("ok", String.Format("Removed {0} from list.", Item.Name));
             }
 
@@ -160,6 +161,7 @@ namespace OmniConverter
 
         private void ClearQueue_Click(object sender, EventArgs e)
         {
+            Program.MIDIList.ForEach(x => x.Dispose());
             Program.MIDIList = new List<MIDI>();
             RebindList();
             GetSelectedMIDIInfo();
