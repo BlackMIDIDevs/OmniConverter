@@ -31,7 +31,7 @@ namespace OmniConverter
             LoadedFile.GetTrack((Int32)track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<MIDIEvent> GetFullMIDITimeBased() =>
-            LoadedFile.IterateTracks().MergeAll().MakeTimeBased(LoadedFile.PPQ);
+            LoadedFile.IterateTracks().MergeAllTracks().MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<IEnumerable<MIDIEvent>> GetIterateTracksTimeBased() =>
             LoadedFile.IterateTracks().Select(track => track.MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ));

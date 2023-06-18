@@ -452,8 +452,21 @@ namespace OmniConverter
 
                             if (MFile.NoteCount > 0)
                             {
+<<<<<<< HEAD
                                 ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
                                 ISampleWriter Writer = null;
+=======
+                                TrackThreadStatus Trck = new TrackThreadStatus(T);
+                                Trck.Dock = DockStyle.Top;
+                                ThreadsPanel.Invoke((MethodInvoker)delegate
+                                {
+                                    Debug.PrintToConsole("ok", "Added TrackThreadStatus control for MIDI.");
+                                    ThreadsPanel.Controls.Add(Trck);
+                                });
+
+                                ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased((int)T), MFile.TimeLength.TotalSeconds);
+                                ISampleWriter Writer;
+>>>>>>> 99a3c1463ce412bac10c88320aa4312f1ea65014
                                 WaveWriter SDestination = null;
                                 FileStream SFOpen = null;
 

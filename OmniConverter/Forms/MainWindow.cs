@@ -132,6 +132,7 @@ namespace OmniConverter
             foreach (MIDI Item in MIDIQueue.SelectedItems)
             {
                 Program.MIDIList.Remove(Item);
+                Item.Dispose();
                 Debug.PrintToConsole("ok", String.Format("Removed {0} from list.", Item.Name));
             }
 
@@ -250,6 +251,20 @@ namespace OmniConverter
         {
             if (e.KeyCode == Keys.Delete)
                 RemoveMIDIsFromQueue_Click(null, null);
+        }
+
+        private void MIDIQueue_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        }
+
+        private void MIDIQueue_DragDrop(object sender, DragEventArgs e)
+        {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            new MIDIImporter(files, false).ShowDialog();
+
+            RebindList();
+            GetSelectedMIDIInfo();
         }
 
         private void COS_Click(object sender, EventArgs e)
