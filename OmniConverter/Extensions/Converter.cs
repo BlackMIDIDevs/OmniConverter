@@ -449,7 +449,7 @@ namespace OmniConverter
                                     ThreadsPanel.Controls.Add(Trck);
                                 });
 
-                                ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
+                                ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased((int)T), MFile.TimeLength.TotalSeconds);
                                 ISampleWriter Writer;
                                 WaveWriter SDestination = null;
                                 FileStream SFOpen = null;

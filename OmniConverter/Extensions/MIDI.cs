@@ -27,11 +27,11 @@ namespace OmniConverter
             MetaEvents = ME;
         }
 
-        public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(Int64 track) =>
+        public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(int track) =>
             LoadedFile.GetTrack(track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<MIDIEvent> GetFullMIDITimeBased() =>
-            LoadedFile.IterateTracks().MergeAll().MakeTimeBased(LoadedFile.PPQ);
+            LoadedFile.IterateTracks().MergeAllTracks().MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<IEnumerable<MIDIEvent>> GetIterateTracksTimeBased() =>
             LoadedFile.IterateTracks().Select(track => track.MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ));
@@ -106,7 +106,7 @@ namespace OmniConverter
                 }
             });
 
-            var mergedMetaEvents = midiMetaEvents.MergeAll().ToArray();
+            var mergedMetaEvents = midiMetaEvents.MergeAllTracks().ToArray();
 
             // get midi length in seconds
             var mergedWithLength = mergedMetaEvents.MergeWith(new[] { new EndOfExclusiveEvent(maxTicks) });
