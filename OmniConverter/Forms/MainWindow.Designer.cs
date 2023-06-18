@@ -350,7 +350,7 @@
             // 
             // MIDIQueue
             // 
-<<<<<<< HEAD
+            MIDIQueue.AllowDrop = true;
             MIDIQueue.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             MIDIQueue.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             MIDIQueue.FormattingEnabled = true;
@@ -365,25 +365,6 @@
             MIDIQueue.DragDrop += MIDIQueue_DragDrop;
             MIDIQueue.DragEnter += MIDIQueue_DragEnter;
             MIDIQueue.KeyDown += MIDIQueue_KeyDown;
-=======
-            this.MIDIQueue.AllowDrop = true;
-            this.MIDIQueue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.MIDIQueue.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MIDIQueue.FormattingEnabled = true;
-            this.MIDIQueue.IntegralHeight = false;
-            this.MIDIQueue.ItemHeight = 15;
-            this.MIDIQueue.Location = new System.Drawing.Point(12, 12);
-            this.MIDIQueue.Name = "MIDIQueue";
-            this.MIDIQueue.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.MIDIQueue.Size = new System.Drawing.Size(760, 376);
-            this.MIDIQueue.TabIndex = 1;
-            this.MIDIQueue.SelectedIndexChanged += new System.EventHandler(this.MIDIQueue_SelectedIndexChanged);
-            this.MIDIQueue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MIDIQueue_KeyDown);
-            this.MIDIQueue.DragEnter += new System.Windows.Forms.DragEventHandler(this.MIDIQueue_DragEnter);
-            this.MIDIQueue.DragDrop += new System.Windows.Forms.DragEventHandler(this.MIDIQueue_DragDrop);
->>>>>>> 99a3c1463ce412bac10c88320aa4312f1ea65014
             // 
             // OCContextMenu
             // 

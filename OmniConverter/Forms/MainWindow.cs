@@ -289,19 +289,5 @@ namespace OmniConverter
         {
             UpdateSystem.CheckForUpdates((Control.ModifierKeys == Keys.Shift), false, false);
         }
-
-        private void MIDIQueue_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
-        }
-
-        private void MIDIQueue_DragDrop(object sender, DragEventArgs e)
-        {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            new MIDIImporter(files, false).ShowDialog();
-
-            RebindList();
-            GetSelectedMIDIInfo();
-        }
     }
 }

@@ -452,10 +452,6 @@ namespace OmniConverter
 
                             if (MFile.NoteCount > 0)
                             {
-<<<<<<< HEAD
-                                ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
-                                ISampleWriter Writer = null;
-=======
                                 TrackThreadStatus Trck = new TrackThreadStatus(T);
                                 Trck.Dock = DockStyle.Top;
                                 ThreadsPanel.Invoke((MethodInvoker)delegate
@@ -466,7 +462,6 @@ namespace OmniConverter
 
                                 ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased((int)T), MFile.TimeLength.TotalSeconds);
                                 ISampleWriter Writer;
->>>>>>> 99a3c1463ce412bac10c88320aa4312f1ea65014
                                 WaveWriter SDestination = null;
                                 FileStream SFOpen = null;
 
@@ -501,14 +496,6 @@ namespace OmniConverter
                                 }
                                 else Writer = MSM.GetWriter();
 
-                                MIDIThreadStatus MIDIT = new MIDIThreadStatus($"Track {t++}");
-                                MIDIT.Dock = DockStyle.Top;
-                                ThreadsPanel.Invoke((MethodInvoker)delegate
-                                {
-                                    Debug.PrintToConsole("ok", "Added MIDIThreadStatus control for MIDI.");
-                                    ThreadsPanel.Controls.Add(MIDIT);
-                                });
-
                                 var ConvThread = Task.Run(() =>
                                 {
                                     Worker.Convert(Writer, WF, false, CTS.Token);
@@ -519,9 +506,9 @@ namespace OmniConverter
                                     if (StopRequested)
                                         break;
 
-                                    MIDIT.Invoke((MethodInvoker)delegate
+                                    Trck.Invoke((MethodInvoker)delegate
                                     {
-                                        MIDIT.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
+                                        Trck.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
                                     });
 
                                     Thread.Sleep(1);
@@ -539,8 +526,8 @@ namespace OmniConverter
 
                                 ThreadsPanel.Invoke((MethodInvoker)delegate
                                 {
-                                    Debug.PrintToConsole("ok", "Removed MIDIThreadStatus control for MIDI.");
-                                    ThreadsPanel.Controls.Remove(MIDIT);
+                                    Debug.PrintToConsole("ok", "Removed TrackThreadStatus control for MIDI.");
+                                    ThreadsPanel.Controls.Remove(Trck);
                                 });
 
                                 if (SDestination != null) SDestination.Dispose();

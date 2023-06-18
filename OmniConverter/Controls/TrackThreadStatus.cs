@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace OmniConverter
 {
@@ -7,9 +8,11 @@ namespace OmniConverter
     {
         private bool IsInUse = false;
 
-        public TrackThreadStatus()
+        public TrackThreadStatus(Int64 Track)
         {
             InitializeComponent();
+
+            Trck.Text = String.Format("Track {0}", Track);
         }
 
         public void UpdatePB(Int32 PBV)
@@ -18,12 +21,6 @@ namespace OmniConverter
         }
 
         public bool IsFree() { return !IsInUse; }
-
-        public void Use(Int32 Track) 
-        { 
-            IsInUse = true;
-            Trck.Text = String.Format("Track {0}", Track);
-        }
 
         public void Done() { IsInUse = false; }
     }

@@ -5,6 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <OutputPath>bin\x64\Debug\</OutputPath>
@@ -23,33 +24,30 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyTitle>OmniConverter</AssemblyTitle>
     <Description>MIDI converter for Windows 7 and newer</Description>
-    <Company>Keppy%27s Software</Company>
+    <Company>Keppy's Software</Company>
     <Product>OmniConverter</Product>
-    <Copyright>Copyright Ⓒ 2020 Keppy%27s Software</Copyright>
+    <Copyright>Copyright Ⓒ 2023 Keppy's Software</Copyright>
     <AssemblyVersion>0.0.3.0</AssemblyVersion>
     <FileVersion>0.0.3.0</FileVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Version>0.0.5</Version>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Optimize>True</Optimize>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
       <HintPath>.\Bass.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Windows7ProgressBar">
-      <HintPath>Windows7ProgressBar.dll</HintPath>
-    </Reference>
-<<<<<<< HEAD
-    <Reference Update="System">
-=======
     <Reference Include="CSCore">
       <HintPath>..\libs\CSCore.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Windows7ProgressBar">
+      <HintPath>Windows7ProgressBar.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -60,7 +58,6 @@
       <HintPath>..\packages\Octokit.0.36.0\lib\net46\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="System">
->>>>>>> 99a3c1463ce412bac10c88320aa4312f1ea65014
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
     </Reference>
   </ItemGroup>

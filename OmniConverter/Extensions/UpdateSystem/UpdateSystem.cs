@@ -158,7 +158,7 @@ namespace OmniConverter
             {
                 try
                 {
-                    Octokit.Release Release = UpdateClient.Repository.Release.GetLatest("KeppySoftware", "OmniConverter").Result;
+                    Octokit.Release Release = UpdateClient.Repository.Release.GetAll("KaleidonKep99", "OmniConverter").Result[0];
 
                     Version DriverOnline = null;
                     Version.TryParse(Release.TagName, out DriverOnline);
