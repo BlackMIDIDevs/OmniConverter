@@ -28,402 +28,399 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.OCMenuIcons = new wyDay.Controls.VistaMenu(this.components);
-            this.OCMenu = new System.Windows.Forms.MainMenu(this.components);
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
-            this.AddMIDIsToQueue = new System.Windows.Forms.MenuItem();
-            this.RemoveMIDIsFromQueue = new System.Windows.Forms.MenuItem();
-            this.ClearQueue = new System.Windows.Forms.MenuItem();
-            this.menuItem5 = new System.Windows.Forms.MenuItem();
-            this.ExitFromConverter = new System.Windows.Forms.MenuItem();
-            this.menuItem7 = new System.Windows.Forms.MenuItem();
-            this.InfoAboutConverter = new System.Windows.Forms.MenuItem();
-            this.CreateIssueGitHub = new System.Windows.Forms.MenuItem();
-            this.menuItem4 = new System.Windows.Forms.MenuItem();
-            this.CheckForUpdates = new System.Windows.Forms.MenuItem();
-            this.menuItem9 = new System.Windows.Forms.MenuItem();
-            this.DownloadConvSrc = new System.Windows.Forms.MenuItem();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.TMIDIs = new System.Windows.Forms.Label();
-            this.FNVal = new System.Windows.Forms.RichTextBox();
-            this.CMIDIs = new System.Windows.Forms.Button();
-            this.FPVal = new System.Windows.Forms.RichTextBox();
-            this.COS = new System.Windows.Forms.Button();
-            this.TLVal = new System.Windows.Forms.Label();
-            this.ESFL = new System.Windows.Forms.Button();
-            this.TLLab = new System.Windows.Forms.Label();
-            this.SVal = new System.Windows.Forms.Label();
-            this.SLab = new System.Windows.Forms.Label();
-            this.TVal = new System.Windows.Forms.Label();
-            this.TLab = new System.Windows.Forms.Label();
-            this.NCVal = new System.Windows.Forms.Label();
-            this.NCLab = new System.Windows.Forms.Label();
-            this.FPLab = new System.Windows.Forms.Label();
-            this.FNLab = new System.Windows.Forms.Label();
-            this.MIDIQueue = new System.Windows.Forms.ListBox();
-            this.OCContextMenu = new System.Windows.Forms.ContextMenu();
-            this.AddMIDIsToQueueRC = new System.Windows.Forms.MenuItem();
-            this.RemoveMIDIsFromQueueRC = new System.Windows.Forms.MenuItem();
-            this.ClearQueueRC = new System.Windows.Forms.MenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.OCMenuIcons)).BeginInit();
-            this.groupBox1.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // OCMenuIcons
-            // 
-            this.OCMenuIcons.ContainerControl = this;
+            OCMenu = new System.Windows.Forms.MenuStrip();
+            menuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            AddMIDIsToQueue = new System.Windows.Forms.ToolStripMenuItem();
+            RemoveMIDIsFromQueue = new System.Windows.Forms.ToolStripMenuItem();
+            ClearQueue = new System.Windows.Forms.ToolStripMenuItem();
+            toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            ExitFromConverter = new System.Windows.Forms.ToolStripMenuItem();
+            menuItem7 = new System.Windows.Forms.ToolStripMenuItem();
+            InfoAboutConverter = new System.Windows.Forms.ToolStripMenuItem();
+            toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            CreateIssueGitHub = new System.Windows.Forms.ToolStripMenuItem();
+            CheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
+            toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            DownloadConvSrc = new System.Windows.Forms.ToolStripMenuItem();
+            groupBox1 = new System.Windows.Forms.GroupBox();
+            TMIDIs = new System.Windows.Forms.Label();
+            FNVal = new System.Windows.Forms.RichTextBox();
+            CMIDIs = new System.Windows.Forms.Button();
+            FPVal = new System.Windows.Forms.RichTextBox();
+            COS = new System.Windows.Forms.Button();
+            TLVal = new System.Windows.Forms.Label();
+            ESFL = new System.Windows.Forms.Button();
+            TLLab = new System.Windows.Forms.Label();
+            SVal = new System.Windows.Forms.Label();
+            SLab = new System.Windows.Forms.Label();
+            TVal = new System.Windows.Forms.Label();
+            TLab = new System.Windows.Forms.Label();
+            NCVal = new System.Windows.Forms.Label();
+            NCLab = new System.Windows.Forms.Label();
+            FPLab = new System.Windows.Forms.Label();
+            FNLab = new System.Windows.Forms.Label();
+            MIDIQueue = new System.Windows.Forms.ListBox();
+            OCContextMenu = new System.Windows.Forms.ContextMenuStrip(components);
+            AddMIDIsToQueueRC = new System.Windows.Forms.ToolStripMenuItem();
+            RemoveMIDIsFromQueueRC = new System.Windows.Forms.ToolStripMenuItem();
+            ClearQueueRC = new System.Windows.Forms.ToolStripMenuItem();
+            OCMenu.SuspendLayout();
+            groupBox1.SuspendLayout();
+            OCContextMenu.SuspendLayout();
+            SuspendLayout();
             // 
             // OCMenu
             // 
-            this.OCMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem1,
-            this.menuItem7});
+            OCMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { menuItem1, menuItem7 });
+            OCMenu.Location = new System.Drawing.Point(0, 0);
+            OCMenu.Name = "OCMenu";
+            OCMenu.Size = new System.Drawing.Size(784, 24);
+            OCMenu.TabIndex = 2;
             // 
             // menuItem1
             // 
-            this.menuItem1.Index = 0;
-            this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.AddMIDIsToQueue,
-            this.RemoveMIDIsFromQueue,
-            this.ClearQueue,
-            this.menuItem5,
-            this.ExitFromConverter});
-            this.menuItem1.Text = "File";
+            menuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { AddMIDIsToQueue, RemoveMIDIsFromQueue, ClearQueue, toolStripMenuItem1, ExitFromConverter });
+            menuItem1.Name = "menuItem1";
+            menuItem1.Size = new System.Drawing.Size(37, 20);
+            menuItem1.Text = "File";
             // 
             // AddMIDIsToQueue
             // 
-            this.AddMIDIsToQueue.Index = 0;
-            this.AddMIDIsToQueue.Text = "Add MIDIs to the queue";
-            this.AddMIDIsToQueue.Click += new System.EventHandler(this.AddMIDIsToQueue_Click);
+            AddMIDIsToQueue.Name = "AddMIDIsToQueue";
+            AddMIDIsToQueue.Size = new System.Drawing.Size(235, 22);
+            AddMIDIsToQueue.Text = "Add MIDIs to the queue";
+            AddMIDIsToQueue.Click += AddMIDIsToQueue_Click;
             // 
             // RemoveMIDIsFromQueue
             // 
-            this.RemoveMIDIsFromQueue.Index = 1;
-            this.RemoveMIDIsFromQueue.Text = "Remove MIDIs from the queue";
-            this.RemoveMIDIsFromQueue.Click += new System.EventHandler(this.RemoveMIDIsFromQueue_Click);
+            RemoveMIDIsFromQueue.Name = "RemoveMIDIsFromQueue";
+            RemoveMIDIsFromQueue.Size = new System.Drawing.Size(235, 22);
+            RemoveMIDIsFromQueue.Text = "Remove MIDIs from the queue";
+            RemoveMIDIsFromQueue.Click += RemoveMIDIsFromQueue_Click;
             // 
             // ClearQueue
             // 
-            this.ClearQueue.Index = 2;
-            this.ClearQueue.Text = "Clear queue";
-            this.ClearQueue.Click += new System.EventHandler(this.ClearQueue_Click);
+            ClearQueue.Name = "ClearQueue";
+            ClearQueue.Size = new System.Drawing.Size(235, 22);
+            ClearQueue.Text = "Clear queue";
+            ClearQueue.Click += ClearQueue_Click;
             // 
-            // menuItem5
+            // toolStripMenuItem1
             // 
-            this.menuItem5.Index = 3;
-            this.menuItem5.Text = "-";
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new System.Drawing.Size(232, 6);
             // 
             // ExitFromConverter
             // 
-            this.ExitFromConverter.Index = 4;
-            this.ExitFromConverter.Text = "Exit";
-            this.ExitFromConverter.Click += new System.EventHandler(this.ExitFromConverter_Click);
+            ExitFromConverter.Name = "ExitFromConverter";
+            ExitFromConverter.Size = new System.Drawing.Size(235, 22);
+            ExitFromConverter.Text = "Exit";
+            ExitFromConverter.Click += ExitFromConverter_Click;
             // 
             // menuItem7
             // 
-            this.menuItem7.Index = 1;
-            this.menuItem7.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.InfoAboutConverter,
-            this.CreateIssueGitHub,
-            this.menuItem4,
-            this.CheckForUpdates,
-            this.menuItem9,
-            this.DownloadConvSrc});
-            this.menuItem7.Text = "?";
+            menuItem7.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { InfoAboutConverter, toolStripMenuItem3, CreateIssueGitHub, CheckForUpdates, toolStripMenuItem2, DownloadConvSrc });
+            menuItem7.Name = "menuItem7";
+            menuItem7.Size = new System.Drawing.Size(24, 20);
+            menuItem7.Text = "?";
             // 
             // InfoAboutConverter
             // 
-            this.InfoAboutConverter.Index = 0;
-            this.InfoAboutConverter.Text = "Information about the converter";
-            this.InfoAboutConverter.Click += new System.EventHandler(this.InfoAboutConverter_Click);
+            InfoAboutConverter.Name = "InfoAboutConverter";
+            InfoAboutConverter.Size = new System.Drawing.Size(276, 22);
+            InfoAboutConverter.Text = "Information about the converter";
+            InfoAboutConverter.Click += InfoAboutConverter_Click;
+            // 
+            // toolStripMenuItem3
+            // 
+            toolStripMenuItem3.Name = "toolStripMenuItem3";
+            toolStripMenuItem3.Size = new System.Drawing.Size(273, 6);
             // 
             // CreateIssueGitHub
             // 
-            this.CreateIssueGitHub.Index = 1;
-            this.CreateIssueGitHub.Text = "Create an issue on GitHub";
-            // 
-            // menuItem4
-            // 
-            this.menuItem4.Index = 2;
-            this.menuItem4.Text = "-";
+            CreateIssueGitHub.Name = "CreateIssueGitHub";
+            CreateIssueGitHub.Size = new System.Drawing.Size(276, 22);
+            CreateIssueGitHub.Text = "Create an issue on GitHub";
             // 
             // CheckForUpdates
             // 
-            this.CheckForUpdates.Index = 3;
-            this.CheckForUpdates.Text = "Check for updates";
-            this.CheckForUpdates.Click += new System.EventHandler(this.CheckForUpdates_Click);
+            CheckForUpdates.Name = "CheckForUpdates";
+            CheckForUpdates.Size = new System.Drawing.Size(276, 22);
+            CheckForUpdates.Text = "Check for updates";
+            CheckForUpdates.Click += CheckForUpdates_Click;
             // 
-            // menuItem9
+            // toolStripMenuItem2
             // 
-            this.menuItem9.Index = 4;
-            this.menuItem9.Text = "-";
+            toolStripMenuItem2.Name = "toolStripMenuItem2";
+            toolStripMenuItem2.Size = new System.Drawing.Size(273, 6);
             // 
             // DownloadConvSrc
             // 
-            this.DownloadConvSrc.Index = 5;
-            this.DownloadConvSrc.Text = "Download the converter\'s source code";
+            DownloadConvSrc.Name = "DownloadConvSrc";
+            DownloadConvSrc.Size = new System.Drawing.Size(276, 22);
+            DownloadConvSrc.Text = "Download the converter's source code";
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.TMIDIs);
-            this.groupBox1.Controls.Add(this.FNVal);
-            this.groupBox1.Controls.Add(this.CMIDIs);
-            this.groupBox1.Controls.Add(this.FPVal);
-            this.groupBox1.Controls.Add(this.COS);
-            this.groupBox1.Controls.Add(this.TLVal);
-            this.groupBox1.Controls.Add(this.ESFL);
-            this.groupBox1.Controls.Add(this.TLLab);
-            this.groupBox1.Controls.Add(this.SVal);
-            this.groupBox1.Controls.Add(this.SLab);
-            this.groupBox1.Controls.Add(this.TVal);
-            this.groupBox1.Controls.Add(this.TLab);
-            this.groupBox1.Controls.Add(this.NCVal);
-            this.groupBox1.Controls.Add(this.NCLab);
-            this.groupBox1.Controls.Add(this.FPLab);
-            this.groupBox1.Controls.Add(this.FNLab);
-            this.groupBox1.Location = new System.Drawing.Point(12, 394);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(760, 134);
-            this.groupBox1.TabIndex = 1;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Information";
+            groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            groupBox1.Controls.Add(TMIDIs);
+            groupBox1.Controls.Add(FNVal);
+            groupBox1.Controls.Add(CMIDIs);
+            groupBox1.Controls.Add(FPVal);
+            groupBox1.Controls.Add(COS);
+            groupBox1.Controls.Add(TLVal);
+            groupBox1.Controls.Add(ESFL);
+            groupBox1.Controls.Add(TLLab);
+            groupBox1.Controls.Add(SVal);
+            groupBox1.Controls.Add(SLab);
+            groupBox1.Controls.Add(TVal);
+            groupBox1.Controls.Add(TLab);
+            groupBox1.Controls.Add(NCVal);
+            groupBox1.Controls.Add(NCLab);
+            groupBox1.Controls.Add(FPLab);
+            groupBox1.Controls.Add(FNLab);
+            groupBox1.Location = new System.Drawing.Point(12, 394);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new System.Drawing.Size(760, 134);
+            groupBox1.TabIndex = 1;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Information";
             // 
             // TMIDIs
             // 
-            this.TMIDIs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.TMIDIs.Location = new System.Drawing.Point(595, 60);
-            this.TMIDIs.Name = "TMIDIs";
-            this.TMIDIs.Size = new System.Drawing.Size(160, 19);
-            this.TMIDIs.TabIndex = 7;
-            this.TMIDIs.Text = "Total MIDIs: 0";
-            this.TMIDIs.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            TMIDIs.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            TMIDIs.Location = new System.Drawing.Point(595, 60);
+            TMIDIs.Name = "TMIDIs";
+            TMIDIs.Size = new System.Drawing.Size(160, 19);
+            TMIDIs.TabIndex = 7;
+            TMIDIs.Text = "Total MIDIs: 0";
+            TMIDIs.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // FNVal
             // 
-            this.FNVal.BackColor = System.Drawing.SystemColors.Control;
-            this.FNVal.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.FNVal.Location = new System.Drawing.Point(85, 19);
-            this.FNVal.Multiline = false;
-            this.FNVal.Name = "FNVal";
-            this.FNVal.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.FNVal.Size = new System.Drawing.Size(503, 15);
-            this.FNVal.TabIndex = 2;
-            this.FNVal.TabStop = false;
-            this.FNVal.Text = "No MIDI selected";
+            FNVal.BackColor = System.Drawing.SystemColors.Control;
+            FNVal.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            FNVal.Location = new System.Drawing.Point(85, 19);
+            FNVal.Multiline = false;
+            FNVal.Name = "FNVal";
+            FNVal.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            FNVal.Size = new System.Drawing.Size(503, 15);
+            FNVal.TabIndex = 2;
+            FNVal.TabStop = false;
+            FNVal.Text = "No MIDI selected";
             // 
             // CMIDIs
             // 
-            this.CMIDIs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.CMIDIs.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CMIDIs.Location = new System.Drawing.Point(595, 15);
-            this.CMIDIs.Name = "CMIDIs";
-            this.CMIDIs.Size = new System.Drawing.Size(160, 23);
-            this.CMIDIs.TabIndex = 4;
-            this.CMIDIs.Text = "Convert MIDIs";
-            this.CMIDIs.UseVisualStyleBackColor = true;
-            this.CMIDIs.Click += new System.EventHandler(this.CMIDIs_Click);
+            CMIDIs.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            CMIDIs.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            CMIDIs.Location = new System.Drawing.Point(595, 15);
+            CMIDIs.Name = "CMIDIs";
+            CMIDIs.Size = new System.Drawing.Size(160, 23);
+            CMIDIs.TabIndex = 4;
+            CMIDIs.Text = "Convert MIDIs";
+            CMIDIs.UseVisualStyleBackColor = true;
+            CMIDIs.Click += CMIDIs_Click;
             // 
             // FPVal
             // 
-            this.FPVal.BackColor = System.Drawing.SystemColors.Control;
-            this.FPVal.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.FPVal.Location = new System.Drawing.Point(85, 37);
-            this.FPVal.Multiline = false;
-            this.FPVal.Name = "FPVal";
-            this.FPVal.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.FPVal.Size = new System.Drawing.Size(503, 15);
-            this.FPVal.TabIndex = 3;
-            this.FPVal.TabStop = false;
-            this.FPVal.Text = "No MIDI selected";
+            FPVal.BackColor = System.Drawing.SystemColors.Control;
+            FPVal.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            FPVal.Location = new System.Drawing.Point(85, 37);
+            FPVal.Multiline = false;
+            FPVal.Name = "FPVal";
+            FPVal.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            FPVal.Size = new System.Drawing.Size(503, 15);
+            FPVal.TabIndex = 3;
+            FPVal.TabStop = false;
+            FPVal.Text = "No MIDI selected";
             // 
             // COS
             // 
-            this.COS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.COS.Location = new System.Drawing.Point(595, 82);
-            this.COS.Name = "COS";
-            this.COS.Size = new System.Drawing.Size(160, 23);
-            this.COS.TabIndex = 6;
-            this.COS.Text = "Change output settings";
-            this.COS.UseVisualStyleBackColor = true;
-            this.COS.Click += new System.EventHandler(this.COS_Click);
+            COS.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            COS.Location = new System.Drawing.Point(595, 82);
+            COS.Name = "COS";
+            COS.Size = new System.Drawing.Size(160, 23);
+            COS.TabIndex = 6;
+            COS.Text = "Change output settings";
+            COS.UseVisualStyleBackColor = true;
+            COS.Click += COS_Click;
             // 
             // TLVal
             // 
-            this.TLVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TLVal.Location = new System.Drawing.Point(82, 55);
-            this.TLVal.Name = "TLVal";
-            this.TLVal.Size = new System.Drawing.Size(506, 15);
-            this.TLVal.TabIndex = 11;
-            this.TLVal.Text = "0:00.000";
+            TLVal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            TLVal.Location = new System.Drawing.Point(82, 55);
+            TLVal.Name = "TLVal";
+            TLVal.Size = new System.Drawing.Size(506, 15);
+            TLVal.TabIndex = 11;
+            TLVal.Text = "0:00.000";
             // 
             // ESFL
             // 
-            this.ESFL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ESFL.Location = new System.Drawing.Point(595, 105);
-            this.ESFL.Name = "ESFL";
-            this.ESFL.Size = new System.Drawing.Size(160, 23);
-            this.ESFL.TabIndex = 7;
-            this.ESFL.Text = "Edit SoundFonts list";
-            this.ESFL.UseVisualStyleBackColor = true;
-            this.ESFL.Click += new System.EventHandler(this.ESFL_Click);
+            ESFL.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            ESFL.Location = new System.Drawing.Point(595, 105);
+            ESFL.Name = "ESFL";
+            ESFL.Size = new System.Drawing.Size(160, 23);
+            ESFL.TabIndex = 7;
+            ESFL.Text = "Edit SoundFonts list";
+            ESFL.UseVisualStyleBackColor = true;
+            ESFL.Click += ESFL_Click;
             // 
             // TLLab
             // 
-            this.TLLab.AutoSize = true;
-            this.TLLab.Location = new System.Drawing.Point(6, 55);
-            this.TLLab.Name = "TLLab";
-            this.TLLab.Size = new System.Drawing.Size(47, 15);
-            this.TLLab.TabIndex = 10;
-            this.TLLab.Text = "Length:";
+            TLLab.AutoSize = true;
+            TLLab.Location = new System.Drawing.Point(6, 55);
+            TLLab.Name = "TLLab";
+            TLLab.Size = new System.Drawing.Size(47, 15);
+            TLLab.TabIndex = 10;
+            TLLab.Text = "Length:";
             // 
             // SVal
             // 
-            this.SVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.SVal.Location = new System.Drawing.Point(82, 109);
-            this.SVal.Name = "SVal";
-            this.SVal.Size = new System.Drawing.Size(506, 15);
-            this.SVal.TabIndex = 9;
-            this.SVal.Text = "0.00 B";
+            SVal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            SVal.Location = new System.Drawing.Point(82, 109);
+            SVal.Name = "SVal";
+            SVal.Size = new System.Drawing.Size(506, 15);
+            SVal.TabIndex = 9;
+            SVal.Text = "0.00 B";
             // 
             // SLab
             // 
-            this.SLab.AutoSize = true;
-            this.SLab.Location = new System.Drawing.Point(6, 109);
-            this.SLab.Name = "SLab";
-            this.SLab.Size = new System.Drawing.Size(30, 15);
-            this.SLab.TabIndex = 8;
-            this.SLab.Text = "Size:";
+            SLab.AutoSize = true;
+            SLab.Location = new System.Drawing.Point(6, 109);
+            SLab.Name = "SLab";
+            SLab.Size = new System.Drawing.Size(30, 15);
+            SLab.TabIndex = 8;
+            SLab.Text = "Size:";
             // 
             // TVal
             // 
-            this.TVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TVal.Location = new System.Drawing.Point(82, 73);
-            this.TVal.Name = "TVal";
-            this.TVal.Size = new System.Drawing.Size(506, 15);
-            this.TVal.TabIndex = 7;
-            this.TVal.Text = "0";
+            TVal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            TVal.Location = new System.Drawing.Point(82, 73);
+            TVal.Name = "TVal";
+            TVal.Size = new System.Drawing.Size(506, 15);
+            TVal.TabIndex = 7;
+            TVal.Text = "0";
             // 
             // TLab
             // 
-            this.TLab.AutoSize = true;
-            this.TLab.Location = new System.Drawing.Point(6, 73);
-            this.TLab.Name = "TLab";
-            this.TLab.Size = new System.Drawing.Size(42, 15);
-            this.TLab.TabIndex = 6;
-            this.TLab.Text = "Tracks:";
+            TLab.AutoSize = true;
+            TLab.Location = new System.Drawing.Point(6, 73);
+            TLab.Name = "TLab";
+            TLab.Size = new System.Drawing.Size(42, 15);
+            TLab.TabIndex = 6;
+            TLab.Text = "Tracks:";
             // 
             // NCVal
             // 
-            this.NCVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.NCVal.Location = new System.Drawing.Point(82, 91);
-            this.NCVal.Name = "NCVal";
-            this.NCVal.Size = new System.Drawing.Size(506, 15);
-            this.NCVal.TabIndex = 5;
-            this.NCVal.Text = "0";
+            NCVal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            NCVal.Location = new System.Drawing.Point(82, 91);
+            NCVal.Name = "NCVal";
+            NCVal.Size = new System.Drawing.Size(506, 15);
+            NCVal.TabIndex = 5;
+            NCVal.Text = "0";
             // 
             // NCLab
             // 
-            this.NCLab.AutoSize = true;
-            this.NCLab.Location = new System.Drawing.Point(6, 91);
-            this.NCLab.Name = "NCLab";
-            this.NCLab.Size = new System.Drawing.Size(70, 15);
-            this.NCLab.TabIndex = 4;
-            this.NCLab.Text = "Note count:";
+            NCLab.AutoSize = true;
+            NCLab.Location = new System.Drawing.Point(6, 91);
+            NCLab.Name = "NCLab";
+            NCLab.Size = new System.Drawing.Size(70, 15);
+            NCLab.TabIndex = 4;
+            NCLab.Text = "Note count:";
             // 
             // FPLab
             // 
-            this.FPLab.AutoSize = true;
-            this.FPLab.Location = new System.Drawing.Point(6, 37);
-            this.FPLab.Name = "FPLab";
-            this.FPLab.Size = new System.Drawing.Size(56, 15);
-            this.FPLab.TabIndex = 1;
-            this.FPLab.Text = "Full path:";
+            FPLab.AutoSize = true;
+            FPLab.Location = new System.Drawing.Point(6, 37);
+            FPLab.Name = "FPLab";
+            FPLab.Size = new System.Drawing.Size(56, 15);
+            FPLab.TabIndex = 1;
+            FPLab.Text = "Full path:";
             // 
             // FNLab
             // 
-            this.FNLab.AutoSize = true;
-            this.FNLab.Location = new System.Drawing.Point(6, 19);
-            this.FNLab.Name = "FNLab";
-            this.FNLab.Size = new System.Drawing.Size(58, 15);
-            this.FNLab.TabIndex = 0;
-            this.FNLab.Text = "Filename:";
+            FNLab.AutoSize = true;
+            FNLab.Location = new System.Drawing.Point(6, 19);
+            FNLab.Name = "FNLab";
+            FNLab.Size = new System.Drawing.Size(58, 15);
+            FNLab.TabIndex = 0;
+            FNLab.Text = "Filename:";
             // 
             // MIDIQueue
             // 
-            this.MIDIQueue.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.MIDIQueue.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MIDIQueue.FormattingEnabled = true;
-            this.MIDIQueue.IntegralHeight = false;
-            this.MIDIQueue.ItemHeight = 15;
-            this.MIDIQueue.Location = new System.Drawing.Point(12, 12);
-            this.MIDIQueue.Name = "MIDIQueue";
-            this.MIDIQueue.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.MIDIQueue.Size = new System.Drawing.Size(760, 376);
-            this.MIDIQueue.TabIndex = 1;
-            this.MIDIQueue.SelectedIndexChanged += new System.EventHandler(this.MIDIQueue_SelectedIndexChanged);
-            this.MIDIQueue.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MIDIQueue_KeyDown);
+            MIDIQueue.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            MIDIQueue.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            MIDIQueue.FormattingEnabled = true;
+            MIDIQueue.IntegralHeight = false;
+            MIDIQueue.ItemHeight = 15;
+            MIDIQueue.Location = new System.Drawing.Point(12, 27);
+            MIDIQueue.Name = "MIDIQueue";
+            MIDIQueue.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            MIDIQueue.Size = new System.Drawing.Size(760, 361);
+            MIDIQueue.TabIndex = 1;
+            MIDIQueue.SelectedIndexChanged += MIDIQueue_SelectedIndexChanged;
+            MIDIQueue.DragDrop += MIDIQueue_DragDrop;
+            MIDIQueue.DragEnter += MIDIQueue_DragEnter;
+            MIDIQueue.KeyDown += MIDIQueue_KeyDown;
             // 
             // OCContextMenu
             // 
-            this.OCContextMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.AddMIDIsToQueueRC,
-            this.RemoveMIDIsFromQueueRC,
-            this.ClearQueueRC});
+            OCContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { AddMIDIsToQueueRC, RemoveMIDIsFromQueueRC, ClearQueueRC });
+            OCContextMenu.Name = "OCContextMenu";
+            OCContextMenu.Size = new System.Drawing.Size(236, 70);
             // 
             // AddMIDIsToQueueRC
             // 
-            this.AddMIDIsToQueueRC.Index = 0;
-            this.AddMIDIsToQueueRC.Text = "Add MIDIs to the queue";
-            this.AddMIDIsToQueueRC.Click += new System.EventHandler(this.AddMIDIsToQueue_Click);
+            AddMIDIsToQueueRC.Name = "AddMIDIsToQueueRC";
+            AddMIDIsToQueueRC.Size = new System.Drawing.Size(235, 22);
+            AddMIDIsToQueueRC.Text = "Add MIDIs to the queue";
+            AddMIDIsToQueueRC.Click += AddMIDIsToQueue_Click;
             // 
             // RemoveMIDIsFromQueueRC
             // 
-            this.RemoveMIDIsFromQueueRC.Index = 1;
-            this.RemoveMIDIsFromQueueRC.Text = "Remove MIDIs from the queue";
-            this.RemoveMIDIsFromQueueRC.Click += new System.EventHandler(this.RemoveMIDIsFromQueue_Click);
+            RemoveMIDIsFromQueueRC.Name = "RemoveMIDIsFromQueueRC";
+            RemoveMIDIsFromQueueRC.Size = new System.Drawing.Size(235, 22);
+            RemoveMIDIsFromQueueRC.Text = "Remove MIDIs from the queue";
+            RemoveMIDIsFromQueueRC.Click += RemoveMIDIsFromQueue_Click;
             // 
             // ClearQueueRC
             // 
-            this.ClearQueueRC.Index = 2;
-            this.ClearQueueRC.Text = "Clear queue";
-            this.ClearQueueRC.Click += new System.EventHandler(this.ClearQueue_Click);
+            ClearQueueRC.Name = "ClearQueueRC";
+            ClearQueueRC.Size = new System.Drawing.Size(235, 22);
+            ClearQueueRC.Text = "Clear queue";
+            ClearQueueRC.Click += ClearQueue_Click;
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 540);
-            this.Controls.Add(this.MIDIQueue);
-            this.Controls.Add(this.groupBox1);
-            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "MainWindow";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "OmniConverter";
-            this.Load += new System.EventHandler(this.MainWindow_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.OCMenuIcons)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(784, 540);
+            ContextMenuStrip = OCContextMenu;
+            Controls.Add(MIDIQueue);
+            Controls.Add(groupBox1);
+            Controls.Add(OCMenu);
+            Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
+            Name = "MainWindow";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Text = "OmniConverter";
+            Load += MainWindow_Load;
+            OCMenu.ResumeLayout(false);
+            OCMenu.PerformLayout();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            OCContextMenu.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
-        private wyDay.Controls.VistaMenu OCMenuIcons;
-        private System.Windows.Forms.MainMenu OCMenu;
-        private System.Windows.Forms.MenuItem menuItem1;
-        private System.Windows.Forms.MenuItem AddMIDIsToQueue;
+        private System.Windows.Forms.MenuStrip OCMenu;
+        private System.Windows.Forms.ToolStripMenuItem menuItem1;
+        private System.Windows.Forms.ToolStripMenuItem AddMIDIsToQueue;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ListBox MIDIQueue;
         private System.Windows.Forms.Label FPLab;
@@ -442,21 +439,21 @@
         private System.Windows.Forms.Label TLLab;
         private System.Windows.Forms.RichTextBox FPVal;
         private System.Windows.Forms.RichTextBox FNVal;
-        private System.Windows.Forms.MenuItem RemoveMIDIsFromQueue;
-        private System.Windows.Forms.MenuItem ClearQueue;
-        private System.Windows.Forms.MenuItem menuItem5;
-        private System.Windows.Forms.MenuItem ExitFromConverter;
-        private System.Windows.Forms.MenuItem menuItem7;
-        private System.Windows.Forms.MenuItem InfoAboutConverter;
-        private System.Windows.Forms.MenuItem CreateIssueGitHub;
-        private System.Windows.Forms.MenuItem menuItem4;
-        private System.Windows.Forms.MenuItem CheckForUpdates;
-        private System.Windows.Forms.MenuItem menuItem9;
-        private System.Windows.Forms.MenuItem DownloadConvSrc;
-        private System.Windows.Forms.ContextMenu OCContextMenu;
-        private System.Windows.Forms.MenuItem AddMIDIsToQueueRC;
-        private System.Windows.Forms.MenuItem RemoveMIDIsFromQueueRC;
-        private System.Windows.Forms.MenuItem ClearQueueRC;
+        private System.Windows.Forms.ToolStripMenuItem RemoveMIDIsFromQueue;
+        private System.Windows.Forms.ToolStripMenuItem ClearQueue;
+        private System.Windows.Forms.ToolStripMenuItem ExitFromConverter;
+        private System.Windows.Forms.ToolStripMenuItem menuItem7;
+        private System.Windows.Forms.ToolStripMenuItem InfoAboutConverter;
+        private System.Windows.Forms.ToolStripMenuItem CreateIssueGitHub;
+        private System.Windows.Forms.ToolStripMenuItem CheckForUpdates;
+        private System.Windows.Forms.ToolStripMenuItem DownloadConvSrc;
+        private System.Windows.Forms.ContextMenuStrip OCContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem AddMIDIsToQueueRC;
+        private System.Windows.Forms.ToolStripMenuItem RemoveMIDIsFromQueueRC;
+        private System.Windows.Forms.ToolStripMenuItem ClearQueueRC;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
     }
 }
 

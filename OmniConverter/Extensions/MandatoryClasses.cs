@@ -80,12 +80,11 @@ namespace OmniConverter
     public class SoundFonts
     {
         public List<SoundFont> List;
-        public List<BASS_MIDI_FONTEX> BMFEArray;
+        public BASS_MIDI_FONTEX[] BMFEArray;
 
         public SoundFonts()
         {
             List = new List<SoundFont>();
-            BMFEArray = new List<BASS_MIDI_FONTEX>();
         }
     }
 

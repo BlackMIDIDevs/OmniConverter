@@ -14,7 +14,7 @@ namespace OmniConverter
         private MidiFile LoadedFile;
         private IEnumerable<MIDIEvent> MetaEvents;
 
-        private MIDI(Int64 I, String FN, String FP, MidiFile LF, IEnumerable<MIDIEvent> ME, TimeSpan TL, Int64 T, Int64 NC, UInt64 S)
+        private MIDI(Int64 I, String FN, String FP, MidiFile LF, IEnumerable<MIDIEvent> ME, TimeSpan TL, Int32 T, Int64 NC, UInt64 S)
         {
             ID = I;
             Name = FN;
@@ -27,8 +27,8 @@ namespace OmniConverter
             MetaEvents = ME;
         }
 
-        public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(Int64 track) =>
-            LoadedFile.GetTrack(track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
+        public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(Int32 track) =>
+            LoadedFile.GetTrack((Int32)track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<MIDIEvent> GetFullMIDITimeBased() =>
             LoadedFile.IterateTracks().MergeAll().MakeTimeBased(LoadedFile.PPQ);
@@ -40,7 +40,7 @@ namespace OmniConverter
         public String Name { get; }
         public String Path { get; }
         public TimeSpan TimeLength { get; }
-        public Int64 Tracks { get; }
+        public Int32 Tracks { get; }
         public Int64 NoteCount { get; }
         public UInt64 Size { get; }
 

@@ -1,15 +1,8 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OmniConverter
@@ -20,8 +13,8 @@ namespace OmniConverter
         {
             InitializeComponent();
 
-            this.Menu = OCMenu;
-            MIDIQueue.ContextMenu = OCContextMenu;
+            this.MainMenuStrip = OCMenu;
+            MIDIQueue.ContextMenuStrip = OCContextMenu;
 
             if (MIDIs.Length > 0)
                 new MIDIImporter(MIDIs, true).ShowDialog();
@@ -32,18 +25,6 @@ namespace OmniConverter
             RebindList();
             GetSelectedMIDIInfo();
 
-            OCMenuIcons.SetImage(AddMIDIsToQueue, IconSystem.Add);
-            OCMenuIcons.SetImage(RemoveMIDIsFromQueue, IconSystem.Remove);
-            OCMenuIcons.SetImage(ClearQueue, IconSystem.Clear);
-            OCMenuIcons.SetImage(ExitFromConverter, IconSystem.Sleep);
-            OCMenuIcons.SetImage(InfoAboutConverter, IconSystem.Info);
-            OCMenuIcons.SetImage(CreateIssueGitHub, IconSystem.Octocat);
-            OCMenuIcons.SetImage(CheckForUpdates, IconSystem.Download);
-            OCMenuIcons.SetImage(DownloadConvSrc, IconSystem.Empty);
-    
-            OCMenuIcons.SetImage(AddMIDIsToQueueRC, IconSystem.Add);
-            OCMenuIcons.SetImage(RemoveMIDIsFromQueueRC, IconSystem.Remove);
-            OCMenuIcons.SetImage(ClearQueueRC, IconSystem.Clear);
             Debug.PrintToConsole("ok", "Icons set.");
         }
 
@@ -160,6 +141,7 @@ namespace OmniConverter
 
         private void ClearQueue_Click(object sender, EventArgs e)
         {
+            Program.MIDIList.ForEach(x => x.Dispose());
             Program.MIDIList = new List<MIDI>();
             RebindList();
             GetSelectedMIDIInfo();
@@ -291,6 +273,20 @@ namespace OmniConverter
         private void CheckForUpdates_Click(object sender, EventArgs e)
         {
             UpdateSystem.CheckForUpdates((Control.ModifierKeys == Keys.Shift), false, false);
+        }
+
+        private void MIDIQueue_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        }
+
+        private void MIDIQueue_DragDrop(object sender, DragEventArgs e)
+        {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            new MIDIImporter(files, false).ShowDialog();
+
+            RebindList();
+            GetSelectedMIDIInfo();
         }
     }
 }

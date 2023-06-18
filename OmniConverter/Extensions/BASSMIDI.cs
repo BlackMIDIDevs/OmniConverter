@@ -12,6 +12,59 @@ using Un4seen.Bass.AddOn.Midi;
 
 namespace OmniConverter
 {
+    public class CMIDIEvent
+    {
+        private uint WholeEvent = 0;
+
+        private byte Status = 0;
+        private byte LRS = 0;
+
+        private byte EventType = 0;
+        private byte Channel = 0;
+
+        private byte Param1 = 0;
+        private byte Param2 = 0;
+
+        private byte Secret = 0;
+
+        public CMIDIEvent(uint DWORD)
+        {
+            SetNewEvent(DWORD);
+        }
+
+        public void SetNewEvent(uint DWORD)
+        {
+            WholeEvent = DWORD;
+
+            Status = (byte)(WholeEvent & 0xFF);
+            if ((Status & 0x80) != 0)
+                LRS = Status;
+            else
+                WholeEvent = WholeEvent << 8 | LRS;
+
+            EventType = (byte)(LRS & 0xF0);
+            Channel = (byte)(LRS & 0x0F);
+
+            Param1 = (byte)(WholeEvent >> 8);
+            Param2 = (byte)(WholeEvent >> 16);
+
+            Secret = (byte)(WholeEvent >> 24);
+        }
+
+        public uint GetWholeEvent() { return WholeEvent; }
+
+        public byte GetStatus() { return Status; }
+
+        public byte GetEventType() { return EventType; }
+        public byte GetChannel() { return Channel; }
+
+        public int GetParams() { return Param1 | Param2 << 8; }
+        public byte GetFirstParam() { return Param1; }
+        public byte GetSecondParam() { return Param2; }
+
+        public byte GetSecret() { return Secret; }
+    }
+
     public class BASSMIDI : ISampleSource
     {
         private readonly object Lock = new object();
@@ -133,9 +186,9 @@ namespace OmniConverter
 
         private void SetSoundFonts()
         {
-            BassMidi.BASS_MIDI_StreamSetFonts(Handle, Program.SFArray.BMFEArray.ToArray(), Program.SFArray.BMFEArray.Count);
+            BassMidi.BASS_MIDI_StreamSetFonts(Handle, Program.SFArray.BMFEArray, Program.SFArray.BMFEArray.Length);
             BassMidi.BASS_MIDI_StreamLoadSamples(Handle);
-            Debug.PrintToConsole("ok", String.Format("{0} - Loaded {1} SoundFonts.", UniqueID, Program.SFArray.BMFEArray.Count));
+            Debug.PrintToConsole("ok", String.Format("{0} - Loaded {1} SoundFonts.", UniqueID, Program.SFArray.BMFEArray.Length));
         }
 
         private void SetVSTs()
@@ -182,6 +235,11 @@ namespace OmniConverter
         public unsafe bool SendChorusEvent(int channel, int param)
         {
             return BassMidi.BASS_MIDI_StreamEvent(Handle, channel, BASSMIDIEvent.MIDI_EVENT_CHORUS, param);
+        }
+
+        public int SendEventStruct(BASS_MIDI_EVENT data) 
+        {
+            return BassMidi.BASS_MIDI_StreamEvents(Handle, BASSMIDIEventMode.BASS_MIDI_EVENTS_STRUCT, new BASS_MIDI_EVENT[] { data });
         }
 
         public unsafe int SendEventRaw(uint data, int channel)

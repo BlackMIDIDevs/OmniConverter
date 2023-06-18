@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Midi;
+using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
+using Task = System.Threading.Tasks.Task;
 
 namespace OmniConverter
 {
@@ -228,6 +230,8 @@ namespace OmniConverter
 
         private void LoadSoundFonts()
         {
+            List<BASS_MIDI_FONTEX> BMFEList = new List<BASS_MIDI_FONTEX>();
+
             foreach (SoundFont SF in Program.SFArray.List)
             {
                 if (!SF.IsEnabled)
@@ -256,14 +260,20 @@ namespace OmniConverter
 
                 if (TSF.font != 0)
                 {
-                    Program.SFArray.BMFEArray.Add(TSF);
+                    BMFEList.Add(TSF);
                     Debug.PrintToConsole("ok", "SoundFont loaded and added to BASS_MIDI_FONTEX array.");
                 }
                 else Debug.PrintToConsole("err", String.Format("Could not load {0}. BASSERR: {1}", SF.GetSoundFontPath, Bass.BASS_ErrorGetCode()));
             }
 
             Debug.PrintToConsole("ok", "Reversing array...");
-            Program.SFArray.BMFEArray.Reverse();
+            BMFEList.Reverse();
+
+            if (Program.SFArray.BMFEArray != null)
+                Program.SFArray.BMFEArray = null;
+
+            Program.SFArray.BMFEArray = (BASS_MIDI_FONTEX[])Array.CreateInstance(typeof(BASS_MIDI_FONTEX), BMFEList.Count);
+            Array.Copy(BMFEList.ToArray(), Program.SFArray.BMFEArray, BMFEList.Count);
         }
 
         private void FreeSoundFonts()
@@ -273,7 +283,7 @@ namespace OmniConverter
                 BassMidi.BASS_MIDI_FontFree(SF.font);
 
             Debug.PrintToConsole("ok", "Handles freed.");
-            Program.SFArray.BMFEArray.Clear();
+            Program.SFArray.BMFEArray = null;
         }
 
         private void MIDIConversion(Control Form, Panel ThreadsPanel, String OPath)
@@ -339,7 +349,7 @@ namespace OmniConverter
                         ISampleWriter Writer = new WaveSampleWriter(Destination);
                         Debug.PrintToConsole("ok", "Output file is open.");
 
-                        Task ConvThread = Task.Run(() =>
+                        var ConvThread = Task.Run(() =>
                         {
                             Worker.Convert(Writer, WF, Properties.Settings.Default.LoudMax, PO.CancellationToken);
                         });
@@ -354,7 +364,7 @@ namespace OmniConverter
                                 MIDIT.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
                             });
 
-                            Thread.Sleep(200);
+                            Thread.Sleep(1);
                         }
 
                         ConvThread.Wait();
@@ -419,6 +429,7 @@ namespace OmniConverter
                         break;
                     }
 
+                    int t = 0;
                     MDV.SetTotalTracks(MFile.Tracks);
                     MDV.ResetCurrentTrack();
 
@@ -441,18 +452,11 @@ namespace OmniConverter
 
                             if (MFile.NoteCount > 0)
                             {
-                                TrackThreadStatus Trck = new TrackThreadStatus(T);
-                                Trck.Dock = DockStyle.Top;
-                                ThreadsPanel.Invoke((MethodInvoker)delegate
-                                {
-                                    Debug.PrintToConsole("ok", "Added TrackThreadStatus control for MIDI.");
-                                    ThreadsPanel.Controls.Add(Trck);
-                                });
-
                                 ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
-                                ISampleWriter Writer;
+                                ISampleWriter Writer = null;
                                 WaveWriter SDestination = null;
                                 FileStream SFOpen = null;
+
                                 if (Properties.Settings.Default.PerTrackSeparateFiles)
                                 {
                                     // Check if we need to export each track to a file
@@ -484,7 +488,15 @@ namespace OmniConverter
                                 }
                                 else Writer = MSM.GetWriter();
 
-                                Task ConvThread = Task.Run(() =>
+                                MIDIThreadStatus MIDIT = new MIDIThreadStatus($"Track {t++}");
+                                MIDIT.Dock = DockStyle.Top;
+                                ThreadsPanel.Invoke((MethodInvoker)delegate
+                                {
+                                    Debug.PrintToConsole("ok", "Added MIDIThreadStatus control for MIDI.");
+                                    ThreadsPanel.Controls.Add(MIDIT);
+                                });
+
+                                var ConvThread = Task.Run(() =>
                                 {
                                     Worker.Convert(Writer, WF, false, CTS.Token);
                                 });
@@ -494,24 +506,32 @@ namespace OmniConverter
                                     if (StopRequested)
                                         break;
 
-                                    Trck.Invoke((MethodInvoker)delegate
+                                    MIDIT.Invoke((MethodInvoker)delegate
                                     {
-                                        Trck.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
+                                        MIDIT.UpdatePB(Convert.ToInt32(Math.Round(Worker.Progress * 100)));
                                     });
 
-                                    Thread.Sleep(10);
+                                    Thread.Sleep(1);
                                 }
 
                                 ConvThread.Wait();
 
-                                if (SDestination != null) SDestination.Dispose();
-                                if (SFOpen != null) SFOpen.Dispose();
+                                if (Writer != null)
+                                {
+                                    if (Writer.GetType() == typeof(MultiStreamMerger))
+                                        ((MultiStreamMerger)Writer).Dispose();
+                                    else if (Writer.GetType() == typeof(WaveSampleWriter))
+                                        ((WaveSampleWriter)Writer).Dispose();
+                                }
 
                                 ThreadsPanel.Invoke((MethodInvoker)delegate
                                 {
-                                    Debug.PrintToConsole("ok", String.Format("{0} - Removed TrackThreadStatus control for MIDI.", T));
-                                    ThreadsPanel.Controls.Remove(Trck);
+                                    Debug.PrintToConsole("ok", "Removed MIDIThreadStatus control for MIDI.");
+                                    ThreadsPanel.Controls.Remove(MIDIT);
                                 });
+
+                                if (SDestination != null) SDestination.Dispose();
+                                if (SFOpen != null) SFOpen.Dispose();
 
                                 if (!StopRequested) MDV.AddTrack();
                             }
@@ -584,12 +604,12 @@ namespace OmniConverter
                 Form.Invoke((MethodInvoker)delegate { ((Form)Form).Close(); });
         }
 
-        static void ParallelFor(Int64 from, Int64 to, int threads, CancellationToken cancel, Action<Int64> func)
+        static void ParallelFor(Int32 from, Int32 to, int threads, CancellationToken cancel, Action<Int32> func)
         {
-            Dictionary<Int64, Task> tasks = new Dictionary<Int64, Task>();
-            BlockingCollection<Int64> completed = new BlockingCollection<Int64>();
+            Dictionary<Int32, Task> tasks = new Dictionary<Int32, Task>();
+            BlockingCollection<Int32> completed = new BlockingCollection<Int32>();
 
-            void RunTask(Int64 i)
+            void RunTask(Int32 i)
             {
                 var t = new Task(() =>
                 {
@@ -611,7 +631,7 @@ namespace OmniConverter
                 tasks.Remove(t);
             }
 
-            for (Int64 i = from; i < to; i++)
+            for (Int32 i = from; i < to; i++)
             {
                 RunTask(i);
                 if (tasks.Count > threads) TryTake();

@@ -10,6 +10,7 @@ namespace OmniConverter
     public unsafe interface ISampleWriter
     {
         int Position { get; set; }
+
         void Write(float[] buffer, int offset, int count);
         void Write(float* buffer, int offset, int count);
     }
