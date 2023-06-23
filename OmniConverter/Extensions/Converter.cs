@@ -15,6 +15,7 @@ using System.Xml;
 using System.Drawing;
 using System.Linq;
 using System.Xml.Linq;
+using CSCore.Streams;
 
 namespace OmniConverter
 {
@@ -288,10 +289,9 @@ namespace OmniConverter
 
                             ConvertWorker Worker = new ConvertWorker(MFile.GetFullMIDITimeBased(), MFile.TimeLength.TotalSeconds);
 
-                            Stream FOpen = new BufferedStream(File.Open(OutputDir, FileMode.Create), 65536);
-                            WaveWriter Destination = new WaveWriter(FOpen, WF);
-                            ISampleWriter Writer = new WaveSampleWriter(Destination);
-                            Debug.PrintToConsole("ok", "Output file is open.");
+                            // Initialize memory stream
+                            MultiStreamMerger MSM = new MultiStreamMerger(WF);
+                            ISampleWriter Writer = MSM.GetWriter();
 
                             var ConvThread = Task.Run(() => Worker.Convert(Writer, WF, CTS.Token));
 
@@ -321,8 +321,33 @@ namespace OmniConverter
 
                             if (!StopRequested) MDV.AddValidMIDI();
 
-                            if (Destination != null) Destination.Dispose();
-                            if (FOpen != null) FOpen.Dispose();
+                            // Reset MSM position
+                            MSM.Position = 0;
+
+                            IWaveSource MStream;
+                            if (Properties.Settings.Default.LoudMax)
+                            {
+                                Debug.PrintToConsole("ok", "LoudMax enabled.");
+                                AntiClipping BAC = new AntiClipping(MSM, 0.1);
+                                MStream = BAC.ToWaveSource(32);
+                            }
+                            else MStream = MSM.ToWaveSource(32);
+
+                            FileStream FOpen = File.Open(OutputDir, FileMode.Create);
+                            WaveWriter FDestination = new WaveWriter(FOpen, WF);
+                            Debug.PrintToConsole("ok", "Output file is open.");
+
+                            int FRead = 0;
+                            byte[] FBuffer = new byte[1024 * 16];
+
+                            Debug.PrintToConsole("ok", String.Format("Writing data for {0} to disk...", OutputDir));
+                            while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
+                                FDestination.Write(FBuffer, 0, FRead);
+                            Debug.PrintToConsole("ok", String.Format("Done writing {0}.", OutputDir));
+
+                            MSM.Dispose();
+                            FDestination.Dispose();
+                            FOpen.Dispose();
                         });
                     }
                     catch (OperationCanceledException) { }
@@ -513,6 +538,7 @@ namespace OmniConverter
                     Destination.Write(FBuffer, 0, FRead);
                 Debug.PrintToConsole("ok", String.Format("Done writing {0}.", OutputDir));
 
+                MSM.Dispose();
                 Destination.Dispose();
                 FOpen.Dispose();
             }
@@ -529,8 +555,10 @@ namespace OmniConverter
             Status = "prep";
 
             Debug.PrintToConsole("ok", "Initializing BASS...");
-          
-            if (!Bass.Init(Bass.NoSoundDevice, WF.SampleRate, DeviceInitFlags.Default))
+
+            bool BassReady = Bass.Init(Bass.NoSoundDevice, WF.SampleRate, DeviceInitFlags.Default);
+
+            if (!BassReady)
                 throw new Exception("Unable to initialize BASS!");
 
             Bass.Configure(Configuration.MidiVoices, Properties.Settings.Default.VoiceLimit);
@@ -539,13 +567,13 @@ namespace OmniConverter
 
             try
             {
-                if (Properties.Settings.Default.PerTrackExport)
+                if (Properties.Settings.Default.MultiThreadedMode && 
+                    Properties.Settings.Default.PerTrackExport)
                     PerTrackConv(MT, WF, ThreadsPanel, OPath);
                 else
                     PerMIDIConv(MT, WF, ThreadsPanel, OPath);
 
                 Debug.PrintToConsole("ok", "BASS freed.");
-                Bass.Free();
             }
             catch (Exception ex)
             {
@@ -555,6 +583,9 @@ namespace OmniConverter
 
                 Debug.PrintToConsole("err", String.Format("{0} - {1}", ex.InnerException.ToString(), ex.Message.ToString()));
             }
+
+            if (BassReady)
+                Bass.Free();
 
             if (!StopRequested && !IsCrash)
                 Form.Invoke((MethodInvoker)delegate { ((Form)Form).Close(); });
