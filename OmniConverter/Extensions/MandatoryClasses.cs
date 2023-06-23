@@ -1,6 +1,9 @@
 ﻿using ManagedBass.Midi;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniConverter
 {
@@ -119,6 +122,41 @@ namespace OmniConverter
 
             // Return the new index value
             return wIndexToMove;
+        }
+    }
+
+    public class ParallelLoopExt
+    {
+        public static void ParallelFor(int from, int to, int threads, CancellationToken cancel, Action<int> func)
+        {
+            Dictionary<int, Task> tasks = new Dictionary<int, Task>();
+            BlockingCollection<int> completed = new BlockingCollection<int>();
+
+            void RunTask(int i)
+            {
+                var t = new Task(() =>
+                {
+                    func(i);
+                    completed.Add(i);
+                });
+                tasks.Add(i, t);
+                t.Start();
+            }
+
+            void TryTake()
+            {
+                var t = completed.Take(cancel);
+                tasks[t].Wait();
+                tasks.Remove(t);
+            }
+
+            for (int i = from; i < to; i++)
+            {
+                RunTask(i);
+                if (tasks.Count >= threads) TryTake();
+            }
+
+            while (completed.Count > 0 || tasks.Count > 0) TryTake();
         }
     }
 

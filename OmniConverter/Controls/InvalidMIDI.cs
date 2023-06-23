@@ -10,8 +10,8 @@ namespace OmniConverter
             InitializeComponent();
 
             BrokenMIDITitle.ForeColor = Color;
-            BrokenMIDITitle.Text = String.Format("Could not load {0}!", MIDITitle);
-            BrokenReason.Text = String.Format("Reason: {0}", Error);
+            BrokenMIDITitle.Text = $"ERROR ON \"{MIDITitle}\"!";
+            BrokenReason.Text = Error;
         }
     }
 }

@@ -13,6 +13,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Threading;
+using System.Reflection.Metadata;
 
 // Written with help from Arduano
 
@@ -95,103 +97,15 @@ namespace OmniConverter
         private double CFMin { get; } = Properties.Settings.Default.CFValue - Properties.Settings.Default.CFFluctuation;
         private double CFMax { get; } = Properties.Settings.Default.CFValue + Properties.Settings.Default.CFFluctuation;
 
-        public BASSMIDI(CSCore.WaveFormat WF)
+        public BASSMIDI(CSCore.WaveFormat WF, CancellationToken CTS)
         {
-            lock (Lock)
-            {
-                WaveFormat = WF;
-                InitializeSettings();
-                Flags = BassFlags.Decode | BassFlags.Float | BassFlags.MidiDecayEnd;
-
-                Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
-                if (!CheckError(Handle, "Unable to create stream."))
-                {
-                    ErroredOut = true;
-                    return;
-                }
-                if (Handle == 0)
-                {
-                    Errors ERR = Bass.LastError;
-
-                    Debug.ShowMsgBox(
-                        "BASSMIDI error",
-                        String.Format("Unable to create stream.\n\nError encountered: {0}", ERR),
-                        null, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    ErroredOut = true;
-                    return;
-                }
-                Debug.PrintToConsole("ok", String.Format("{0} - Stream is open.", UniqueID));
-
-                Bass.ChannelSetAttribute(Handle, ChannelAttribute.MidiCPU, 0);
-
-                VolHandle = Bass.ChannelSetFX(Handle, EffectType.Volume, 1);
-                if (!CheckError(Handle, "Unable to set volume FX."))
-                {
-                    ErroredOut = true;
-                    return;
-                }
-
-                ChangeVolume(Properties.Settings.Default.Volume);
-
-                SetSoundFonts();
-            }
-        }
-
-        // This is a really unstable mode, touching anything in its code might break it
-        public BASSMIDI(CSCore.WaveFormat WF, bool RTS = true)
-        {
-            if (!RTS)
-            {
-                Debug.ShowMsgBox("Wait what!?", "The \"RTS\" argument should be set to TRUE!", null, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                ErroredOut = true;
+            if (UniqueID == string.Empty)
                 return;
-            }
 
-            lock (Lock)
-            {
-                Int32 MT = Properties.Settings.Default.MultiThreadedMode ? Properties.Settings.Default.MultiThreadedLimitV : 1;
+            WaveFormat = WF;
+            Flags = BassFlags.Decode | BassFlags.Float | BassFlags.MidiDecayEnd;
 
-                RTSMode = RTS;
-                WaveFormat = WF;
-                InitializeSettings();
-
-                // Remove DECAYEND since it's not applicable to this type of stream
-                Flags = BassFlags.Decode | BassFlags.Float;
-
-                // Create stream which will feed the events to
-                Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
-                if (!CheckError(Handle, String.Format("Unable to create RTS stream ({0}).", UniqueID)))
-                {
-                    ErroredOut = true;
-                    return;
-                }
-                Debug.PrintToConsole("ok", String.Format("{0} - RTS stream.", UniqueID));
-
-                SetSoundFonts();
-            }
-        }
-
-        private bool CheckError(Int32 H, String Error)
-        {
-            if (H == 0)
-            {
-                Error += String.Format("\n\nError encountered: {0}", Bass.LastError);
-                Debug.ShowMsgBox("BASSMIDI error", Error, null, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                return false;
-            }
-
-            return true;
-        }
-
-        private void InitializeSettings()
-        {
             Debug.PrintToConsole("ok", String.Format("Stream unique ID: {0}", UniqueID));
-
-            Bass.Configure(Configuration.MidiVoices, Properties.Settings.Default.VoiceLimit);
-            Bass.Configure(Configuration.MidiAutoFont, 0);
-            Bass.Configure(Configuration.MidiDefaultFont, IntPtr.Zero);
             Debug.PrintToConsole("ok", $"{UniqueID} - VoiceLimit = {Properties.Settings.Default.VoiceLimit}.");
 
             Flags |= Properties.Settings.Default.SincInter ? BassFlags.SincInterpolation : BassFlags.Default;
@@ -202,6 +116,42 @@ namespace OmniConverter
 
             Flags |= Properties.Settings.Default.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
             Debug.PrintToConsole("ok", $"{UniqueID} - NoteOff1 = {Properties.Settings.Default.NoteOff1}.");
+
+            Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
+            if (!CheckError("Unable to open MIDI stream."))
+            {
+                ErroredOut = true;
+                return;
+            }
+            else Debug.PrintToConsole("ok", String.Format("{0} - Stream is open.", UniqueID));
+
+            VolHandle = Bass.ChannelSetFX(Handle, (EffectType)9, 1);
+            if (!CheckError("Unable to set volume FX."))
+            {
+                ErroredOut = true;
+                return;
+            }
+
+            ChangeVolume(Properties.Settings.Default.Volume);
+
+            SetSoundFonts();
+        }
+
+        private bool CheckError(string Error)
+        {
+            if (Bass.LastError != 0)
+            {
+#if DEBUG
+                Error += String.Format("\n\nError encountered: {0}", Bass.LastError);
+                Debug.ShowMsgBox("BASSMIDI error", Error, null, MessageBoxButtons.OK, MessageBoxIcon.Error);
+#else
+                Debug.PrintToConsole("err", $"{UniqueID} - {Error}.");   
+#endif
+
+                return false;
+            }
+
+            return true;
         }
 
         private void SetSoundFonts()
@@ -272,9 +222,9 @@ namespace OmniConverter
             return BassMidi.StreamEvent(Handle, channel, MidiEventType.Chorus, param);
         }
 
-        public int SendEventStruct(MidiEvent data) 
+        public int SendEventStruct(MidiEvent[] data) 
         {
-            return BassMidi.StreamEvents(Handle, MidiEventsMode.Struct, new MidiEvent[] { data });
+            return BassMidi.StreamEvents(Handle, MidiEventsMode.Struct, data);
         }
 
         public int SendEventRaw(byte[] data)
@@ -282,17 +232,15 @@ namespace OmniConverter
             return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.NoRunningStatus, data);
         }
 
-        public unsafe int SendEventRaw(uint data)
+        public int SendEndEvent()
         {
-            IntPtr idata = (IntPtr)(&data);
-            return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.NoRunningStatus, idata, 3);
-        }
+            var ev = new[]
+            {
+                new MidiEvent() {EventType = MidiEventType.EndTrack, Channel = 0, Parameter = 0, Position = 0, Ticks = 0 },
+                new MidiEvent() {EventType = MidiEventType.End, Channel = 0, Parameter = 0, Position = 0, Ticks = 0 },
+            };
 
-        public unsafe int SendEndEvent()
-        {
-            bool a = BassMidi.StreamEvent(Handle, 0, MidiEventType.End, 0);
-            bool b = BassMidi.StreamEvent(Handle, 0, MidiEventType.EndTrack, 0);
-            return (a && b) ? 0 : -1;
+            return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.Struct, ev);
         }
 
         public long Position

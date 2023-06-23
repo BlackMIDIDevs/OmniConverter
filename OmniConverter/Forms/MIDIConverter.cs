@@ -92,6 +92,15 @@ namespace OmniConverter
                             TPB.Style = ProgressBarStyle.Marquee;
                             TPB.Value = 0;
                             break;
+
+                        case "dead":
+                            StatusLab.Text = "The converter system died...\n\nCall the developer!";
+                            PB.Style = ProgressBarStyle.Marquee;
+                            PB.Value = 0;
+                            TPB.Style = ProgressBarStyle.Marquee;
+                            TPB.Value = 0;
+                            break;
+
                         case "crsh":
                             StatusLab.Text = Cnv.GetError();
                             PB.Style = ProgressBarStyle.Blocks;
@@ -123,6 +132,15 @@ namespace OmniConverter
 
                             TPB.Visible = false;
                             break;
+
+                        case "dead":
+                            StatusLab.Text = "The converter system died...\n\nCall the developer!";
+                            PB.Style = ProgressBarStyle.Marquee;
+                            PB.Value = 0;
+                            TPB.Style = ProgressBarStyle.Marquee;
+                            TPB.Value = 0;
+                            break;
+
                         case "mconv":
                             StatusLab.Text = String.Format("{0} file(s) out of {1} have been converted.\nRendered {2} track(s) out of {3}.\nPlease wait...",
                                 (ValidFiles + InvalidFiles).ToString("N0", new CultureInfo("is-IS")),

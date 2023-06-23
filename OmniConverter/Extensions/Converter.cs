@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ManagedBass;
 using System.Xml;
+using System.Drawing;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace OmniConverter
 {
@@ -91,13 +94,13 @@ namespace OmniConverter
             this.length = length;
         }
 
-        public void Convert(ISampleWriter output, CSCore.WaveFormat format, CancellationToken cancel)
+        public void Convert(ISampleWriter output, CSCore.WaveFormat format, CancellationToken CTS)
         {
             BASSMIDI bass;
 
             Debug.PrintToConsole("ok", $"Initializing BASSMIDI for thread...");
 
-            using (bass = new BASSMIDI(format))
+            using (bass = new BASSMIDI(format, CTS))
             {
                 ISampleSource bassSource;
                 float[] buffer = new float[2048 * 16];
@@ -124,7 +127,8 @@ namespace OmniConverter
                 {
                     foreach (MIDIEvent e in events)
                     {
-                        cancel.ThrowIfCancellationRequested();
+                        if (CTS.IsCancellationRequested)
+                            return;
 
                         time += e.DeltaTime;
                         converted = time;
@@ -208,17 +212,18 @@ namespace OmniConverter
         }
     }
 
-    class Converter
+    class Converter : IDisposable
     {
         public CancellationTokenSource CTS;
         public MIDIValidation MDV;
 
-        private String Status = "prep";
-        private String StError = "";
-        private Boolean StopRequested = false;
-        private Boolean IsCrash = false;
+        private string Status = "prep";
+        private string StError = "";
+        private bool StopRequested = false;
+        private bool IsCrash = false;
 
         private Thread CThread;
+        private bool _disposed;
 
         public Converter(Control Form, Panel ThreadsPanel, String OPath)
         {
@@ -243,76 +248,88 @@ namespace OmniConverter
             {
                 Debug.PrintToConsole("ok", "Preparing Parallel.ForEach loop...");
                 CTS = new CancellationTokenSource();
-                ParallelOptions PO = new ParallelOptions { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token };
+
                 Debug.PrintToConsole("ok", String.Format("ParallelOptions prepared, MaxDegreeOfParallelism = {0}", MT));
-                ParallelFor(0, Program.MIDIList.Count, MT, CTS.Token, T =>
+
+                var ParallelThread = Task.Run(() =>
                 {
-                    if (StopRequested)
+                    try
                     {
-                        Debug.PrintToConsole("ok", "Stop requested. Stopping ParallelFor...");
-                        throw new OperationCanceledException();
-                    }
-
-                    MIDI MFile = Program.MIDIList[T];
-
-                    // Begin conversion
-                    Status = "sconv";
-                    MDV.SetCurrentMIDI(MFile.Path);
-
-                    // Prepare the filename
-                    String OutputDir = String.Format("{0}\\{1}.{2}",
-                        OPath, Path.GetFileNameWithoutExtension(MFile.Name), Properties.Settings.Default.Codec);
-
-                    // Check if file already exists
-                    if (File.Exists(OutputDir))
-                        OutputDir = String.Format("{0}\\{1} - {2}.{3}",
-                            OPath, Path.GetFileNameWithoutExtension(MFile.Name),
-                            DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), Properties.Settings.Default.Codec);
-
-                    Debug.PrintToConsole("ok", String.Format("Output file: {0}", OutputDir));
-
-                    TaskStatus MIDIT = new TaskStatus(MFile.Name);
-                    MIDIT.Dock = DockStyle.Top;
-                    ThreadsPanel.Invoke((MethodInvoker)delegate { ThreadsPanel.Controls.Add(MIDIT); });
-
-                    ConvertWorker Worker = new ConvertWorker(MFile.GetFullMIDITimeBased(), MFile.TimeLength.TotalSeconds);
-
-                    Stream FOpen = new BufferedStream(File.Open(OutputDir, FileMode.Create), 65536);
-                    WaveWriter Destination = new WaveWriter(FOpen, WF);
-                    ISampleWriter Writer = new WaveSampleWriter(Destination);
-                    Debug.PrintToConsole("ok", "Output file is open.");
-
-                    var ConvThread = Task.Run(() => Worker.Convert(Writer, WF, PO.CancellationToken));
-
-                    int ov = 0;
-                    while (!ConvThread.IsCompleted)
-                    {
-                        var v = Convert.ToInt32(Math.Round(Worker.Progress * 100));
-
-                        if (StopRequested)
-                            break;
-
-                        if (ov != v)
+                        // Parallel.For(0, Program.MIDIList.Count, new ParallelOptions() { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token }, T =>
+                        ParallelLoopExt.ParallelFor(0, Program.MIDIList.Count, MT, CTS.Token, T =>
                         {
-                            ov = v;
+                            if (StopRequested)
+                            {
+                                Debug.PrintToConsole("ok", "Stop requested. Stopping ParallelFor...");
+                                throw new OperationCanceledException();
+                            }
 
-                            MIDIT.UpdateTitle($"{v}%");
-                            MIDIT.UpdatePB(v);
-                        }
+                            MIDI MFile = Program.MIDIList[T];
+
+                            // Begin conversion
+                            Status = "sconv";
+                            MDV.SetCurrentMIDI(MFile.Path);
+
+                            // Prepare the filename
+                            String OutputDir = String.Format("{0}\\{1}.{2}",
+                                OPath, Path.GetFileNameWithoutExtension(MFile.Name), Properties.Settings.Default.Codec);
+
+                            // Check if file already exists
+                            if (File.Exists(OutputDir))
+                                OutputDir = String.Format("{0}\\{1} - {2}.{3}",
+                                    OPath, Path.GetFileNameWithoutExtension(MFile.Name),
+                                    DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), Properties.Settings.Default.Codec);
+
+                            Debug.PrintToConsole("ok", String.Format("Output file: {0}", OutputDir));
+
+                            TaskStatus MIDIT = new TaskStatus(MFile.Name);
+                            MIDIT.Dock = DockStyle.Top;
+                            ThreadsPanel.Invoke((MethodInvoker)delegate { ThreadsPanel.Controls.Add(MIDIT); });
+
+                            ConvertWorker Worker = new ConvertWorker(MFile.GetFullMIDITimeBased(), MFile.TimeLength.TotalSeconds);
+
+                            Stream FOpen = new BufferedStream(File.Open(OutputDir, FileMode.Create), 65536);
+                            WaveWriter Destination = new WaveWriter(FOpen, WF);
+                            ISampleWriter Writer = new WaveSampleWriter(Destination);
+                            Debug.PrintToConsole("ok", "Output file is open.");
+
+                            var ConvThread = Task.Run(() => Worker.Convert(Writer, WF, CTS.Token));
+
+                            int ov = 0;
+                            while (!ConvThread.IsCompleted)
+                            {
+                                var v = Convert.ToInt32(Math.Round(Worker.Progress * 100));
+
+                                if (StopRequested)
+                                    break;
+
+                                if (ov != v)
+                                {
+                                    ov = v;
+
+                                    MIDIT.UpdateTitle($"{v}%");
+                                    MIDIT.UpdatePB(v);
+                                }
+                            }
+
+                            ConvThread.Wait();
+                            ConvThread.Dispose();
+
+                            Debug.PrintToConsole("ok", String.Format("Thread for MIDI {0} is done rendering data.", OutputDir));
+
+                            ThreadsPanel.Invoke((MethodInvoker)delegate { MIDIT.Dispose(); });
+
+                            if (!StopRequested) MDV.AddValidMIDI();
+
+                            if (Destination != null) Destination.Dispose();
+                            if (FOpen != null) FOpen.Dispose();
+                        });
                     }
-
-                    ConvThread.Wait();
-                    ConvThread.Dispose();
-
-                    Debug.PrintToConsole("ok", String.Format("Thread for MIDI {0} is done rendering data.", OutputDir));
-
-                    ThreadsPanel.Invoke((MethodInvoker)delegate { MIDIT.Dispose(); });
-
-                    if (!StopRequested) MDV.AddValidMIDI();
-
-                    if (Destination != null) Destination.Dispose();
-                    if (FOpen != null) FOpen.Dispose();
+                    catch (OperationCanceledException) { }
                 });
+
+                ParallelThread.Wait();
+                ParallelThread.Dispose();
             }
             catch (Exception ex)
             {
@@ -345,96 +362,107 @@ namespace OmniConverter
                     CTS = new CancellationTokenSource();
                     Debug.PrintToConsole("ok", $"PerTrackConv => MaxDegreeOfParallelism = {MT}");
 
-                    ParallelFor(0, MFile.Tracks, MT, CTS.Token, T =>
+                    var ParallelThread = Task.Run(() =>
                     {
-                        if (StopRequested)
+                        try
                         {
-                            Debug.PrintToConsole("ok", "Stop requested. Stopping ParallelFor...");
-                            throw new OperationCanceledException();
-                        }
-
-                        if (MFile.NoteCount >= 0)
-                        {
-                            TaskStatus Trck = new TaskStatus($"Track {T}");
-                            Trck.Dock = DockStyle.Top;
-                            ThreadsPanel.Invoke((MethodInvoker)delegate { ThreadsPanel.Controls.Add(Trck); });
-
-                            ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
-                            ISampleWriter Writer;
-                            WaveWriter SDestination = null;
-                            FileStream SFOpen = null;
-                            Debug.PrintToConsole("ok", $"ConvertWorker => T{T}, {MFile.TimeLength.TotalSeconds}");
-
-                            if (Properties.Settings.Default.PerTrackSeparateFiles)
+                            // Parallel.For(0, MFile.Tracks, new ParallelOptions() { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token }, T =>
+                            ParallelLoopExt.ParallelFor(0, MFile.Tracks, MT, CTS.Token, T =>
                             {
-                                // Check if we need to export each track to a file
-                                String Folder = OPath;
-                                if (Properties.Settings.Default.PerTrackSeparateFiles)
-                                {
-                                    // We do, create folder
-                                    Folder += String.Format("\\{0}\\", Path.GetFileNameWithoutExtension(MFile.Name));
-
-                                    if (!Directory.Exists(Folder))
-                                        Directory.CreateDirectory(Folder);
-                                }
-                                else Folder += " ";
-
-                                // Prepare the filename
-                                String SOutputDir = String.Format("{0}Track {1}.{2}",
-                                    Folder, T, Properties.Settings.Default.Codec);
-
-                                // Check if file already exists
-                                if (File.Exists(SOutputDir))
-                                    SOutputDir = String.Format("{0}Track {1} - {2}.{3}",
-                                        Folder, T, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), Properties.Settings.Default.Codec);
-
-                                Debug.PrintToConsole("ok", String.Format("{0} - Output file: {1}", T, SOutputDir));
-
-                                SFOpen = File.Open(SOutputDir, FileMode.Create);
-                                SDestination = new WaveWriter(SFOpen, WF);
-                                Writer = new WaveSampleWriter(SDestination);
-                            }
-                            else Writer = MSM.GetWriter();
-
-                            var ConvThread = Task.Run(() => Worker.Convert(Writer, WF, CTS.Token));
-                            Debug.PrintToConsole("ok", $"ConvThread started for T{T}");
-
-                            int ov = 0;
-                            while (!ConvThread.IsCompleted)
-                            {
-                                var v = Convert.ToInt32(Math.Round(Worker.Progress * 100));
-
                                 if (StopRequested)
-                                    break;
-
-                                if (ov != v)
                                 {
-                                    ov = v;
-
-                                    Trck.UpdateTitle($"{v}%");
-                                    Trck.UpdatePB(v);
+                                    Debug.PrintToConsole("ok", "Stop requested. Stopping ParallelFor...");
+                                    return;
                                 }
-                            }
 
-                            ConvThread.Wait();
-                            ConvThread.Dispose();
+                                if (MFile.NoteCount >= 0)
+                                {
+                                    TaskStatus Trck = new TaskStatus($"Track {T}");
+                                    Trck.Dock = DockStyle.Top;
+                                    ThreadsPanel.Invoke((MethodInvoker)delegate { ThreadsPanel.Controls.Add(Trck); });
 
-                            if (Writer != null)
-                            {
-                                if (Writer.GetType() == typeof(MultiStreamMerger))
-                                    ((MultiStreamMerger)Writer).Dispose();
-                                else if (Writer.GetType() == typeof(WaveSampleWriter))
-                                    ((WaveSampleWriter)Writer).Dispose();
-                            }
+                                    ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
+                                    ISampleWriter Writer;
+                                    WaveWriter SDestination = null;
+                                    FileStream SFOpen = null;
+                                    Debug.PrintToConsole("ok", $"ConvertWorker => T{T}, {MFile.TimeLength.TotalSeconds}");
 
-                            ThreadsPanel.Invoke((MethodInvoker)delegate { Trck.Dispose(); });
+                                    if (Properties.Settings.Default.PerTrackSeparateFiles)
+                                    {
+                                        // Check if we need to export each track to a file
+                                        String Folder = OPath;
+                                        if (Properties.Settings.Default.PerTrackSeparateFiles)
+                                        {
+                                            // We do, create folder
+                                            Folder += String.Format("\\{0}\\", Path.GetFileNameWithoutExtension(MFile.Name));
 
-                            if (SDestination != null) SDestination.Dispose();
-                            if (SFOpen != null) SFOpen.Dispose();
+                                            if (!Directory.Exists(Folder))
+                                                Directory.CreateDirectory(Folder);
+                                        }
+                                        else Folder += " ";
 
-                            if (!StopRequested) MDV.AddTrack();
+                                        // Prepare the filename
+                                        String SOutputDir = String.Format("{0}Track {1}.{2}",
+                                            Folder, T, Properties.Settings.Default.Codec);
+
+                                        // Check if file already exists
+                                        if (File.Exists(SOutputDir))
+                                            SOutputDir = String.Format("{0}Track {1} - {2}.{3}",
+                                                Folder, T, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), Properties.Settings.Default.Codec);
+
+                                        Debug.PrintToConsole("ok", String.Format("{0} - Output file: {1}", T, SOutputDir));
+
+                                        SFOpen = File.Open(SOutputDir, FileMode.Create);
+                                        SDestination = new WaveWriter(SFOpen, WF);
+                                        Writer = new WaveSampleWriter(SDestination);
+                                    }
+                                    else Writer = MSM.GetWriter();
+
+                                    var ConvThread = Task.Run(() => Worker.Convert(Writer, WF, CTS.Token));
+                                    Debug.PrintToConsole("ok", $"ConvThread started for T{T}");
+
+                                    int ov = 0;
+                                    while (!ConvThread.IsCompleted)
+                                    {
+                                        var v = Convert.ToInt32(Math.Round(Worker.Progress * 100));
+
+                                        if (StopRequested)
+                                            break;
+
+                                        if (ov != v)
+                                        {
+                                            ov = v;
+
+                                            Trck.UpdateTitle($"{v}%");
+                                            Trck.UpdatePB(v);
+                                        }
+                                    }
+
+                                    ConvThread.Wait();
+                                    ConvThread.Dispose();
+
+                                    if (Writer != null)
+                                    {
+                                        if (Writer.GetType() == typeof(MultiStreamMerger))
+                                            ((MultiStreamMerger)Writer).Dispose();
+                                        else if (Writer.GetType() == typeof(WaveSampleWriter))
+                                            ((WaveSampleWriter)Writer).Dispose();
+                                    }
+
+                                    ThreadsPanel.Invoke((MethodInvoker)delegate { Trck.Dispose(); });
+
+                                    if (SDestination != null) SDestination.Dispose();
+                                    if (SFOpen != null) SFOpen.Dispose();
+
+                                    if (!StopRequested) MDV.AddTrack();
+                                }
+                            });
                         }
+                        catch (OperationCanceledException) { }
                     });
+
+                    ParallelThread.Wait();
+                    ParallelThread.Dispose();
                 }
                 catch (OperationCanceledException) { }
                 catch (Exception ex)
@@ -492,6 +520,9 @@ namespace OmniConverter
 
         private void MIDIConversion(Control Form, Panel ThreadsPanel, string OPath)
         {
+            if (_disposed)
+                return;
+
             var MT = Properties.Settings.Default.MultiThreadedMode ? Properties.Settings.Default.MultiThreadedLimitV : 1;
             var WF = new CSCore.WaveFormat(Properties.Settings.Default.Frequency, 32, 2, AudioEncoding.IeeeFloat);
 
@@ -501,6 +532,8 @@ namespace OmniConverter
           
             if (!Bass.Init(Bass.NoSoundDevice, WF.SampleRate, DeviceInitFlags.Default))
                 throw new Exception("Unable to initialize BASS!");
+
+            Bass.Configure(Configuration.MidiVoices, Properties.Settings.Default.VoiceLimit);
 
             Debug.PrintToConsole("ok", $"BASS initialized. (ERR: {Bass.LastError})");
 
@@ -527,36 +560,29 @@ namespace OmniConverter
                 Form.Invoke((MethodInvoker)delegate { ((Form)Form).Close(); });
         }
 
-        static void ParallelFor(int from, int to, int threads, CancellationToken cancel, Action<int> func)
+        public void Dispose()
         {
-            Dictionary<int, Task> tasks = new Dictionary<int, Task>();
-            BlockingCollection<int> completed = new BlockingCollection<int>();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            void RunTask(int i)
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                var t = new Task(() =>
-                {
-                    func(i);
-                    completed.Add(i);
-                });
-                tasks.Add(i, t);
-                t.Start();
+                if (CThread != null || CThread.ThreadState == ThreadState.Stopped)
+                    Dispose();
+                else return;
+
+                CTS.Dispose();
+
+                Status = "dead";
             }
 
-            void TryTake()
-            {
-                var t = completed.Take(cancel);
-                tasks[t].Wait();
-                tasks.Remove(t);
-            }
-
-            for (int i = from; i < to; i++)
-            {
-                RunTask(i);
-                if (tasks.Count > threads) TryTake();
-            }
-
-            while (completed.Count > 0 || tasks.Count > 0) TryTake();
+            _disposed = true;
         }
     }
 }

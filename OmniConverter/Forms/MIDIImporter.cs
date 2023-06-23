@@ -78,19 +78,20 @@ namespace OmniConverter
                 CurrentMaxIndex = ((MIDI)Program.MIDIList[Index]).ID;
             }
 
-            Int32 MT = Properties.Settings.Default.MultiThreadedMode ? Properties.Settings.Default.MultiThreadedLimitV : 1;
+            var MT = Properties.Settings.Default.MultiThreadedMode ? Properties.Settings.Default.MultiThreadedLimitV : 1;
             CTS = new CancellationTokenSource();
             ParallelOptions PO = new ParallelOptions { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token };
 
             try
             {
-                Parallel.ForEach(MIDIsToLoad, PO, (str, LS) =>
+                ParallelLoopExt.ParallelFor(0, MIDIsToLoad.Length, Environment.ProcessorCount / 2, CTS.Token, T =>
                 {
                     try
                     {
-                        CheckDirectory(ref CurrentMaxIndex, str);
+                        if (CTS.Token.IsCancellationRequested)
+                            return;
 
-                        PO.CancellationToken.ThrowIfCancellationRequested();
+                        CheckDirectory(ref CurrentMaxIndex, MIDIsToLoad[T]);
                     }
                     catch (OperationCanceledException) { }
                     catch (Exception EX)
@@ -104,7 +105,6 @@ namespace OmniConverter
             }
             catch (OperationCanceledException) { }
             finally { CTS.Dispose(); CTS = null; }
-
 
             if (InvalidFiles > 0 && !IgnoreInvalidMIDIs && !CheckStop)
             {
@@ -208,7 +208,7 @@ namespace OmniConverter
         }
 
         // Check if file is valid
-        private String GetInfoMIDI(ref long CMI, string str, out MIDI MIDIStruct)
+        private String GetInfoMIDI(ref long CMI, string str, out MIDI? MIDIStruct)
         {
             // Set MIDIStruct as null first
             String ID = IDGenerator.GetID();
@@ -230,7 +230,7 @@ namespace OmniConverter
                 MIDIT.UpdateTitle($"Loading...");
                 MIDIT.UpdatePBStyle(ProgressBarStyle.Marquee);
 
-                MIDIStruct = MIDI.LoadFromFile(CMI, str, Path.GetFileName(str), (p, t) =>
+                MIDIStruct = MIDI.LoadFromFile(CMI, str, Path.GetFileName(str), CTS.Token, (p, t) =>
                 {
                     MIDIT.UpdateTitle($"{p}/{t}");
                     MIDIT.UpdatePBStyle(ProgressBarStyle.Blocks);
@@ -248,7 +248,7 @@ namespace OmniConverter
             }
             catch (Exception ex)
             {
-                return String.Format("A {0} exception has occured while loading the file.", ex.InnerException.ToString());
+                return String.Format("A {0} exception has occured while loading the file.", ex.ToString());
             }
         }
 
@@ -262,12 +262,12 @@ namespace OmniConverter
                     CheckFile(ref CMI, file);
                 }
             }
-            catch (Exception EX)
+            catch (Exception ex)
             {
                 Debug.ShowMsgBox(
                     "Error while checking MIDIs",
                     "An error has occured while checking the imported MIDIs.",
-                    EX.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 Close();
             }
@@ -284,6 +284,16 @@ namespace OmniConverter
                 Path.GetExtension(str).ToLower() == ".rmi" ||
                 Path.GetExtension(str).ToLower() == ".riff")
             {
+                for (int i = 0; i < Program.MIDIList.Count; i++)
+                {
+                    if (Program.MIDIList[i].Path == str)
+                    {
+                        SpawnErrorInLog(str, "You can only load the same file once.");
+                        InvalidFiles++;
+                        return;
+                    }
+                }
+
                 ErrorReason = GetInfoMIDI(ref CMI, str, out MIDIInfo);
 
                 if (MIDIInfo != null)
@@ -295,14 +305,20 @@ namespace OmniConverter
             }
             else ErrorReason = "Unrecognized file extension.";
 
-            this.Invoke((MethodInvoker)delegate
-            {
-                InvalidMIDI MIDIT = new InvalidMIDI(str, ErrorReason, Program.Error);
-                MIDIT.Dock = DockStyle.Top;
-                LogPanel.Controls.Add(MIDIT);
-            });
+            SpawnErrorInLog(str, ErrorReason);
 
             InvalidFiles++;
+        }
+
+        private void SpawnErrorInLog(string path, string ErrorReason)
+        {
+            InvalidMIDI MIDIT = new InvalidMIDI(path, ErrorReason, Program.Error);
+            MIDIT.Dock = DockStyle.Top;
+
+            this.Invoke((MethodInvoker)delegate
+            {
+                LogPanel.Controls.Add(MIDIT);
+            });
         }
 
         // Code by Mac Gravell, edited by Keppy
