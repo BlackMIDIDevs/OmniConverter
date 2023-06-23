@@ -1,3 +1,6 @@
 [submodule "MIDIModificationFramework"]
 	path = MIDIModificationFramework
-	url = https://github.com/arduano/MIDIModificationFramework.git
+url=https://github.com/KaleidonKep99/MIDIModificationFramework.git
+[submodule "ManagedBass"]
+	path = ManagedBass
+	url = https://github.com/KaleidonKep99/ManagedBass

@@ -220,32 +220,27 @@ namespace OmniConverter
             {
                 TaskStatus MIDIT = new TaskStatus(Path.GetFileName(str));
                 MIDIT.Dock = DockStyle.Top;
+
                 LogPanel.Invoke((MethodInvoker)delegate
                 {
                     Debug.PrintToConsole("ok", "Added MIDIThreadStatus control for MIDI.");
                     LogPanel.Controls.Add(MIDIT);
                 });
 
-                MIDIT.Invoke((MethodInvoker)delegate
-                {
-                    MIDIT.UpdateTitle($"Loading...");
-                    MIDIT.UpdatePBStyle(ProgressBarStyle.Marquee);
-                });
+                MIDIT.UpdateTitle($"Loading...");
+                MIDIT.UpdatePBStyle(ProgressBarStyle.Marquee);
 
                 MIDIStruct = MIDI.LoadFromFile(CMI, str, Path.GetFileName(str), (p, t) =>
                 {
-                    MIDIT.Invoke((MethodInvoker)delegate
-                    {
-                        MIDIT.UpdateTitle($"{p}/{t}");
-                        MIDIT.UpdatePBStyle(ProgressBarStyle.Blocks);
-                        MIDIT.UpdatePB((100 * p) / t);
-                    });
+                    MIDIT.UpdateTitle($"{p}/{t}");
+                    MIDIT.UpdatePBStyle(ProgressBarStyle.Blocks);
+                    MIDIT.UpdatePB((100 * p) / t);
                 });
 
                 LogPanel.Invoke((MethodInvoker)delegate
                 {
                     Debug.PrintToConsole("ok", "Removed MIDIThreadStatus control for MIDI.");
-                    LogPanel.Controls.Remove(MIDIT);
+                    MIDIT.Dispose();
                 });
 
                 Debug.PrintToConsole("ok", String.Format("{0} - Analysis finished for MIDI {1}.", ID, str));

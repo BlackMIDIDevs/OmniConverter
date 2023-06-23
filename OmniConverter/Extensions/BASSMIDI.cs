@@ -277,11 +277,15 @@ namespace OmniConverter
             return BassMidi.StreamEvents(Handle, MidiEventsMode.Struct, new MidiEvent[] { data });
         }
 
-        public unsafe int SendEventRaw(uint data, int channel)
+        public int SendEventRaw(byte[] data)
         {
-            var mode = MidiEventsMode.Raw | MidiEventsMode.NoRunningStatus;
+            return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.NoRunningStatus, data);
+        }
+
+        public unsafe int SendEventRaw(uint data)
+        {
             IntPtr idata = (IntPtr)(&data);
-            return BassMidi.StreamEvents(Handle, mode, idata, 3);
+            return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.NoRunningStatus, idata, 3);
         }
 
         public unsafe int SendEndEvent()

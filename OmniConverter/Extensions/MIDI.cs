@@ -29,7 +29,7 @@ namespace OmniConverter
         }
 
         public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(int track) =>
-            LoadedFile.GetTrack(track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
+            LoadedFile.GetTrackUnsafe(track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<MIDIEvent> GetFullMIDITimeBased() =>
             LoadedFile.IterateTracks().MergeAll().MakeTimeBased(LoadedFile.PPQ);
@@ -68,33 +68,36 @@ namespace OmniConverter
                 {
                     time += e.DeltaTime;
 
-                    // checking the most common events first for efficiency
-                    if (e is NoteOnEvent)
+                    switch (e)
                     {
-                        nc++;
-                        delta += e.DeltaTime;
-                        continue;
+                        case NoteOnEvent fev:
+                            nc++;
+                            delta += e.DeltaTime;
+
+                            break;
+
+                        case NoteOffEvent fev:
+                            delta += e.DeltaTime;
+
+                            break;
+
+                        case TempoEvent tev:
+                        case ControlChangeEvent ccev:
+                        case ProgramChangeEvent pcev:
+                        case ChannelPressureEvent cpev:
+                        case PitchWheelChangeEvent pwcev:
+                            e.DeltaTime += delta;
+                            delta = 0;
+                            trackMetaEvents.Add(e);
+
+                            break;
+
+                        default:
+                            delta += e.DeltaTime;
+
+                            break;
                     }
-                    else if (e is NoteOffEvent)
-                    {
-                        delta += e.DeltaTime;
-                        continue;
-                    }
-                    else if (
-                        e is TempoEvent ||
-                        e is ControlChangeEvent ||
-                        e is ProgramChangeEvent ||
-                        e is ChannelPressureEvent ||
-                        e is PitchWheelChangeEvent)
-                    {
-                        e.DeltaTime += delta;
-                        delta = 0;
-                        trackMetaEvents.Add(e);
-                    }
-                    else
-                    {
-                        delta += e.DeltaTime;
-                    }
+
                 }
 
                 lock (l)

@@ -128,6 +128,7 @@ namespace OmniConverter
 
                         time += e.DeltaTime;
                         converted = time;
+                        var eb = e.GetData();
                         var writeTime = (long)(time * format.SampleRate);
                         var offset = (int)((writeTime - prevWriteTime) * 2);
                         prevWriteTime = writeTime;
@@ -148,46 +149,46 @@ namespace OmniConverter
                             }
                         }
 
-                        if (e is NoteOnEvent)
+                        switch (e)
                         {
-                            var ev = e as NoteOnEvent;
-                            bass.SendEventRaw((uint)(ev.Channel | 0x90 | (ev.Key << 8) | (ev.Velocity << 16)), 0);
-                        }
-                        else if (e is NoteOffEvent)
-                        {
-                            var ev = e as NoteOffEvent;
-                            bass.SendEventRaw((uint)(ev.Channel | 0x80 | (ev.Key << 8)), 0);
-                        }
-                        else if (e is PolyphonicKeyPressureEvent)
-                        {
-                            var ev = e as PolyphonicKeyPressureEvent;
-                            bass.SendEventRaw((uint)(ev.Channel | 0xA0 | (ev.Key << 8) | (ev.Velocity << 16)), 0);
-                        }
-                        else if (e is ControlChangeEvent)
-                        {
-                            var ev = e as ControlChangeEvent;
-
-                            if (Properties.Settings.Default.RVOverrideToggle && (ev.Controller == 0x5B || ev.Controller == 0x5D))
+/*
+                            case NoteOnEvent ev:
+                                bass.SendEventRaw((uint)(ev.Channel | 0x90 | (ev.Key << 8) | (ev.Velocity << 16)));
                                 continue;
 
-                            bass.SendEventRaw((uint)(0xB0 | (ev.Controller << 8) | (ev.Value << 16)), ev.Channel + 1);
-                        }
-                        else if (e is ProgramChangeEvent)
-                        {
-                            var ev = e as ProgramChangeEvent;
-                            bass.SendEventRaw((uint)(ev.Channel | 0xC0 | (ev.Program << 8)), 0);
-                        }
-                        else if (e is ChannelPressureEvent)
-                        {
-                            var ev = e as ChannelPressureEvent;
-                            bass.SendEventRaw((uint)(ev.Channel | 0xD0 | (ev.Pressure << 8)), 0);
-                        }
-                        else if (e is PitchWheelChangeEvent)
-                        {
-                            var ev = e as PitchWheelChangeEvent;
-                            var val = ev.Value + 8192;
+                            case NoteOffEvent ev:
+                                bass.SendEventRaw((uint)(ev.Channel | 0x80 | (ev.Key << 8)));
+                                continue;
+*/
 
-                            bass.SendEventRaw((uint)(ev.Channel | 0xE0 | ((val & 0x7F) << 8) | (((val >> 7) & 0x7F) << 16)), 0);
+                            case ControlChangeEvent ev:
+                                if (Properties.Settings.Default.RVOverrideToggle && (ev.Controller == 0x5B || ev.Controller == 0x5D))
+                                    continue;
+
+                                goto default;
+
+/*
+                            case PolyphonicKeyPressureEvent ev:
+                                bass.SendEventRaw((uint)(ev.Channel | 0xA0 | (ev.Key << 8) | (ev.Velocity << 16)));
+                                continue;
+
+                            case ProgramChangeEvent ev:
+                                bass.SendEventRaw((uint)(ev.Channel | 0xC0 | (ev.Program << 8)));
+                                continue;
+
+                            case ChannelPressureEvent ev:
+                                bass.SendEventRaw((uint)(ev.Channel | 0xD0 | (ev.Pressure << 8)));
+                                continue;
+
+                            case PitchWheelChangeEvent ev:
+                                var val = ev.Value + 8192;
+                                bass.SendEventRaw((uint)(ev.Channel | 0xE0 | ((val & 0x7F) << 8) | (((val >> 7) & 0x7F) << 16)));
+                                continue;
+*/
+
+                            default:
+                                bass.SendEventRaw(eb);
+                                continue;
                         }
                     }
                 }
