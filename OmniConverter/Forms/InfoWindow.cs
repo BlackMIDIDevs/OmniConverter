@@ -20,7 +20,7 @@ namespace OmniConverter
 {
     public partial class InfoWindow : Form
     {
-        private Version Converter = new Version(0, 0, 7, 0);
+        private Version Converter = new Version(0, 0, 8, 0);
 
         private ToolTip DynamicToolTip = new ToolTip();
         private RegistryKey WVerKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", false);
