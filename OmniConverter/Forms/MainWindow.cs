@@ -1,9 +1,11 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using Application = System.Windows.Forms.Application;
 
 namespace OmniConverter
 {
@@ -15,6 +17,8 @@ namespace OmniConverter
 
             this.MainMenuStrip = OCMenu;
             MIDIQueue.ContextMenuStrip = OCContextMenu;
+            VolBar.Value = (int)(Properties.Settings.Default.Volume * 10000);
+            VolBar_Scroll(null, null);
 
             if (MIDIs.Length > 0)
                 new MIDIImporter(MIDIs, true).ShowDialog();
@@ -43,7 +47,7 @@ namespace OmniConverter
         {
             Boolean AtLeastOne = MIDIQueue.SelectedItems.Count > 0, MultiSelect = MIDIQueue.SelectedItems.Count > 1, TooMany = MIDIQueue.SelectedItems.Count > 4;
 
-            TMIDIs.Text = String.Format("Total MIDIs in queue: {0}", MIDIQueue.Items.Count.ToString("N0", new CultureInfo("is-IS")));
+            InfoBox.Text = String.Format("Information (Total MIDIs in queue: {0})", MIDIQueue.Items.Count.ToString("N0", new CultureInfo("is-IS")));
             Debug.PrintToConsole("ok", "GetSelectedMIDIInfo() called.");
 
             while (AtLeastOne)
@@ -215,9 +219,9 @@ namespace OmniConverter
                 {
                     System.Diagnostics.ProcessStartInfo PSI;
                     Version OSVer = Environment.OSVersion.Version;
-                    String HybridShutdown = "";
+                    string HybridShutdown = "";
 
-                    if (OSVer.Major == 6 && OSVer.Minor >= 2 || OSVer.Major >= 10)
+                    if (OSVer.Major == 6 && OSVer.Minor >= 2 || OSVer.Major >= 6)
                         HybridShutdown = " /hybrid";
 
                     switch (Properties.Settings.Default.DoActionAfterRenderV)
@@ -229,13 +233,13 @@ namespace OmniConverter
                             Application.SetSuspendState(PowerState.Hibernate, true, false);
                             break;
                         case 2:
-                            PSI = new System.Diagnostics.ProcessStartInfo("shutdown", String.Format("/s{0} /t 15 /c \"Automatic shutdown through OmniProgram.\"", HybridShutdown));
+                            PSI = new System.Diagnostics.ProcessStartInfo("shutdown", String.Format("/s{0} /t 15 /c \"Automatic shutdown through OmniConverter.\"", HybridShutdown));
                             PSI.CreateNoWindow = true;
                             PSI.UseShellExecute = false;
                             System.Diagnostics.Process.Start(PSI);
                             break;
                         case 3:
-                            PSI = new System.Diagnostics.ProcessStartInfo("shutdown", "/r /t 0");
+                            PSI = new System.Diagnostics.ProcessStartInfo("shutdown", "/r /t 15 /c \"Automatic restart through OmniConverter.\"");
                             PSI.CreateNoWindow = true;
                             PSI.UseShellExecute = false;
                             System.Diagnostics.Process.Start(PSI);
@@ -245,6 +249,17 @@ namespace OmniConverter
                     }
                 }
             }
+        }
+
+        private void VolBar_Scroll(object sender, EventArgs e)
+        {
+            if (sender != null && e != null)
+            {
+                Properties.Settings.Default.Volume = (float)Convert.ToDouble(VolBar.Value / 10000.0f);
+                Properties.Settings.Default.Save();
+            }
+
+            VolLab.Text = $"({20 * Math.Log10(Properties.Settings.Default.Volume / 1.0f):0.00}dB) {VolBar.Value / 100.0f:000.00}%";
         }
 
         private void MIDIQueue_KeyDown(object sender, KeyEventArgs e)
@@ -261,10 +276,21 @@ namespace OmniConverter
         private void MIDIQueue_DragDrop(object sender, DragEventArgs e)
         {
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            new MIDIImporter(files, false).ShowDialog();
 
-            RebindList();
-            GetSelectedMIDIInfo();
+            Debug.PrintToConsole("ok", $"DragDrop detected, {files.Length} files.");
+
+            if (files.Length > 0)
+            {
+                var t = new MIDIImporter(files, false);
+
+                t.ShowDialog();
+
+                if (t.TotalValidFiles() > 0)
+                {
+                    RebindList();
+                    GetSelectedMIDIInfo();
+                }
+            }
         }
 
         private void COS_Click(object sender, EventArgs e)

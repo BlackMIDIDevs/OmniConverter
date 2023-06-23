@@ -35,8 +35,8 @@ namespace OmniConverter
             MTLimitVal.Value = Properties.Settings.Default.MultiThreadedLimitV.LimitToRange(1, Environment.ProcessorCount);
 
             AutoOutputFolder.Checked = Properties.Settings.Default.AutoOutputFolder;
-            AOFPath.Text = 
-                (Properties.Settings.Default.AOFPath.ToLowerInvariant() == "null" ? 
+            AOFPath.Text =
+                (Properties.Settings.Default.AOFPath.ToLowerInvariant() == "null" ?
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop) : Properties.Settings.Default.AOFPath);
 
             DoActionAfterRender.Checked = Properties.Settings.Default.DoActionAfterRender;

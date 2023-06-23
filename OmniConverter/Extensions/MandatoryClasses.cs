@@ -1,6 +1,6 @@
-﻿using System;
+﻿using ManagedBass.Midi;
+using System;
 using System.Collections.Generic;
-using Un4seen.Bass.AddOn.Midi;
 
 namespace OmniConverter
 {
@@ -80,7 +80,7 @@ namespace OmniConverter
     public class SoundFonts
     {
         public List<SoundFont> List;
-        public BASS_MIDI_FONTEX[] BMFEArray;
+        public MidiFontEx[] BMFEArray;
 
         public SoundFonts()
         {

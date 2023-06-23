@@ -8,8 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Midi;
+using static System.Net.WebRequestMethods;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace OmniConverter
 {
@@ -17,15 +17,14 @@ namespace OmniConverter
     {
         private Boolean CheckStop = false;
         private Boolean IgnoreInvalidMIDIs = false;
-        private String[] MIDIsToLoad;
+        private string[] MIDIsToLoad;
         private Thread MIDIAnalyzerT, MIDIPathChecker;
 
-        private UInt64 ValidFiles = 0;
-        private UInt64 InvalidFiles = 0;
-        private UInt64 TotalFiles = 0;
+        private ulong ValidFiles = 0;
+        private ulong InvalidFiles = 0;
+        private ulong TotalFiles = 0;
 
         private CancellationTokenSource CTS = null;
-        public ArrayList ValidMIDIs { get; set; }
         public DialogResult Result { get; set; }
 
         public MIDIImporter(String[] MIDIs, Boolean StartUp)
@@ -83,37 +82,34 @@ namespace OmniConverter
             CTS = new CancellationTokenSource();
             ParallelOptions PO = new ParallelOptions { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token };
 
-            if (Bass.BASS_Init(0, 4000, BASSInit.BASS_DEVICE_NOSPEAKER, IntPtr.Zero))
+            try
             {
-                try
+                Parallel.ForEach(MIDIsToLoad, PO, (str, LS) =>
                 {
-                    Parallel.ForEach(MIDIsToLoad, PO, (str, LS) =>
+                    try
                     {
-                        try
-                        {
-                            CheckDirectory(ref CurrentMaxIndex, str);
+                        CheckDirectory(ref CurrentMaxIndex, str);
 
-                            PO.CancellationToken.ThrowIfCancellationRequested();
-                        }
-                        catch (OperationCanceledException) { }
-                        catch (Exception EX)
-                        {
-                            Debug.ShowMsgBox(
-                                    "Error while checking MIDIs",
-                                    "An error has occured while checking the imported MIDIs.",
-                                    EX.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    });
-                }
-                catch (OperationCanceledException) { }
-                finally { CTS.Dispose(); CTS = null; }
-
-                Bass.BASS_Free();
+                        PO.CancellationToken.ThrowIfCancellationRequested();
+                    }
+                    catch (OperationCanceledException) { }
+                    catch (Exception EX)
+                    {
+                        Debug.ShowMsgBox(
+                                "Error while checking MIDIs",
+                                "An error has occured while checking the imported MIDIs.",
+                                EX.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                });
             }
+            catch (OperationCanceledException) { }
+            finally { CTS.Dispose(); CTS = null; }
+
 
             if (InvalidFiles > 0 && !IgnoreInvalidMIDIs && !CheckStop)
             {
-                this.Invoke((MethodInvoker)delegate {
+                this.Invoke((MethodInvoker)delegate
+                {
                     Check.Enabled = false;
                     PB.State = wyDay.Controls.ProgressBarState.Error;
                     PB.Value = 100;
@@ -129,7 +125,6 @@ namespace OmniConverter
 
         private void CancelBtn_Click(object sender, EventArgs e)
         {
-            CancelBtn.Enabled = false;
             new Thread(() =>
             {
                 Int32 SleepCount = 0;
@@ -139,7 +134,9 @@ namespace OmniConverter
                 {
                     Debug.PrintToConsole("wrn", "MIDIAnalyzerT is still alive! Asking if user wants to quit.");
 
-                    this.Invoke((MethodInvoker)delegate {
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        CancelBtn.Enabled = false;
                         DR1 = MessageBox.Show("Are you sure you want to terminate the analysis process?", "The converter is still analyzing data", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                     });
 
@@ -163,8 +160,9 @@ namespace OmniConverter
                             {
                                 Debug.PrintToConsole("err", "CThread is still alive!");
 
-                                this.Invoke((MethodInvoker)delegate {
-                                    DR2 = MessageBox.Show("The conversion threads seem to have got stuck, are you sure you want to continue?\n\nThis could cause unexpected behavior.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                                this.Invoke((MethodInvoker)delegate
+                                {
+                                    DR2 = MessageBox.Show("The analysis threads seem to have got stuck, are you sure you want to continue?\n\nThis could cause unexpected behavior.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                                 });
 
                                 switch (DR2)
@@ -174,6 +172,7 @@ namespace OmniConverter
                                         break;
                                     default:
                                     case DialogResult.No:
+                                        this.Invoke((MethodInvoker)delegate { CancelBtn.Enabled = true; });
                                         return;
                                 }
                             }
@@ -200,8 +199,8 @@ namespace OmniConverter
             catch (Exception EX)
             {
                 Debug.ShowMsgBox(
-                    "Error while checking MIDIs", 
-                    "An error has occured while checking the imported MIDIs.", 
+                    "Error while checking MIDIs",
+                    "An error has occured while checking the imported MIDIs.",
                     EX.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 Close();
@@ -209,7 +208,7 @@ namespace OmniConverter
         }
 
         // Check if file is valid
-        private String GetInfoMIDI(ref Int64 CMI, string str, out MIDI MIDIStruct)
+        private String GetInfoMIDI(ref long CMI, string str, out MIDI MIDIStruct)
         {
             // Set MIDIStruct as null first
             String ID = IDGenerator.GetID();
@@ -219,13 +218,41 @@ namespace OmniConverter
 
             try
             {
-                MIDIStruct = MIDI.LoadFromFile(CMI, str, Path.GetFileName(str), (p, t) => Console.WriteLine(p + "/" + t));
+                TaskStatus MIDIT = new TaskStatus(Path.GetFileName(str));
+                MIDIT.Dock = DockStyle.Top;
+                LogPanel.Invoke((MethodInvoker)delegate
+                {
+                    Debug.PrintToConsole("ok", "Added MIDIThreadStatus control for MIDI.");
+                    LogPanel.Controls.Add(MIDIT);
+                });
+
+                MIDIT.Invoke((MethodInvoker)delegate
+                {
+                    MIDIT.UpdateTitle($"Loading...");
+                    MIDIT.UpdatePBStyle(ProgressBarStyle.Marquee);
+                });
+
+                MIDIStruct = MIDI.LoadFromFile(CMI, str, Path.GetFileName(str), (p, t) =>
+                {
+                    MIDIT.Invoke((MethodInvoker)delegate
+                    {
+                        MIDIT.UpdateTitle($"{p}/{t}");
+                        MIDIT.UpdatePBStyle(ProgressBarStyle.Blocks);
+                        MIDIT.UpdatePB((100 * p) / t);
+                    });
+                });
+
+                LogPanel.Invoke((MethodInvoker)delegate
+                {
+                    Debug.PrintToConsole("ok", "Removed MIDIThreadStatus control for MIDI.");
+                    LogPanel.Controls.Remove(MIDIT);
+                });
 
                 Debug.PrintToConsole("ok", String.Format("{0} - Analysis finished for MIDI {1}.", ID, str));
                 return "No error.";
             }
             catch (Exception ex)
-            { 
+            {
                 return String.Format("A {0} exception has occured while loading the file.", ex.InnerException.ToString());
             }
         }
@@ -273,7 +300,8 @@ namespace OmniConverter
             }
             else ErrorReason = "Unrecognized file extension.";
 
-            this.Invoke((MethodInvoker)delegate {
+            this.Invoke((MethodInvoker)delegate
+            {
                 InvalidMIDI MIDIT = new InvalidMIDI(str, ErrorReason, Program.Error);
                 MIDIT.Dock = DockStyle.Top;
                 LogPanel.Controls.Add(MIDIT);
@@ -328,7 +356,7 @@ namespace OmniConverter
                 }
 
                 // If the queued item is actually a direct path to the file, return it to the foreach loop
-                if (File.Exists(Target)) yield return Target;
+                if (System.IO.File.Exists(Target)) yield return Target;
             }
         }
 
@@ -347,5 +375,7 @@ namespace OmniConverter
             }
             catch { }
         }
+
+        public ulong TotalValidFiles() { return ValidFiles; }
     }
 }

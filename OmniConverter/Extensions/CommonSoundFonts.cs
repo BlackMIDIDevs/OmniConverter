@@ -1,7 +1,10 @@
-﻿using System;
+﻿using ManagedBass;
+using ManagedBass.Midi;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 namespace OmniConverter
 {
     class CommonSoundFonts
@@ -138,11 +141,73 @@ namespace OmniConverter
                 MS.Dispose();
 
                 Debug.PrintToConsole("ok", "Common SoundFonts list successfully loaded.");
+
+                LoadSoundFonts();
+
                 return true;
             }
 
             Debug.PrintToConsole("ok", "It doesn't.");
             return false;
+        }
+
+        public static void LoadSoundFonts()
+        {
+            var BMFEList = new List<MidiFontEx>();
+
+            foreach (SoundFont SF in Program.SFArray.List)
+            {
+                if (!SF.IsEnabled)
+                {
+                    Debug.PrintToConsole("ok", "SoundFont is disabled, there's no need to load it.");
+                    continue;
+                }
+
+                MidiFontEx TSF;
+                Debug.PrintToConsole("ok", String.Format("Preparing BASS_MIDI_FONTEX for {0}...", SF.GetSoundFontPath));
+
+                TSF.Handle = BassMidi.FontInit(SF.GetSoundFontPath, SF.GetXGMode ? FontInitFlags.XGDrums : (FontInitFlags)0 | FontInitFlags.Unicode);
+                Debug.PrintToConsole("ok", String.Format("SoundFont handle initialized. Handle = {0:X8}", TSF.Handle));
+
+                TSF.SoundFontPreset = SF.GetSourcePreset;
+                TSF.SoundFontBank = SF.GetSourceBank;
+                TSF.DestinationPreset = SF.GetDestinationPreset;
+                TSF.DestinationBank = SF.GetDestinationBank;
+                TSF.DestinationBankLSB = SF.GetDestinationBankLSB;
+                Debug.PrintToConsole("ok",
+                    String.Format(
+                        "spreset = {0}, sbank = {1}, dpreset = {2}, dbank = {3}, dbanklsb = {4}, xg = {5}",
+                        TSF.SoundFontPreset, TSF.SoundFontBank, TSF.DestinationPreset, TSF.DestinationBank, TSF.DestinationBankLSB, SF.GetXGMode
+                        )
+                    );
+
+                if (TSF.Handle != 0)
+                {
+                    BassMidi.FontLoad(TSF.Handle, TSF.SoundFontPreset, TSF.SoundFontBank);
+                    BMFEList.Add(TSF);
+                    Debug.PrintToConsole("ok", "SoundFont loaded and added to BASS_MIDI_FONTEX array.");
+                }
+                else Debug.PrintToConsole("err", String.Format("Could not load {0}. BASSERR: {1}", SF.GetSoundFontPath, Bass.LastError));
+            }
+
+            Debug.PrintToConsole("ok", "Reversing array...");
+            BMFEList.Reverse();
+
+            if (Program.SFArray.BMFEArray != null)
+                Program.SFArray.BMFEArray = null;
+
+            Program.SFArray.BMFEArray = (MidiFontEx[])Array.CreateInstance(typeof(MidiFontEx), BMFEList.Count);
+            Array.Copy(BMFEList.ToArray(), Program.SFArray.BMFEArray, BMFEList.Count);
+        }
+
+        public static void FreeSoundFonts()
+        {
+            Debug.PrintToConsole("ok", "Freeing SoundFont handles...");
+            foreach (var SF in Program.SFArray.BMFEArray)
+                BassMidi.FontFree(SF.Handle);
+
+            Debug.PrintToConsole("ok", "Handles freed.");
+            Program.SFArray.BMFEArray = null;
         }
     }
 }

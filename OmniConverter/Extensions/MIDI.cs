@@ -13,8 +13,9 @@ namespace OmniConverter
     {
         private MidiFile LoadedFile;
         private IEnumerable<MIDIEvent> MetaEvents;
+        private bool _disposed = false;
 
-        private MIDI(Int64 I, String FN, String FP, MidiFile LF, IEnumerable<MIDIEvent> ME, TimeSpan TL, Int32 T, Int64 NC, UInt64 S)
+        private MIDI(long I, string FN, string FP, MidiFile LF, IEnumerable<MIDIEvent> ME, TimeSpan TL, int T, long NC, ulong S)
         {
             ID = I;
             Name = FN;
@@ -27,8 +28,8 @@ namespace OmniConverter
             MetaEvents = ME;
         }
 
-        public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(Int32 track) =>
-            LoadedFile.GetTrack((Int32)track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
+        public IEnumerable<MIDIEvent> GetSingleTrackTimeBased(int track) =>
+            LoadedFile.GetTrack(track).MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ);
 
         public IEnumerable<MIDIEvent> GetFullMIDITimeBased() =>
             LoadedFile.IterateTracks().MergeAll().MakeTimeBased(LoadedFile.PPQ);
@@ -36,25 +37,25 @@ namespace OmniConverter
         public IEnumerable<IEnumerable<MIDIEvent>> GetIterateTracksTimeBased() =>
             LoadedFile.IterateTracks().Select(track => track.MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ));
 
-        public Int64 ID { get; }
-        public String Name { get; }
-        public String Path { get; }
-        public TimeSpan TimeLength { get; }
-        public Int32 Tracks { get; }
-        public Int64 NoteCount { get; }
-        public UInt64 Size { get; }
+        public long ID { get; private set; }
+        public string Name { get; private set; }
+        public string Path { get; private set; }
+        public TimeSpan TimeLength { get; private set; }
+        public int Tracks { get; private set; }
+        public long NoteCount { get; private set; }
+        public ulong Size { get; private set; }
 
-        public static MIDI LoadFromFile(long id, string filepath, string name, Action<Int64, Int64> progressCallback)
+        public static MIDI LoadFromFile(long id, string filepath, string name, Action<int, int> progressCallback)
         {
             var file = new MidiFile(filepath);
             ulong fileSize = (ulong)new FileInfo(filepath).Length;
 
             double maxTicks = 0;
-            Int64 noteCount = 0;
+            long noteCount = 0;
             object l = new object();
 
             var midiMetaEvents = new List<IEnumerable<MIDIEvent>>();
-            Int64 tracksParsed = 0;
+            int tracksParsed = 0;
 
             // loop over all tracks in parallel
             Parallel.ForEach(file.IterateTracks(), ev =>
@@ -121,7 +122,28 @@ namespace OmniConverter
 
         public void Dispose()
         {
-            LoadedFile.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+                LoadedFile.Dispose();
+
+            MetaEvents = Enumerable.Empty<MIDIEvent>();
+            ID = 0;
+            Name = string.Empty;
+            Path = string.Empty;
+            TimeLength = TimeSpan.Zero;
+            Tracks = 0;
+            NoteCount = 0;
+            Size = 0;
+
+            _disposed = true;
         }
     }
 }

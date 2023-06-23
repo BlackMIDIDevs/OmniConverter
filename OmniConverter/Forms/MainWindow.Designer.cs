@@ -31,21 +31,23 @@
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             OCMenu = new System.Windows.Forms.MenuStrip();
-            menuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            Files = new System.Windows.Forms.ToolStripMenuItem();
             AddMIDIsToQueue = new System.Windows.Forms.ToolStripMenuItem();
             RemoveMIDIsFromQueue = new System.Windows.Forms.ToolStripMenuItem();
             ClearQueue = new System.Windows.Forms.ToolStripMenuItem();
             toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             ExitFromConverter = new System.Windows.Forms.ToolStripMenuItem();
-            menuItem7 = new System.Windows.Forms.ToolStripMenuItem();
+            Help = new System.Windows.Forms.ToolStripMenuItem();
             InfoAboutConverter = new System.Windows.Forms.ToolStripMenuItem();
             toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             CreateIssueGitHub = new System.Windows.Forms.ToolStripMenuItem();
             CheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
             toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             DownloadConvSrc = new System.Windows.Forms.ToolStripMenuItem();
-            groupBox1 = new System.Windows.Forms.GroupBox();
-            TMIDIs = new System.Windows.Forms.Label();
+            InfoBox = new System.Windows.Forms.GroupBox();
+            VolLab = new System.Windows.Forms.Label();
+            label1 = new System.Windows.Forms.Label();
+            VolBar = new System.Windows.Forms.TrackBar();
             FNVal = new System.Windows.Forms.RichTextBox();
             CMIDIs = new System.Windows.Forms.Button();
             FPVal = new System.Windows.Forms.RichTextBox();
@@ -67,24 +69,25 @@
             RemoveMIDIsFromQueueRC = new System.Windows.Forms.ToolStripMenuItem();
             ClearQueueRC = new System.Windows.Forms.ToolStripMenuItem();
             OCMenu.SuspendLayout();
-            groupBox1.SuspendLayout();
+            InfoBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)VolBar).BeginInit();
             OCContextMenu.SuspendLayout();
             SuspendLayout();
             // 
             // OCMenu
             // 
-            OCMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { menuItem1, menuItem7 });
+            OCMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { Files, Help });
             OCMenu.Location = new System.Drawing.Point(0, 0);
             OCMenu.Name = "OCMenu";
             OCMenu.Size = new System.Drawing.Size(784, 24);
-            OCMenu.TabIndex = 2;
+            OCMenu.TabIndex = 1;
             // 
-            // menuItem1
+            // Files
             // 
-            menuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { AddMIDIsToQueue, RemoveMIDIsFromQueue, ClearQueue, toolStripMenuItem1, ExitFromConverter });
-            menuItem1.Name = "menuItem1";
-            menuItem1.Size = new System.Drawing.Size(37, 20);
-            menuItem1.Text = "File";
+            Files.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { AddMIDIsToQueue, RemoveMIDIsFromQueue, ClearQueue, toolStripMenuItem1, ExitFromConverter });
+            Files.Name = "Files";
+            Files.Size = new System.Drawing.Size(37, 20);
+            Files.Text = "File";
             // 
             // AddMIDIsToQueue
             // 
@@ -119,12 +122,12 @@
             ExitFromConverter.Text = "Exit";
             ExitFromConverter.Click += ExitFromConverter_Click;
             // 
-            // menuItem7
+            // Help
             // 
-            menuItem7.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { InfoAboutConverter, toolStripMenuItem3, CreateIssueGitHub, CheckForUpdates, toolStripMenuItem2, DownloadConvSrc });
-            menuItem7.Name = "menuItem7";
-            menuItem7.Size = new System.Drawing.Size(24, 20);
-            menuItem7.Text = "?";
+            Help.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { InfoAboutConverter, toolStripMenuItem3, CreateIssueGitHub, CheckForUpdates, toolStripMenuItem2, DownloadConvSrc });
+            Help.Name = "Help";
+            Help.Size = new System.Drawing.Size(24, 20);
+            Help.Text = "?";
             // 
             // InfoAboutConverter
             // 
@@ -162,41 +165,66 @@
             DownloadConvSrc.Size = new System.Drawing.Size(276, 22);
             DownloadConvSrc.Text = "Download the converter's source code";
             // 
-            // groupBox1
+            // InfoBox
             // 
-            groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            groupBox1.Controls.Add(TMIDIs);
-            groupBox1.Controls.Add(FNVal);
-            groupBox1.Controls.Add(CMIDIs);
-            groupBox1.Controls.Add(FPVal);
-            groupBox1.Controls.Add(COS);
-            groupBox1.Controls.Add(TLVal);
-            groupBox1.Controls.Add(ESFL);
-            groupBox1.Controls.Add(TLLab);
-            groupBox1.Controls.Add(SVal);
-            groupBox1.Controls.Add(SLab);
-            groupBox1.Controls.Add(TVal);
-            groupBox1.Controls.Add(TLab);
-            groupBox1.Controls.Add(NCVal);
-            groupBox1.Controls.Add(NCLab);
-            groupBox1.Controls.Add(FPLab);
-            groupBox1.Controls.Add(FNLab);
-            groupBox1.Location = new System.Drawing.Point(12, 394);
-            groupBox1.Name = "groupBox1";
-            groupBox1.Size = new System.Drawing.Size(760, 134);
-            groupBox1.TabIndex = 1;
-            groupBox1.TabStop = false;
-            groupBox1.Text = "Information";
+            InfoBox.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            InfoBox.Controls.Add(VolLab);
+            InfoBox.Controls.Add(label1);
+            InfoBox.Controls.Add(VolBar);
+            InfoBox.Controls.Add(FNVal);
+            InfoBox.Controls.Add(CMIDIs);
+            InfoBox.Controls.Add(FPVal);
+            InfoBox.Controls.Add(COS);
+            InfoBox.Controls.Add(TLVal);
+            InfoBox.Controls.Add(ESFL);
+            InfoBox.Controls.Add(TLLab);
+            InfoBox.Controls.Add(SVal);
+            InfoBox.Controls.Add(SLab);
+            InfoBox.Controls.Add(TVal);
+            InfoBox.Controls.Add(TLab);
+            InfoBox.Controls.Add(NCVal);
+            InfoBox.Controls.Add(NCLab);
+            InfoBox.Controls.Add(FPLab);
+            InfoBox.Controls.Add(FNLab);
+            InfoBox.Location = new System.Drawing.Point(12, 394);
+            InfoBox.Name = "InfoBox";
+            InfoBox.Size = new System.Drawing.Size(760, 134);
+            InfoBox.TabIndex = 1;
+            InfoBox.TabStop = false;
+            InfoBox.Text = "Information";
             // 
-            // TMIDIs
+            // VolLab
             // 
-            TMIDIs.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
-            TMIDIs.Location = new System.Drawing.Point(595, 60);
-            TMIDIs.Name = "TMIDIs";
-            TMIDIs.Size = new System.Drawing.Size(160, 19);
-            TMIDIs.TabIndex = 7;
-            TMIDIs.Text = "Total MIDIs: 0";
-            TMIDIs.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            VolLab.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            VolLab.Location = new System.Drawing.Point(645, 43);
+            VolLab.Name = "VolLab";
+            VolLab.Size = new System.Drawing.Size(109, 15);
+            VolLab.TabIndex = 14;
+            VolLab.Text = "0% (-∞dB)";
+            VolLab.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label1
+            // 
+            label1.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            label1.Location = new System.Drawing.Point(595, 43);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(53, 15);
+            label1.TabIndex = 13;
+            label1.Text = "Volume:";
+            label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // VolBar
+            // 
+            VolBar.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            VolBar.AutoSize = false;
+            VolBar.Location = new System.Drawing.Point(595, 59);
+            VolBar.Maximum = 10000;
+            VolBar.Name = "VolBar";
+            VolBar.Size = new System.Drawing.Size(160, 23);
+            VolBar.TabIndex = 5;
+            VolBar.TickFrequency = 100;
+            VolBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            VolBar.Scroll += VolBar_Scroll;
             // 
             // FNVal
             // 
@@ -360,7 +388,7 @@
             MIDIQueue.Name = "MIDIQueue";
             MIDIQueue.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             MIDIQueue.Size = new System.Drawing.Size(760, 361);
-            MIDIQueue.TabIndex = 1;
+            MIDIQueue.TabIndex = 2;
             MIDIQueue.SelectedIndexChanged += MIDIQueue_SelectedIndexChanged;
             MIDIQueue.DragDrop += MIDIQueue_DragDrop;
             MIDIQueue.DragEnter += MIDIQueue_DragEnter;
@@ -400,7 +428,7 @@
             ClientSize = new System.Drawing.Size(784, 540);
             ContextMenuStrip = OCContextMenu;
             Controls.Add(MIDIQueue);
-            Controls.Add(groupBox1);
+            Controls.Add(InfoBox);
             Controls.Add(OCMenu);
             Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
@@ -410,8 +438,9 @@
             Load += MainWindow_Load;
             OCMenu.ResumeLayout(false);
             OCMenu.PerformLayout();
-            groupBox1.ResumeLayout(false);
-            groupBox1.PerformLayout();
+            InfoBox.ResumeLayout(false);
+            InfoBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)VolBar).EndInit();
             OCContextMenu.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -420,9 +449,9 @@
         #endregion
 
         private System.Windows.Forms.MenuStrip OCMenu;
-        private System.Windows.Forms.ToolStripMenuItem menuItem1;
+        private System.Windows.Forms.ToolStripMenuItem Files;
         private System.Windows.Forms.ToolStripMenuItem AddMIDIsToQueue;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox InfoBox;
         private System.Windows.Forms.ListBox MIDIQueue;
         private System.Windows.Forms.Label FPLab;
         private System.Windows.Forms.Label FNLab;
@@ -435,7 +464,6 @@
         private System.Windows.Forms.Button CMIDIs;
         private System.Windows.Forms.Button COS;
         private System.Windows.Forms.Button ESFL;
-        private System.Windows.Forms.Label TMIDIs;
         private System.Windows.Forms.Label TLVal;
         private System.Windows.Forms.Label TLLab;
         private System.Windows.Forms.RichTextBox FPVal;
@@ -443,7 +471,7 @@
         private System.Windows.Forms.ToolStripMenuItem RemoveMIDIsFromQueue;
         private System.Windows.Forms.ToolStripMenuItem ClearQueue;
         private System.Windows.Forms.ToolStripMenuItem ExitFromConverter;
-        private System.Windows.Forms.ToolStripMenuItem menuItem7;
+        private System.Windows.Forms.ToolStripMenuItem Help;
         private System.Windows.Forms.ToolStripMenuItem InfoAboutConverter;
         private System.Windows.Forms.ToolStripMenuItem CreateIssueGitHub;
         private System.Windows.Forms.ToolStripMenuItem CheckForUpdates;
@@ -455,6 +483,9 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TrackBar VolBar;
+        private System.Windows.Forms.Label VolLab;
     }
 }
 

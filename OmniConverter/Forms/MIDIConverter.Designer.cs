@@ -28,117 +28,109 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.LogGB = new System.Windows.Forms.GroupBox();
-            this.ThreadsPanel = new System.Windows.Forms.Panel();
-            this.CancelBtn = new System.Windows.Forms.Button();
-            this.PB = new wyDay.Controls.Windows7ProgressBar();
-            this.StatusLab = new System.Windows.Forms.Label();
-            this.Check = new System.Windows.Forms.Timer(this.components);
-            this.TPB = new wyDay.Controls.Windows7ProgressBar();
-            this.LogGB.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            LogGB = new System.Windows.Forms.GroupBox();
+            ThreadsPanel = new System.Windows.Forms.Panel();
+            CancelBtn = new System.Windows.Forms.Button();
+            PB = new wyDay.Controls.Windows7ProgressBar();
+            StatusLab = new System.Windows.Forms.Label();
+            Check = new System.Windows.Forms.Timer(components);
+            TPB = new wyDay.Controls.Windows7ProgressBar();
+            LogGB.SuspendLayout();
+            SuspendLayout();
             // 
             // LogGB
             // 
-            this.LogGB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LogGB.Controls.Add(this.ThreadsPanel);
-            this.LogGB.Location = new System.Drawing.Point(14, 112);
-            this.LogGB.Name = "LogGB";
-            this.LogGB.Size = new System.Drawing.Size(454, 195);
-            this.LogGB.TabIndex = 7;
-            this.LogGB.TabStop = false;
-            this.LogGB.Text = "Active threads";
+            LogGB.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            LogGB.Controls.Add(ThreadsPanel);
+            LogGB.Location = new System.Drawing.Point(14, 112);
+            LogGB.Name = "LogGB";
+            LogGB.Size = new System.Drawing.Size(454, 291);
+            LogGB.TabIndex = 7;
+            LogGB.TabStop = false;
+            LogGB.Text = "Active threads";
             // 
             // ThreadsPanel
             // 
-            this.ThreadsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ThreadsPanel.AutoScroll = true;
-            this.ThreadsPanel.Location = new System.Drawing.Point(2, 20);
-            this.ThreadsPanel.Name = "ThreadsPanel";
-            this.ThreadsPanel.Size = new System.Drawing.Size(449, 172);
-            this.ThreadsPanel.TabIndex = 0;
+            ThreadsPanel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            ThreadsPanel.AutoScroll = true;
+            ThreadsPanel.Location = new System.Drawing.Point(2, 20);
+            ThreadsPanel.Name = "ThreadsPanel";
+            ThreadsPanel.Size = new System.Drawing.Size(449, 268);
+            ThreadsPanel.TabIndex = 0;
             // 
             // CancelBtn
             // 
-            this.CancelBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.CancelBtn.Location = new System.Drawing.Point(380, 78);
-            this.CancelBtn.Name = "CancelBtn";
-            this.CancelBtn.Size = new System.Drawing.Size(87, 27);
-            this.CancelBtn.TabIndex = 6;
-            this.CancelBtn.Text = "Cancel";
-            this.CancelBtn.UseVisualStyleBackColor = true;
-            this.CancelBtn.Click += new System.EventHandler(this.CancelBtn_Click);
+            CancelBtn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            CancelBtn.Location = new System.Drawing.Point(380, 78);
+            CancelBtn.Name = "CancelBtn";
+            CancelBtn.Size = new System.Drawing.Size(87, 27);
+            CancelBtn.TabIndex = 6;
+            CancelBtn.Text = "Cancel";
+            CancelBtn.UseVisualStyleBackColor = true;
+            CancelBtn.Click += CancelBtn_Click;
             // 
             // PB
             // 
-            this.PB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PB.ContainerControl = this;
-            this.PB.Location = new System.Drawing.Point(14, 79);
-            this.PB.Name = "PB";
-            this.PB.ShowInTaskbar = true;
-            this.PB.Size = new System.Drawing.Size(359, 13);
-            this.PB.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.PB.TabIndex = 5;
+            PB.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            PB.ContainerControl = this;
+            PB.Location = new System.Drawing.Point(14, 79);
+            PB.Name = "PB";
+            PB.ShowInTaskbar = true;
+            PB.Size = new System.Drawing.Size(359, 13);
+            PB.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            PB.TabIndex = 5;
             // 
             // StatusLab
             // 
-            this.StatusLab.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.StatusLab.Location = new System.Drawing.Point(14, 10);
-            this.StatusLab.Name = "StatusLab";
-            this.StatusLab.Size = new System.Drawing.Size(454, 65);
-            this.StatusLab.TabIndex = 4;
-            this.StatusLab.Text = "Initializing, please wait...";
-            this.StatusLab.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            StatusLab.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            StatusLab.Location = new System.Drawing.Point(14, 10);
+            StatusLab.Name = "StatusLab";
+            StatusLab.Size = new System.Drawing.Size(454, 65);
+            StatusLab.TabIndex = 4;
+            StatusLab.Text = "Initializing, please wait...";
+            StatusLab.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Check
             // 
-            this.Check.Enabled = true;
-            this.Check.Tick += new System.EventHandler(this.Check_Tick);
+            Check.Enabled = true;
+            Check.Tick += Check_Tick;
             // 
             // TPB
             // 
-            this.TPB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TPB.ContainerControl = this;
-            this.TPB.Location = new System.Drawing.Point(14, 91);
-            this.TPB.Name = "TPB";
-            this.TPB.ShowInTaskbar = true;
-            this.TPB.Size = new System.Drawing.Size(359, 13);
-            this.TPB.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.TPB.TabIndex = 8;
+            TPB.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            TPB.ContainerControl = this;
+            TPB.Location = new System.Drawing.Point(14, 91);
+            TPB.Name = "TPB";
+            TPB.ShowInTaskbar = true;
+            TPB.Size = new System.Drawing.Size(359, 13);
+            TPB.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            TPB.TabIndex = 8;
             // 
             // MIDIConverter
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(482, 321);
-            this.ControlBox = false;
-            this.Controls.Add(this.TPB);
-            this.Controls.Add(this.LogGB);
-            this.Controls.Add(this.CancelBtn);
-            this.Controls.Add(this.PB);
-            this.Controls.Add(this.StatusLab);
-            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "MIDIConverter";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Converting MIDIs...";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MIDIConverter_FormClosing);
-            this.Load += new System.EventHandler(this.MIDIConverter_Load);
-            this.LogGB.ResumeLayout(false);
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(482, 417);
+            ControlBox = false;
+            Controls.Add(TPB);
+            Controls.Add(LogGB);
+            Controls.Add(CancelBtn);
+            Controls.Add(PB);
+            Controls.Add(StatusLab);
+            Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "MIDIConverter";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            Text = "Converting MIDIs...";
+            FormClosing += MIDIConverter_FormClosing;
+            Load += MIDIConverter_Load;
+            LogGB.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
         #endregion

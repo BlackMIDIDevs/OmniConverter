@@ -27,10 +27,10 @@
     <Company>Keppy's Software</Company>
     <Product>OmniConverter</Product>
     <Copyright>Copyright Ⓒ 2023 Keppy's Software</Copyright>
-    <AssemblyVersion>0.0.3.0</AssemblyVersion>
-    <FileVersion>0.0.3.0</FileVersion>
+    <AssemblyVersion>0.0.6</AssemblyVersion>
+    <FileVersion>0.0.6</FileVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Version>0.0.5</Version>
+    <Version>0.0.6</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Optimize>True</Optimize>
@@ -39,9 +39,6 @@
     <Optimize>False</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net">
-      <HintPath>.\Bass.Net.dll</HintPath>
-    </Reference>
     <Reference Include="CSCore">
       <HintPath>..\libs\CSCore.dll</HintPath>
     </Reference>
@@ -65,11 +62,13 @@
     <Compile Update="Controls\InvalidMIDI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\MIDIThreadStatus.cs">
+    <Compile Update="Controls\TaskStatus.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\TrackThreadStatus.cs">
-      <SubType>UserControl</SubType>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -98,11 +97,20 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="ManagedBass" Version="3.1.1" />
+    <PackageReference Include="ManagedBass.Fx" Version="3.1.1" />
+    <PackageReference Include="ManagedBass.Midi" Version="3.1.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
     <PackageReference Include="Octokit" Version="6.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="WindowsAPICodePack-Core" Version="1.1.2" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

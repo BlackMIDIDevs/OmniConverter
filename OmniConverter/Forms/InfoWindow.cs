@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.Devices;
+﻿using ManagedBass;
+using Microsoft.VisualBasic.Devices;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,12 @@ namespace OmniConverter
 {
     public partial class InfoWindow : Form
     {
-        private ToolTip DynamicToolTip = new ToolTip();
+        private Version Converter = new Version(0, 0, 7, 0);
 
+        private ToolTip DynamicToolTip = new ToolTip();
         private RegistryKey WVerKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", false);
-        private Version Converter = Assembly.GetExecutingAssembly().GetName().Version;
-        private FileVersionInfo BASS = FileVersionInfo.GetVersionInfo(Path.GetDirectoryName(Application.ExecutablePath) + "\\bass.dll");
+
+        private Version BASS = Bass.Version;
         private FileVersionInfo BASSMIDI = FileVersionInfo.GetVersionInfo(Path.GetDirectoryName(Application.ExecutablePath) + "\\bassmidi.dll");
 
         private string ReturnDriverAssemblyVersion(String Component, String Type, Int32[] VI)
@@ -42,20 +44,20 @@ namespace OmniConverter
             InitializeComponent();
 
             VerLabel.Text = ReturnDriverAssemblyVersion(
-                "OmniConverter", 
-                "CR", 
+                "OmniConverter",
+                "CR",
                 new int[] { Converter.Major, Converter.Minor, Converter.Build, 0 }
                 );
 
             BASSVer.Text = ReturnDriverAssemblyVersion(
                 null,
-                "U",
-                new int[] { BASS.FileMajorPart, BASS.FileMinorPart, BASS.FileBuildPart, BASS.FilePrivatePart }
+                "Rev. ",
+                new int[] { BASS.Major, BASS.Minor, BASS.Build, BASS.Revision }
                 );
 
             BASSMIDIVer.Text = ReturnDriverAssemblyVersion(
                 null,
-                "U",
+                "Rev. ",
                 new int[] { BASSMIDI.FileMajorPart, BASSMIDI.FileMinorPart, BASSMIDI.FileBuildPart, BASSMIDI.FilePrivatePart }
                 );
 

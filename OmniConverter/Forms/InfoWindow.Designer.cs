@@ -28,342 +28,366 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.OCBigLogo = new System.Windows.Forms.PictureBox();
-            this.VerLabel = new System.Windows.Forms.Label();
-            this.OKBtn = new System.Windows.Forms.Button();
-            this.CopyrightLabel = new System.Windows.Forms.Label();
-            this.GitHubPage = new System.Windows.Forms.PictureBox();
-            this.DIGroup = new System.Windows.Forms.GroupBox();
-            this.CurBranch = new System.Windows.Forms.Label();
-            this.BASSMIDIVer = new System.Windows.Forms.Label();
-            this.BASSVer = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.RAMAmount = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.WinVer = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.WinName = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.BranchToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.ChangeBranch = new System.Windows.Forms.Button();
-            this.CheckForUpdates = new System.Windows.Forms.Button();
-            this.OMLicense = new System.Windows.Forms.PictureBox();
-            this.DonateKep = new System.Windows.Forms.LinkLabel();
-            this.DonateArd = new System.Windows.Forms.LinkLabel();
-            ((System.ComponentModel.ISupportInitialize)(this.OCBigLogo)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.GitHubPage)).BeginInit();
-            this.DIGroup.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.OMLicense)).BeginInit();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            OCBigLogo = new System.Windows.Forms.PictureBox();
+            VerLabel = new System.Windows.Forms.Label();
+            OKBtn = new System.Windows.Forms.Button();
+            CopyrightLabel = new System.Windows.Forms.Label();
+            GitHubPage = new System.Windows.Forms.PictureBox();
+            DIGroup = new System.Windows.Forms.GroupBox();
+            CurBranch = new System.Windows.Forms.Label();
+            BASSMIDIVer = new System.Windows.Forms.Label();
+            BASSVer = new System.Windows.Forms.Label();
+            label9 = new System.Windows.Forms.Label();
+            label5 = new System.Windows.Forms.Label();
+            label4 = new System.Windows.Forms.Label();
+            label1 = new System.Windows.Forms.Label();
+            groupBox1 = new System.Windows.Forms.GroupBox();
+            RAMAmount = new System.Windows.Forms.Label();
+            label11 = new System.Windows.Forms.Label();
+            WinVer = new System.Windows.Forms.Label();
+            label7 = new System.Windows.Forms.Label();
+            WinName = new System.Windows.Forms.Label();
+            label8 = new System.Windows.Forms.Label();
+            BranchToolTip = new System.Windows.Forms.ToolTip(components);
+            ChangeBranch = new System.Windows.Forms.Button();
+            CheckForUpdates = new System.Windows.Forms.Button();
+            OMLicense = new System.Windows.Forms.PictureBox();
+            DonateKep = new System.Windows.Forms.LinkLabel();
+            DonateArd = new System.Windows.Forms.LinkLabel();
+            ((System.ComponentModel.ISupportInitialize)OCBigLogo).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)GitHubPage).BeginInit();
+            DIGroup.SuspendLayout();
+            groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)OMLicense).BeginInit();
+            SuspendLayout();
             // 
             // OCBigLogo
             // 
-            this.OCBigLogo.Location = new System.Drawing.Point(11, 12);
-            this.OCBigLogo.Name = "OCBigLogo";
-            this.OCBigLogo.Size = new System.Drawing.Size(256, 256);
-            this.OCBigLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.OCBigLogo.TabIndex = 0;
-            this.OCBigLogo.TabStop = false;
+            OCBigLogo.Location = new System.Drawing.Point(13, 14);
+            OCBigLogo.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            OCBigLogo.Name = "OCBigLogo";
+            OCBigLogo.Size = new System.Drawing.Size(299, 295);
+            OCBigLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            OCBigLogo.TabIndex = 0;
+            OCBigLogo.TabStop = false;
             // 
             // VerLabel
             // 
-            this.VerLabel.AutoSize = true;
-            this.VerLabel.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.VerLabel.Location = new System.Drawing.Point(273, 12);
-            this.VerLabel.Name = "VerLabel";
-            this.VerLabel.Size = new System.Drawing.Size(101, 24);
-            this.VerLabel.TabIndex = 1;
-            this.VerLabel.Text = "Template";
-            this.VerLabel.Click += new System.EventHandler(this.VerLabel_Click);
+            VerLabel.AutoSize = true;
+            VerLabel.Font = new System.Drawing.Font("Arial", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            VerLabel.Location = new System.Drawing.Point(318, 14);
+            VerLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            VerLabel.Name = "VerLabel";
+            VerLabel.Size = new System.Drawing.Size(101, 24);
+            VerLabel.TabIndex = 1;
+            VerLabel.Text = "Template";
+            VerLabel.Click += VerLabel_Click;
             // 
             // OKBtn
             // 
-            this.OKBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.OKBtn.Location = new System.Drawing.Point(651, 244);
-            this.OKBtn.Name = "OKBtn";
-            this.OKBtn.Size = new System.Drawing.Size(75, 24);
-            this.OKBtn.TabIndex = 4;
-            this.OKBtn.Text = "OK";
-            this.OKBtn.UseVisualStyleBackColor = true;
-            this.OKBtn.Click += new System.EventHandler(this.OKBtn_Click);
+            OKBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            OKBtn.Location = new System.Drawing.Point(760, 282);
+            OKBtn.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            OKBtn.Name = "OKBtn";
+            OKBtn.Size = new System.Drawing.Size(88, 28);
+            OKBtn.TabIndex = 4;
+            OKBtn.Text = "OK";
+            OKBtn.UseVisualStyleBackColor = true;
+            OKBtn.Click += OKBtn_Click;
             // 
             // CopyrightLabel
             // 
-            this.CopyrightLabel.Location = new System.Drawing.Point(274, 47);
-            this.CopyrightLabel.Name = "CopyrightLabel";
-            this.CopyrightLabel.Size = new System.Drawing.Size(272, 26);
-            this.CopyrightLabel.TabIndex = 3;
-            this.CopyrightLabel.Text = "Copyright Ⓒ 2019-{0} Keppy\'s Software and Arduano\r\nFree MIDI converter for Window" +
-    "s 7 and newer";
+            CopyrightLabel.Location = new System.Drawing.Point(320, 54);
+            CopyrightLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            CopyrightLabel.Name = "CopyrightLabel";
+            CopyrightLabel.Size = new System.Drawing.Size(317, 30);
+            CopyrightLabel.TabIndex = 3;
+            CopyrightLabel.Text = "Copyright Ⓒ 2019-{0} Keppy's Software and Arduano\r\nFree MIDI converter for Windows 7 and newer";
             // 
             // GitHubPage
             // 
-            this.GitHubPage.Location = new System.Drawing.Point(702, 12);
-            this.GitHubPage.Name = "GitHubPage";
-            this.GitHubPage.Size = new System.Drawing.Size(24, 24);
-            this.GitHubPage.TabIndex = 5;
-            this.GitHubPage.TabStop = false;
-            this.GitHubPage.Click += new System.EventHandler(this.GitHubPage_Click);
-            this.GitHubPage.MouseHover += new System.EventHandler(this.GitHubPage_MouseHover);
+            GitHubPage.Location = new System.Drawing.Point(819, 14);
+            GitHubPage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            GitHubPage.Name = "GitHubPage";
+            GitHubPage.Size = new System.Drawing.Size(28, 28);
+            GitHubPage.TabIndex = 5;
+            GitHubPage.TabStop = false;
+            GitHubPage.Click += GitHubPage_Click;
+            GitHubPage.MouseHover += GitHubPage_MouseHover;
             // 
             // DIGroup
             // 
-            this.DIGroup.Controls.Add(this.CurBranch);
-            this.DIGroup.Controls.Add(this.BASSMIDIVer);
-            this.DIGroup.Controls.Add(this.BASSVer);
-            this.DIGroup.Controls.Add(this.label9);
-            this.DIGroup.Controls.Add(this.label5);
-            this.DIGroup.Controls.Add(this.label4);
-            this.DIGroup.Location = new System.Drawing.Point(277, 138);
-            this.DIGroup.Name = "DIGroup";
-            this.DIGroup.Size = new System.Drawing.Size(220, 100);
-            this.DIGroup.TabIndex = 6;
-            this.DIGroup.TabStop = false;
-            this.DIGroup.Text = "Driver information";
+            DIGroup.Controls.Add(CurBranch);
+            DIGroup.Controls.Add(BASSMIDIVer);
+            DIGroup.Controls.Add(BASSVer);
+            DIGroup.Controls.Add(label9);
+            DIGroup.Controls.Add(label5);
+            DIGroup.Controls.Add(label4);
+            DIGroup.Location = new System.Drawing.Point(323, 159);
+            DIGroup.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            DIGroup.Name = "DIGroup";
+            DIGroup.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            DIGroup.Size = new System.Drawing.Size(257, 115);
+            DIGroup.TabIndex = 6;
+            DIGroup.TabStop = false;
+            DIGroup.Text = "Driver information";
             // 
             // CurBranch
             // 
-            this.CurBranch.AutoSize = true;
-            this.CurBranch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CurBranch.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.CurBranch.Location = new System.Drawing.Point(105, 76);
-            this.CurBranch.Name = "CurBranch";
-            this.CurBranch.Size = new System.Drawing.Size(74, 13);
-            this.CurBranch.TabIndex = 12;
-            this.CurBranch.Text = "Unavailable";
+            CurBranch.AutoSize = true;
+            CurBranch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            CurBranch.ForeColor = System.Drawing.SystemColors.ControlText;
+            CurBranch.Location = new System.Drawing.Point(122, 88);
+            CurBranch.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            CurBranch.Name = "CurBranch";
+            CurBranch.Size = new System.Drawing.Size(74, 13);
+            CurBranch.TabIndex = 12;
+            CurBranch.Text = "Unavailable";
             // 
             // BASSMIDIVer
             // 
-            this.BASSMIDIVer.AutoSize = true;
-            this.BASSMIDIVer.Location = new System.Drawing.Point(105, 38);
-            this.BASSMIDIVer.Name = "BASSMIDIVer";
-            this.BASSMIDIVer.Size = new System.Drawing.Size(54, 13);
-            this.BASSMIDIVer.TabIndex = 11;
-            this.BASSMIDIVer.Text = "LIB VER2";
+            BASSMIDIVer.AutoSize = true;
+            BASSMIDIVer.Location = new System.Drawing.Point(122, 44);
+            BASSMIDIVer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            BASSMIDIVer.Name = "BASSMIDIVer";
+            BASSMIDIVer.Size = new System.Drawing.Size(52, 15);
+            BASSMIDIVer.TabIndex = 11;
+            BASSMIDIVer.Text = "LIB VER2";
             // 
             // BASSVer
             // 
-            this.BASSVer.AutoSize = true;
-            this.BASSVer.Location = new System.Drawing.Point(105, 19);
-            this.BASSVer.Name = "BASSVer";
-            this.BASSVer.Size = new System.Drawing.Size(54, 13);
-            this.BASSVer.TabIndex = 10;
-            this.BASSVer.Text = "LIB VER1";
+            BASSVer.AutoSize = true;
+            BASSVer.Location = new System.Drawing.Point(122, 22);
+            BASSVer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            BASSVer.Name = "BASSVer";
+            BASSVer.Size = new System.Drawing.Size(52, 15);
+            BASSVer.TabIndex = 10;
+            BASSVer.Text = "LIB VER1";
             // 
             // label9
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 76);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(81, 13);
-            this.label9.TabIndex = 9;
-            this.label9.Text = "Update branch:";
+            label9.AutoSize = true;
+            label9.Location = new System.Drawing.Point(7, 88);
+            label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label9.Name = "label9";
+            label9.Size = new System.Drawing.Size(88, 15);
+            label9.TabIndex = 9;
+            label9.Text = "Update branch:";
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 38);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(98, 13);
-            this.label5.TabIndex = 5;
-            this.label5.Text = "BASSMIDI version:";
+            label5.AutoSize = true;
+            label5.Location = new System.Drawing.Point(7, 44);
+            label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label5.Name = "label5";
+            label5.Size = new System.Drawing.Size(103, 15);
+            label5.TabIndex = 5;
+            label5.Text = "BASSMIDI version:";
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 19);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(75, 13);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "BASS version:";
+            label4.AutoSize = true;
+            label4.Location = new System.Drawing.Point(7, 22);
+            label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new System.Drawing.Size(78, 15);
+            label4.TabIndex = 4;
+            label4.Text = "BASS version:";
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(274, 87);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(452, 42);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "This software is open-source.\r\nRedistribution and use of this code or any derivat" +
-    "ive works are permitted provided that specific conditions are met. Click the blu" +
-    "e note button to see the license.\r\n";
+            label1.Location = new System.Drawing.Point(320, 100);
+            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(527, 48);
+            label1.TabIndex = 7;
+            label1.Text = "This software is open-source.\r\nRedistribution and use of this code or any derivative works are permitted provided that specific conditions are met. Click the blue note button to see the license.\r\n";
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.RAMAmount);
-            this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.WinVer);
-            this.groupBox1.Controls.Add(this.label7);
-            this.groupBox1.Controls.Add(this.WinName);
-            this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Location = new System.Drawing.Point(506, 138);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(220, 100);
-            this.groupBox1.TabIndex = 7;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Windows install information";
+            groupBox1.Controls.Add(RAMAmount);
+            groupBox1.Controls.Add(label11);
+            groupBox1.Controls.Add(WinVer);
+            groupBox1.Controls.Add(label7);
+            groupBox1.Controls.Add(WinName);
+            groupBox1.Controls.Add(label8);
+            groupBox1.Location = new System.Drawing.Point(590, 159);
+            groupBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            groupBox1.Size = new System.Drawing.Size(257, 115);
+            groupBox1.TabIndex = 7;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Windows install information";
             // 
             // RAMAmount
             // 
-            this.RAMAmount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.RAMAmount.AutoSize = true;
-            this.RAMAmount.Location = new System.Drawing.Point(51, 76);
-            this.RAMAmount.Name = "RAMAmount";
-            this.RAMAmount.Size = new System.Drawing.Size(81, 13);
-            this.RAMAmount.TabIndex = 16;
-            this.RAMAmount.Text = "RAM AMOUNT";
+            RAMAmount.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            RAMAmount.AutoSize = true;
+            RAMAmount.Location = new System.Drawing.Point(59, 88);
+            RAMAmount.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            RAMAmount.Name = "RAMAmount";
+            RAMAmount.Size = new System.Drawing.Size(87, 15);
+            RAMAmount.TabIndex = 16;
+            RAMAmount.Text = "RAM AMOUNT";
             // 
             // label11
             // 
-            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 76);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(34, 13);
-            this.label11.TabIndex = 14;
-            this.label11.Text = "RAM:";
+            label11.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            label11.AutoSize = true;
+            label11.Location = new System.Drawing.Point(7, 88);
+            label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label11.Name = "label11";
+            label11.Size = new System.Drawing.Size(36, 15);
+            label11.TabIndex = 14;
+            label11.Text = "RAM:";
             // 
             // WinVer
             // 
-            this.WinVer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.WinVer.Location = new System.Drawing.Point(51, 38);
-            this.WinVer.Name = "WinVer";
-            this.WinVer.Size = new System.Drawing.Size(163, 32);
-            this.WinVer.TabIndex = 13;
-            this.WinVer.Text = "WIN VERS";
+            WinVer.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            WinVer.Location = new System.Drawing.Point(59, 44);
+            WinVer.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            WinVer.Name = "WinVer";
+            WinVer.Size = new System.Drawing.Size(190, 37);
+            WinVer.TabIndex = 13;
+            WinVer.Text = "WIN VERS";
             // 
             // label7
             // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 38);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(45, 13);
-            this.label7.TabIndex = 11;
-            this.label7.Text = "Version:";
+            label7.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            label7.AutoSize = true;
+            label7.Location = new System.Drawing.Point(7, 44);
+            label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label7.Name = "label7";
+            label7.Size = new System.Drawing.Size(48, 15);
+            label7.TabIndex = 11;
+            label7.Text = "Version:";
             // 
             // WinName
             // 
-            this.WinName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.WinName.Location = new System.Drawing.Point(51, 19);
-            this.WinName.Name = "WinName";
-            this.WinName.Size = new System.Drawing.Size(163, 13);
-            this.WinName.TabIndex = 12;
-            this.WinName.Text = "WIN NAME";
+            WinName.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            WinName.Location = new System.Drawing.Point(59, 22);
+            WinName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            WinName.Name = "WinName";
+            WinName.Size = new System.Drawing.Size(190, 15);
+            WinName.TabIndex = 12;
+            WinName.Text = "WIN NAME";
             // 
             // label8
             // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 19);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(38, 13);
-            this.label8.TabIndex = 10;
-            this.label8.Text = "Name:";
+            label8.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
+            label8.AutoSize = true;
+            label8.Location = new System.Drawing.Point(7, 22);
+            label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label8.Name = "label8";
+            label8.Size = new System.Drawing.Size(42, 15);
+            label8.TabIndex = 10;
+            label8.Text = "Name:";
             // 
             // BranchToolTip
             // 
-            this.BranchToolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
-            this.BranchToolTip.ToolTipTitle = "Branch info";
+            BranchToolTip.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            BranchToolTip.ToolTipTitle = "Branch info";
             // 
             // ChangeBranch
             // 
-            this.ChangeBranch.Location = new System.Drawing.Point(277, 244);
-            this.ChangeBranch.Name = "ChangeBranch";
-            this.ChangeBranch.Size = new System.Drawing.Size(101, 24);
-            this.ChangeBranch.TabIndex = 2;
-            this.ChangeBranch.Text = "Change branch";
-            this.ChangeBranch.UseVisualStyleBackColor = true;
-            this.ChangeBranch.Click += new System.EventHandler(this.ChangeBranch_Click);
+            ChangeBranch.Location = new System.Drawing.Point(323, 282);
+            ChangeBranch.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            ChangeBranch.Name = "ChangeBranch";
+            ChangeBranch.Size = new System.Drawing.Size(118, 28);
+            ChangeBranch.TabIndex = 2;
+            ChangeBranch.Text = "Change branch";
+            ChangeBranch.UseVisualStyleBackColor = true;
+            ChangeBranch.Click += ChangeBranch_Click;
             // 
             // CheckForUpdates
             // 
-            this.CheckForUpdates.Location = new System.Drawing.Point(538, 244);
-            this.CheckForUpdates.Name = "CheckForUpdates";
-            this.CheckForUpdates.Size = new System.Drawing.Size(107, 24);
-            this.CheckForUpdates.TabIndex = 3;
-            this.CheckForUpdates.Text = "Check for updates";
-            this.CheckForUpdates.UseVisualStyleBackColor = true;
-            this.CheckForUpdates.Click += new System.EventHandler(this.CheckForUpdates_Click);
+            CheckForUpdates.Location = new System.Drawing.Point(628, 282);
+            CheckForUpdates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            CheckForUpdates.Name = "CheckForUpdates";
+            CheckForUpdates.Size = new System.Drawing.Size(125, 28);
+            CheckForUpdates.TabIndex = 3;
+            CheckForUpdates.Text = "Check for updates";
+            CheckForUpdates.UseVisualStyleBackColor = true;
+            CheckForUpdates.Click += CheckForUpdates_Click;
             // 
             // OMLicense
             // 
-            this.OMLicense.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.OMLicense.Location = new System.Drawing.Point(672, 12);
-            this.OMLicense.Name = "OMLicense";
-            this.OMLicense.Size = new System.Drawing.Size(24, 24);
-            this.OMLicense.TabIndex = 10;
-            this.OMLicense.TabStop = false;
-            this.OMLicense.Click += new System.EventHandler(this.OMLicense_Click);
-            this.OMLicense.MouseHover += new System.EventHandler(this.OMLicense_MouseHover);
+            OMLicense.Cursor = System.Windows.Forms.Cursors.Hand;
+            OMLicense.Location = new System.Drawing.Point(784, 14);
+            OMLicense.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            OMLicense.Name = "OMLicense";
+            OMLicense.Size = new System.Drawing.Size(28, 28);
+            OMLicense.TabIndex = 10;
+            OMLicense.TabStop = false;
+            OMLicense.Click += OMLicense_Click;
+            OMLicense.MouseHover += OMLicense_MouseHover;
             // 
             // DonateKep
             // 
-            this.DonateKep.AutoSize = true;
-            this.DonateKep.LinkColor = System.Drawing.SystemColors.Highlight;
-            this.DonateKep.Location = new System.Drawing.Point(587, 47);
-            this.DonateKep.Name = "DonateKep";
-            this.DonateKep.Size = new System.Drawing.Size(139, 13);
-            this.DonateKep.TabIndex = 11;
-            this.DonateKep.TabStop = true;
-            this.DonateKep.Text = "Donate to Keppy\'s Software";
-            this.DonateKep.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.DonateKep_LinkClicked);
+            DonateKep.AutoSize = true;
+            DonateKep.LinkColor = System.Drawing.SystemColors.Highlight;
+            DonateKep.Location = new System.Drawing.Point(696, 54);
+            DonateKep.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            DonateKep.Name = "DonateKep";
+            DonateKep.Size = new System.Drawing.Size(152, 15);
+            DonateKep.TabIndex = 11;
+            DonateKep.TabStop = true;
+            DonateKep.Text = "Donate to Keppy's Software";
+            DonateKep.LinkClicked += DonateKep_LinkClicked;
             // 
             // DonateArd
             // 
-            this.DonateArd.AutoSize = true;
-            this.DonateArd.LinkColor = System.Drawing.SystemColors.Highlight;
-            this.DonateArd.Location = new System.Drawing.Point(629, 60);
-            this.DonateArd.Name = "DonateArd";
-            this.DonateArd.Size = new System.Drawing.Size(97, 13);
-            this.DonateArd.TabIndex = 12;
-            this.DonateArd.TabStop = true;
-            this.DonateArd.Text = "Donate to Arduano";
-            this.DonateArd.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.DonateArd_LinkClicked);
+            DonateArd.AutoSize = true;
+            DonateArd.LinkColor = System.Drawing.SystemColors.Highlight;
+            DonateArd.Location = new System.Drawing.Point(740, 69);
+            DonateArd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            DonateArd.Name = "DonateArd";
+            DonateArd.Size = new System.Drawing.Size(108, 15);
+            DonateArd.TabIndex = 12;
+            DonateArd.TabStop = true;
+            DonateArd.Text = "Donate to Arduano";
+            DonateArd.LinkClicked += DonateArd_LinkClicked;
             // 
             // InfoWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.OKBtn;
-            this.ClientSize = new System.Drawing.Size(738, 280);
-            this.Controls.Add(this.DonateArd);
-            this.Controls.Add(this.DonateKep);
-            this.Controls.Add(this.OMLicense);
-            this.Controls.Add(this.CheckForUpdates);
-            this.Controls.Add(this.ChangeBranch);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.DIGroup);
-            this.Controls.Add(this.GitHubPage);
-            this.Controls.Add(this.CopyrightLabel);
-            this.Controls.Add(this.OKBtn);
-            this.Controls.Add(this.VerLabel);
-            this.Controls.Add(this.OCBigLogo);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "InfoWindow";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Information";
-            this.Load += new System.EventHandler(this.InfoWindow_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.OCBigLogo)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.GitHubPage)).EndInit();
-            this.DIGroup.ResumeLayout(false);
-            this.DIGroup.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.OMLicense)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            CancelButton = OKBtn;
+            ClientSize = new System.Drawing.Size(861, 323);
+            Controls.Add(DonateArd);
+            Controls.Add(DonateKep);
+            Controls.Add(OMLicense);
+            Controls.Add(CheckForUpdates);
+            Controls.Add(ChangeBranch);
+            Controls.Add(groupBox1);
+            Controls.Add(label1);
+            Controls.Add(DIGroup);
+            Controls.Add(GitHubPage);
+            Controls.Add(CopyrightLabel);
+            Controls.Add(OKBtn);
+            Controls.Add(VerLabel);
+            Controls.Add(OCBigLogo);
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "InfoWindow";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            Text = "Information";
+            Load += InfoWindow_Load;
+            ((System.ComponentModel.ISupportInitialize)OCBigLogo).EndInit();
+            ((System.ComponentModel.ISupportInitialize)GitHubPage).EndInit();
+            DIGroup.ResumeLayout(false);
+            DIGroup.PerformLayout();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)OMLicense).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

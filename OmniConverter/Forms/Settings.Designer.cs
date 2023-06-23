@@ -28,504 +28,455 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.AudioSettings = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.EnableRCOverride = new System.Windows.Forms.CheckBox();
-            this.EnableLoudMax = new System.Windows.Forms.CheckBox();
-            this.NoteOff1 = new System.Windows.Forms.CheckBox();
-            this.FXDisable = new System.Windows.Forms.CheckBox();
-            this.SincInter = new System.Windows.Forms.CheckBox();
-            this.MaxVoicesLabel = new System.Windows.Forms.Label();
-            this.MaxVoices = new System.Windows.Forms.NumericUpDown();
-            this.AudioFreqLabel = new System.Windows.Forms.Label();
-            this.FrequencyBox = new System.Windows.Forms.ComboBox();
-            this.Label6 = new System.Windows.Forms.Label();
-            this.EventsSettings = new System.Windows.Forms.GroupBox();
-            this.MTLimitVal = new System.Windows.Forms.NumericUpDown();
-            this.MTLimitLab = new System.Windows.Forms.Label();
-            this.MTLimit = new System.Windows.Forms.CheckBox();
-            this.PerTrackMode = new System.Windows.Forms.CheckBox();
-            this.AOFBrowse = new System.Windows.Forms.Button();
-            this.AOFPath = new System.Windows.Forms.TextBox();
-            this.AutoOutputFolder = new System.Windows.Forms.CheckBox();
-            this.PerTrackStorage = new System.Windows.Forms.CheckBox();
-            this.PerTrackExportEach = new System.Windows.Forms.CheckBox();
-            this.MTMode = new System.Windows.Forms.CheckBox();
-            this.OkBtn = new System.Windows.Forms.Button();
-            this.PostConvSettings = new System.Windows.Forms.GroupBox();
-            this.DoActionAfterRenderVal = new System.Windows.Forms.ComboBox();
-            this.DoActionAfterRender = new System.Windows.Forms.CheckBox();
-            this.ReverbL = new System.Windows.Forms.Label();
-            this.ReverbV = new System.Windows.Forms.NumericUpDown();
-            this.ChorusV = new System.Windows.Forms.NumericUpDown();
-            this.ChorusL = new System.Windows.Forms.Label();
-            this.AudioSettings.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MaxVoices)).BeginInit();
-            this.EventsSettings.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MTLimitVal)).BeginInit();
-            this.PostConvSettings.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ReverbV)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ChorusV)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // AudioSettings
-            // 
-            this.AudioSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.AudioSettings.Controls.Add(this.groupBox1);
-            this.AudioSettings.Controls.Add(this.EnableLoudMax);
-            this.AudioSettings.Controls.Add(this.NoteOff1);
-            this.AudioSettings.Controls.Add(this.FXDisable);
-            this.AudioSettings.Controls.Add(this.SincInter);
-            this.AudioSettings.Controls.Add(this.MaxVoicesLabel);
-            this.AudioSettings.Controls.Add(this.MaxVoices);
-            this.AudioSettings.Controls.Add(this.AudioFreqLabel);
-            this.AudioSettings.Controls.Add(this.FrequencyBox);
-            this.AudioSettings.Controls.Add(this.Label6);
-            this.AudioSettings.Location = new System.Drawing.Point(14, 14);
-            this.AudioSettings.Name = "AudioSettings";
-            this.AudioSettings.Size = new System.Drawing.Size(430, 266);
-            this.AudioSettings.TabIndex = 0;
-            this.AudioSettings.TabStop = false;
-            this.AudioSettings.Text = "Audio settings";
+            groupBox1 = new System.Windows.Forms.GroupBox();
+            ChorusV = new System.Windows.Forms.NumericUpDown();
+            ChorusL = new System.Windows.Forms.Label();
+            ReverbV = new System.Windows.Forms.NumericUpDown();
+            ReverbL = new System.Windows.Forms.Label();
+            EnableRCOverride = new System.Windows.Forms.CheckBox();
+            EnableLoudMax = new System.Windows.Forms.CheckBox();
+            NoteOff1 = new System.Windows.Forms.CheckBox();
+            FXDisable = new System.Windows.Forms.CheckBox();
+            SincInter = new System.Windows.Forms.CheckBox();
+            MaxVoicesLabel = new System.Windows.Forms.Label();
+            MaxVoices = new System.Windows.Forms.NumericUpDown();
+            AudioFreqLabel = new System.Windows.Forms.Label();
+            FrequencyBox = new System.Windows.Forms.ComboBox();
+            Label6 = new System.Windows.Forms.Label();
+            MTLimitVal = new System.Windows.Forms.NumericUpDown();
+            MTLimitLab = new System.Windows.Forms.Label();
+            MTLimit = new System.Windows.Forms.CheckBox();
+            PerTrackMode = new System.Windows.Forms.CheckBox();
+            AOFPath = new System.Windows.Forms.TextBox();
+            AutoOutputFolder = new System.Windows.Forms.CheckBox();
+            PerTrackStorage = new System.Windows.Forms.CheckBox();
+            PerTrackExportEach = new System.Windows.Forms.CheckBox();
+            MTMode = new System.Windows.Forms.CheckBox();
+            OkBtn = new System.Windows.Forms.Button();
+            DoActionAfterRenderVal = new System.Windows.Forms.ComboBox();
+            DoActionAfterRender = new System.Windows.Forms.CheckBox();
+            tabControl1 = new System.Windows.Forms.TabControl();
+            ASet = new System.Windows.Forms.TabPage();
+            ESet = new System.Windows.Forms.TabPage();
+            AOFBrowse = new System.Windows.Forms.Button();
+            PCSet = new System.Windows.Forms.TabPage();
+            groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)ChorusV).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ReverbV).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)MaxVoices).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)MTLimitVal).BeginInit();
+            tabControl1.SuspendLayout();
+            ASet.SuspendLayout();
+            ESet.SuspendLayout();
+            PCSet.SuspendLayout();
+            SuspendLayout();
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.ChorusV);
-            this.groupBox1.Controls.Add(this.ChorusL);
-            this.groupBox1.Controls.Add(this.ReverbV);
-            this.groupBox1.Controls.Add(this.ReverbL);
-            this.groupBox1.Controls.Add(this.EnableRCOverride);
-            this.groupBox1.Location = new System.Drawing.Point(6, 185);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(415, 73);
-            this.groupBox1.TabIndex = 46;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Control Event Override";
-            // 
-            // EnableRCOverride
-            // 
-            this.EnableRCOverride.AutoSize = true;
-            this.EnableRCOverride.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.EnableRCOverride.Location = new System.Drawing.Point(6, 22);
-            this.EnableRCOverride.Name = "EnableRCOverride";
-            this.EnableRCOverride.Size = new System.Drawing.Size(240, 20);
-            this.EnableRCOverride.TabIndex = 45;
-            this.EnableRCOverride.Text = "Override MIDI reverb and chrous events";
-            this.EnableRCOverride.UseVisualStyleBackColor = true;
-            this.EnableRCOverride.CheckedChanged += new System.EventHandler(this.EnableRCOverride_CheckedChanged);
-            // 
-            // EnableLoudMax
-            // 
-            this.EnableLoudMax.AutoSize = true;
-            this.EnableLoudMax.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.EnableLoudMax.Location = new System.Drawing.Point(10, 159);
-            this.EnableLoudMax.Name = "EnableLoudMax";
-            this.EnableLoudMax.Size = new System.Drawing.Size(276, 20);
-            this.EnableLoudMax.TabIndex = 44;
-            this.EnableLoudMax.Text = "Enable audio limiter, to prevent audio clipping";
-            this.EnableLoudMax.UseVisualStyleBackColor = true;
-            // 
-            // NoteOff1
-            // 
-            this.NoteOff1.AutoSize = true;
-            this.NoteOff1.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.NoteOff1.Location = new System.Drawing.Point(10, 137);
-            this.NoteOff1.Name = "NoteOff1";
-            this.NoteOff1.Size = new System.Drawing.Size(358, 20);
-            this.NoteOff1.TabIndex = 43;
-            this.NoteOff1.Text = "Only release the oldest instance of a note upon note-off event";
-            this.NoteOff1.UseVisualStyleBackColor = true;
-            // 
-            // FXDisable
-            // 
-            this.FXDisable.AutoSize = true;
-            this.FXDisable.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.FXDisable.Location = new System.Drawing.Point(10, 115);
-            this.FXDisable.Name = "FXDisable";
-            this.FXDisable.Size = new System.Drawing.Size(255, 20);
-            this.FXDisable.TabIndex = 42;
-            this.FXDisable.Text = "Disable sound effects (Reverb, chorus etc.)";
-            this.FXDisable.UseVisualStyleBackColor = true;
-            // 
-            // SincInter
-            // 
-            this.SincInter.AutoSize = true;
-            this.SincInter.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.SincInter.Location = new System.Drawing.Point(10, 93);
-            this.SincInter.Name = "SincInter";
-            this.SincInter.Size = new System.Drawing.Size(162, 20);
-            this.SincInter.TabIndex = 41;
-            this.SincInter.Text = "Enable sinc interpolation";
-            this.SincInter.UseVisualStyleBackColor = true;
-            // 
-            // MaxVoicesLabel
-            // 
-            this.MaxVoicesLabel.AutoSize = true;
-            this.MaxVoicesLabel.Location = new System.Drawing.Point(7, 25);
-            this.MaxVoicesLabel.Name = "MaxVoicesLabel";
-            this.MaxVoicesLabel.Size = new System.Drawing.Size(103, 15);
-            this.MaxVoicesLabel.TabIndex = 40;
-            this.MaxVoicesLabel.Text = "Active voices limit";
-            // 
-            // MaxVoices
-            // 
-            this.MaxVoices.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.MaxVoices.Location = new System.Drawing.Point(354, 23);
-            this.MaxVoices.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.MaxVoices.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.MaxVoices.Name = "MaxVoices";
-            this.MaxVoices.Size = new System.Drawing.Size(64, 23);
-            this.MaxVoices.TabIndex = 39;
-            this.MaxVoices.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.MaxVoices.Value = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            // 
-            // AudioFreqLabel
-            // 
-            this.AudioFreqLabel.AutoSize = true;
-            this.AudioFreqLabel.Location = new System.Drawing.Point(7, 60);
-            this.AudioFreqLabel.Name = "AudioFreqLabel";
-            this.AudioFreqLabel.Size = new System.Drawing.Size(134, 15);
-            this.AudioFreqLabel.TabIndex = 37;
-            this.AudioFreqLabel.Text = "Output audio frequency";
-            // 
-            // FrequencyBox
-            // 
-            this.FrequencyBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.FrequencyBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.FrequencyBox.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.FrequencyBox.FormattingEnabled = true;
-            this.FrequencyBox.Items.AddRange(new object[] {
-            "192000",
-            "176400",
-            "142180",
-            "96000",
-            "88200",
-            "74750",
-            "66150",
-            "50400",
-            "50000",
-            "48000",
-            "47250",
-            "44100",
-            "44056",
-            "37800",
-            "32000",
-            "22050",
-            "16000",
-            "11025",
-            "8000",
-            "4000"});
-            this.FrequencyBox.Location = new System.Drawing.Point(333, 55);
-            this.FrequencyBox.Name = "FrequencyBox";
-            this.FrequencyBox.Size = new System.Drawing.Size(68, 23);
-            this.FrequencyBox.TabIndex = 36;
-            // 
-            // Label6
-            // 
-            this.Label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.Label6.AutoSize = true;
-            this.Label6.Location = new System.Drawing.Point(400, 60);
-            this.Label6.Name = "Label6";
-            this.Label6.Size = new System.Drawing.Size(21, 15);
-            this.Label6.TabIndex = 38;
-            this.Label6.Text = "Hz";
-            // 
-            // EventsSettings
-            // 
-            this.EventsSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.EventsSettings.Controls.Add(this.MTLimitVal);
-            this.EventsSettings.Controls.Add(this.MTLimitLab);
-            this.EventsSettings.Controls.Add(this.MTLimit);
-            this.EventsSettings.Controls.Add(this.PerTrackMode);
-            this.EventsSettings.Controls.Add(this.AOFBrowse);
-            this.EventsSettings.Controls.Add(this.AOFPath);
-            this.EventsSettings.Controls.Add(this.AutoOutputFolder);
-            this.EventsSettings.Controls.Add(this.PerTrackStorage);
-            this.EventsSettings.Controls.Add(this.PerTrackExportEach);
-            this.EventsSettings.Controls.Add(this.MTMode);
-            this.EventsSettings.Location = new System.Drawing.Point(14, 286);
-            this.EventsSettings.Name = "EventsSettings";
-            this.EventsSettings.Size = new System.Drawing.Size(430, 205);
-            this.EventsSettings.TabIndex = 1;
-            this.EventsSettings.TabStop = false;
-            this.EventsSettings.Text = "Export settings";
-            // 
-            // MTLimitVal
-            // 
-            this.MTLimitVal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.MTLimitVal.Location = new System.Drawing.Point(370, 118);
-            this.MTLimitVal.Maximum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.MTLimitVal.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.MTLimitVal.Name = "MTLimitVal";
-            this.MTLimitVal.Size = new System.Drawing.Size(48, 23);
-            this.MTLimitVal.TabIndex = 45;
-            this.MTLimitVal.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.MTLimitVal.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // MTLimitLab
-            // 
-            this.MTLimitLab.AutoSize = true;
-            this.MTLimitLab.Location = new System.Drawing.Point(319, 120);
-            this.MTLimitLab.Name = "MTLimitLab";
-            this.MTLimitLab.Size = new System.Drawing.Size(51, 15);
-            this.MTLimitLab.TabIndex = 52;
-            this.MTLimitLab.Text = "Threads:";
-            // 
-            // MTLimit
-            // 
-            this.MTLimit.AutoSize = true;
-            this.MTLimit.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.MTLimit.Location = new System.Drawing.Point(10, 118);
-            this.MTLimit.Name = "MTLimit";
-            this.MTLimit.Size = new System.Drawing.Size(247, 20);
-            this.MTLimit.TabIndex = 51;
-            this.MTLimit.Text = "Use a custom threads limit for the export";
-            this.MTLimit.UseVisualStyleBackColor = true;
-            this.MTLimit.CheckedChanged += new System.EventHandler(this.MTLimit_CheckedChanged);
-            // 
-            // PerTrackMode
-            // 
-            this.PerTrackMode.AutoSize = true;
-            this.PerTrackMode.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.PerTrackMode.Location = new System.Drawing.Point(10, 44);
-            this.PerTrackMode.Name = "PerTrackMode";
-            this.PerTrackMode.Size = new System.Drawing.Size(423, 20);
-            this.PerTrackMode.TabIndex = 50;
-            this.PerTrackMode.Text = "Render each track of a MIDI separately and merge them into one audio file";
-            this.PerTrackMode.UseVisualStyleBackColor = true;
-            this.PerTrackMode.CheckedChanged += new System.EventHandler(this.PerTrackMode_CheckedChanged);
-            // 
-            // AOFBrowse
-            // 
-            this.AOFBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.AOFBrowse.Location = new System.Drawing.Point(333, 170);
-            this.AOFBrowse.Name = "AOFBrowse";
-            this.AOFBrowse.Size = new System.Drawing.Size(87, 25);
-            this.AOFBrowse.TabIndex = 49;
-            this.AOFBrowse.Text = "Browse...";
-            this.AOFBrowse.UseVisualStyleBackColor = true;
-            this.AOFBrowse.Click += new System.EventHandler(this.AOFBrowse_Click);
-            // 
-            // AOFPath
-            // 
-            this.AOFPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.AOFPath.Location = new System.Drawing.Point(10, 171);
-            this.AOFPath.Name = "AOFPath";
-            this.AOFPath.Size = new System.Drawing.Size(317, 23);
-            this.AOFPath.TabIndex = 48;
-            // 
-            // AutoOutputFolder
-            // 
-            this.AutoOutputFolder.AutoSize = true;
-            this.AutoOutputFolder.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.AutoOutputFolder.Location = new System.Drawing.Point(10, 148);
-            this.AutoOutputFolder.Name = "AutoOutputFolder";
-            this.AutoOutputFolder.Size = new System.Drawing.Size(358, 20);
-            this.AutoOutputFolder.TabIndex = 47;
-            this.AutoOutputFolder.Text = "Export MIDIs directly to this folder instead of asking everytime";
-            this.AutoOutputFolder.UseVisualStyleBackColor = true;
-            this.AutoOutputFolder.CheckedChanged += new System.EventHandler(this.AutoOutputFolder_CheckedChanged);
-            // 
-            // PerTrackStorage
-            // 
-            this.PerTrackStorage.AutoSize = true;
-            this.PerTrackStorage.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.PerTrackStorage.Location = new System.Drawing.Point(10, 88);
-            this.PerTrackStorage.Name = "PerTrackStorage";
-            this.PerTrackStorage.Size = new System.Drawing.Size(405, 20);
-            this.PerTrackStorage.TabIndex = 46;
-            this.PerTrackStorage.Text = "Store each exported track into a folder with the same name as the MIDI";
-            this.PerTrackStorage.UseVisualStyleBackColor = true;
-            // 
-            // PerTrackExportEach
-            // 
-            this.PerTrackExportEach.AutoSize = true;
-            this.PerTrackExportEach.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.PerTrackExportEach.Location = new System.Drawing.Point(10, 66);
-            this.PerTrackExportEach.Name = "PerTrackExportEach";
-            this.PerTrackExportEach.Size = new System.Drawing.Size(388, 20);
-            this.PerTrackExportEach.TabIndex = 45;
-            this.PerTrackExportEach.Text = "Export each track separately instead of merging them automatically";
-            this.PerTrackExportEach.UseVisualStyleBackColor = true;
-            this.PerTrackExportEach.CheckedChanged += new System.EventHandler(this.PerTrackExportEach_CheckedChanged);
-            // 
-            // MTMode
-            // 
-            this.MTMode.AutoSize = true;
-            this.MTMode.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.MTMode.Location = new System.Drawing.Point(10, 22);
-            this.MTMode.Name = "MTMode";
-            this.MTMode.Size = new System.Drawing.Size(215, 20);
-            this.MTMode.TabIndex = 44;
-            this.MTMode.Text = "Enable multi-threaded MIDI export";
-            this.MTMode.UseVisualStyleBackColor = true;
-            this.MTMode.CheckedChanged += new System.EventHandler(this.MTMode_CheckedChanged);
-            // 
-            // OkBtn
-            // 
-            this.OkBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.OkBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.OkBtn.Location = new System.Drawing.Point(370, 582);
-            this.OkBtn.Name = "OkBtn";
-            this.OkBtn.Size = new System.Drawing.Size(75, 23);
-            this.OkBtn.TabIndex = 3;
-            this.OkBtn.Text = "OK";
-            this.OkBtn.UseVisualStyleBackColor = true;
-            this.OkBtn.Click += new System.EventHandler(this.OkBtn_Click);
-            // 
-            // PostConvSettings
-            // 
-            this.PostConvSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PostConvSettings.Controls.Add(this.DoActionAfterRenderVal);
-            this.PostConvSettings.Controls.Add(this.DoActionAfterRender);
-            this.PostConvSettings.Location = new System.Drawing.Point(14, 497);
-            this.PostConvSettings.Name = "PostConvSettings";
-            this.PostConvSettings.Size = new System.Drawing.Size(430, 79);
-            this.PostConvSettings.TabIndex = 4;
-            this.PostConvSettings.TabStop = false;
-            this.PostConvSettings.Text = "Post-conversion settings";
-            // 
-            // DoActionAfterRenderVal
-            // 
-            this.DoActionAfterRenderVal.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.DoActionAfterRenderVal.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.DoActionAfterRenderVal.FormattingEnabled = true;
-            this.DoActionAfterRenderVal.Items.AddRange(new object[] {
-            "Put the computer into sleep mode",
-            "Put the computer into hibernation mode",
-            "Turn the computer off",
-            "Restart the computer"});
-            this.DoActionAfterRenderVal.Location = new System.Drawing.Point(10, 45);
-            this.DoActionAfterRenderVal.Name = "DoActionAfterRenderVal";
-            this.DoActionAfterRenderVal.Size = new System.Drawing.Size(410, 23);
-            this.DoActionAfterRenderVal.TabIndex = 1;
-            // 
-            // DoActionAfterRender
-            // 
-            this.DoActionAfterRender.AutoSize = true;
-            this.DoActionAfterRender.Location = new System.Drawing.Point(10, 22);
-            this.DoActionAfterRender.Name = "DoActionAfterRender";
-            this.DoActionAfterRender.Size = new System.Drawing.Size(391, 19);
-            this.DoActionAfterRender.TabIndex = 0;
-            this.DoActionAfterRender.Text = "Do one of the following actions once the computer is done rendering";
-            this.DoActionAfterRender.UseVisualStyleBackColor = true;
-            this.DoActionAfterRender.CheckedChanged += new System.EventHandler(this.DoActionAfterRender_CheckedChanged);
-            // 
-            // ReverbL
-            // 
-            this.ReverbL.AutoSize = true;
-            this.ReverbL.BackColor = System.Drawing.SystemColors.Control;
-            this.ReverbL.Enabled = false;
-            this.ReverbL.Location = new System.Drawing.Point(4, 49);
-            this.ReverbL.Name = "ReverbL";
-            this.ReverbL.Size = new System.Drawing.Size(83, 15);
-            this.ReverbL.TabIndex = 46;
-            this.ReverbL.Text = "Reverb (0-127)";
-            // 
-            // ReverbV
-            // 
-            this.ReverbV.Enabled = false;
-            this.ReverbV.Location = new System.Drawing.Point(91, 46);
-            this.ReverbV.Maximum = new decimal(new int[] {
-            127,
-            0,
-            0,
-            0});
-            this.ReverbV.Name = "ReverbV";
-            this.ReverbV.Size = new System.Drawing.Size(39, 23);
-            this.ReverbV.TabIndex = 47;
+            groupBox1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            groupBox1.Controls.Add(ChorusV);
+            groupBox1.Controls.Add(ChorusL);
+            groupBox1.Controls.Add(ReverbV);
+            groupBox1.Controls.Add(ReverbL);
+            groupBox1.Controls.Add(EnableRCOverride);
+            groupBox1.Location = new System.Drawing.Point(6, 156);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new System.Drawing.Size(442, 81);
+            groupBox1.TabIndex = 46;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Control Event Override";
             // 
             // ChorusV
             // 
-            this.ChorusV.Enabled = false;
-            this.ChorusV.Location = new System.Drawing.Point(218, 46);
-            this.ChorusV.Maximum = new decimal(new int[] {
-            127,
-            0,
-            0,
-            0});
-            this.ChorusV.Name = "ChorusV";
-            this.ChorusV.Size = new System.Drawing.Size(39, 23);
-            this.ChorusV.TabIndex = 49;
+            ChorusV.Enabled = false;
+            ChorusV.Location = new System.Drawing.Point(218, 46);
+            ChorusV.Maximum = new decimal(new int[] { 127, 0, 0, 0 });
+            ChorusV.Name = "ChorusV";
+            ChorusV.Size = new System.Drawing.Size(39, 23);
+            ChorusV.TabIndex = 49;
             // 
             // ChorusL
             // 
-            this.ChorusL.AutoSize = true;
-            this.ChorusL.Enabled = false;
-            this.ChorusL.Location = new System.Drawing.Point(131, 49);
-            this.ChorusL.Name = "ChorusL";
-            this.ChorusL.Size = new System.Drawing.Size(85, 15);
-            this.ChorusL.TabIndex = 48;
-            this.ChorusL.Text = "Chorus (0-127)";
+            ChorusL.AutoSize = true;
+            ChorusL.Enabled = false;
+            ChorusL.Location = new System.Drawing.Point(131, 49);
+            ChorusL.Name = "ChorusL";
+            ChorusL.Size = new System.Drawing.Size(85, 15);
+            ChorusL.TabIndex = 48;
+            ChorusL.Text = "Chorus (0-127)";
+            // 
+            // ReverbV
+            // 
+            ReverbV.Enabled = false;
+            ReverbV.Location = new System.Drawing.Point(91, 46);
+            ReverbV.Maximum = new decimal(new int[] { 127, 0, 0, 0 });
+            ReverbV.Name = "ReverbV";
+            ReverbV.Size = new System.Drawing.Size(39, 23);
+            ReverbV.TabIndex = 47;
+            // 
+            // ReverbL
+            // 
+            ReverbL.AutoSize = true;
+            ReverbL.BackColor = System.Drawing.Color.Transparent;
+            ReverbL.Enabled = false;
+            ReverbL.Location = new System.Drawing.Point(4, 49);
+            ReverbL.Name = "ReverbL";
+            ReverbL.Size = new System.Drawing.Size(83, 15);
+            ReverbL.TabIndex = 46;
+            ReverbL.Text = "Reverb (0-127)";
+            // 
+            // EnableRCOverride
+            // 
+            EnableRCOverride.AutoSize = true;
+            EnableRCOverride.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            EnableRCOverride.Location = new System.Drawing.Point(6, 22);
+            EnableRCOverride.Name = "EnableRCOverride";
+            EnableRCOverride.Size = new System.Drawing.Size(248, 20);
+            EnableRCOverride.TabIndex = 45;
+            EnableRCOverride.Text = "Override reverb and chorus in the render:";
+            EnableRCOverride.UseVisualStyleBackColor = true;
+            EnableRCOverride.CheckedChanged += EnableRCOverride_CheckedChanged;
+            // 
+            // EnableLoudMax
+            // 
+            EnableLoudMax.AutoSize = true;
+            EnableLoudMax.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            EnableLoudMax.Location = new System.Drawing.Point(6, 126);
+            EnableLoudMax.Name = "EnableLoudMax";
+            EnableLoudMax.Size = new System.Drawing.Size(235, 20);
+            EnableLoudMax.TabIndex = 44;
+            EnableLoudMax.Text = "Limit audio to 0dB, to prevent clipping";
+            EnableLoudMax.UseVisualStyleBackColor = true;
+            // 
+            // NoteOff1
+            // 
+            NoteOff1.AutoSize = true;
+            NoteOff1.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            NoteOff1.Location = new System.Drawing.Point(6, 104);
+            NoteOff1.Name = "NoteOff1";
+            NoteOff1.Size = new System.Drawing.Size(358, 20);
+            NoteOff1.TabIndex = 43;
+            NoteOff1.Text = "Only release the oldest instance of a note upon note-off event";
+            NoteOff1.UseVisualStyleBackColor = true;
+            // 
+            // FXDisable
+            // 
+            FXDisable.AutoSize = true;
+            FXDisable.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            FXDisable.Location = new System.Drawing.Point(6, 82);
+            FXDisable.Name = "FXDisable";
+            FXDisable.Size = new System.Drawing.Size(241, 20);
+            FXDisable.TabIndex = 42;
+            FXDisable.Text = "Disable Sound FXs (Reverb, Chorus etc.)";
+            FXDisable.UseVisualStyleBackColor = true;
+            // 
+            // SincInter
+            // 
+            SincInter.AutoSize = true;
+            SincInter.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            SincInter.Location = new System.Drawing.Point(6, 60);
+            SincInter.Name = "SincInter";
+            SincInter.Size = new System.Drawing.Size(341, 20);
+            SincInter.TabIndex = 41;
+            SincInter.Text = "Enable Whittaker–Shannon audio interpolation (Sinc inter.)";
+            SincInter.UseVisualStyleBackColor = true;
+            // 
+            // MaxVoicesLabel
+            // 
+            MaxVoicesLabel.AutoSize = true;
+            MaxVoicesLabel.Location = new System.Drawing.Point(6, 8);
+            MaxVoicesLabel.Name = "MaxVoicesLabel";
+            MaxVoicesLabel.Size = new System.Drawing.Size(62, 15);
+            MaxVoicesLabel.TabIndex = 40;
+            MaxVoicesLabel.Text = "Voice limit";
+            // 
+            // MaxVoices
+            // 
+            MaxVoices.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            MaxVoices.Location = new System.Drawing.Point(384, 6);
+            MaxVoices.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            MaxVoices.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            MaxVoices.Name = "MaxVoices";
+            MaxVoices.Size = new System.Drawing.Size(64, 23);
+            MaxVoices.TabIndex = 39;
+            MaxVoices.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            MaxVoices.Value = new decimal(new int[] { 100000, 0, 0, 0 });
+            // 
+            // AudioFreqLabel
+            // 
+            AudioFreqLabel.AutoSize = true;
+            AudioFreqLabel.Location = new System.Drawing.Point(6, 35);
+            AudioFreqLabel.Name = "AudioFreqLabel";
+            AudioFreqLabel.Size = new System.Drawing.Size(133, 15);
+            AudioFreqLabel.TabIndex = 37;
+            AudioFreqLabel.Text = "Render audio frequency";
+            // 
+            // FrequencyBox
+            // 
+            FrequencyBox.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            FrequencyBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            FrequencyBox.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            FrequencyBox.FormattingEnabled = true;
+            FrequencyBox.Items.AddRange(new object[] { "192000", "176400", "142180", "96000", "88200", "74750", "66150", "50400", "50000", "48000", "47250", "44100", "44056", "37800", "32000", "22050", "16000", "11025", "8000", "4000" });
+            FrequencyBox.Location = new System.Drawing.Point(361, 32);
+            FrequencyBox.Name = "FrequencyBox";
+            FrequencyBox.Size = new System.Drawing.Size(68, 23);
+            FrequencyBox.TabIndex = 36;
+            // 
+            // Label6
+            // 
+            Label6.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            Label6.AutoSize = true;
+            Label6.Location = new System.Drawing.Point(429, 35);
+            Label6.Name = "Label6";
+            Label6.Size = new System.Drawing.Size(21, 15);
+            Label6.TabIndex = 38;
+            Label6.Text = "Hz";
+            // 
+            // MTLimitVal
+            // 
+            MTLimitVal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            MTLimitVal.Location = new System.Drawing.Point(400, 102);
+            MTLimitVal.Maximum = new decimal(new int[] { 1, 0, 0, 0 });
+            MTLimitVal.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            MTLimitVal.Name = "MTLimitVal";
+            MTLimitVal.Size = new System.Drawing.Size(48, 23);
+            MTLimitVal.TabIndex = 45;
+            MTLimitVal.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            MTLimitVal.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // MTLimitLab
+            // 
+            MTLimitLab.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            MTLimitLab.AutoSize = true;
+            MTLimitLab.Location = new System.Drawing.Point(350, 104);
+            MTLimitLab.Name = "MTLimitLab";
+            MTLimitLab.Size = new System.Drawing.Size(51, 15);
+            MTLimitLab.TabIndex = 52;
+            MTLimitLab.Text = "Threads:";
+            // 
+            // MTLimit
+            // 
+            MTLimit.AutoSize = true;
+            MTLimit.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            MTLimit.Location = new System.Drawing.Point(6, 102);
+            MTLimit.Name = "MTLimit";
+            MTLimit.Size = new System.Drawing.Size(326, 20);
+            MTLimit.TabIndex = 51;
+            MTLimit.Text = "Limit the amount of system threads available to the app";
+            MTLimit.UseVisualStyleBackColor = true;
+            MTLimit.CheckedChanged += MTLimit_CheckedChanged;
+            // 
+            // PerTrackMode
+            // 
+            PerTrackMode.AutoSize = true;
+            PerTrackMode.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            PerTrackMode.Location = new System.Drawing.Point(6, 28);
+            PerTrackMode.Name = "PerTrackMode";
+            PerTrackMode.Size = new System.Drawing.Size(443, 20);
+            PerTrackMode.TabIndex = 50;
+            PerTrackMode.Text = "Render instead each track on a separate thread, and merge all in one audio file";
+            PerTrackMode.UseVisualStyleBackColor = true;
+            PerTrackMode.CheckedChanged += PerTrackMode_CheckedChanged;
+            // 
+            // AOFPath
+            // 
+            AOFPath.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            AOFPath.Location = new System.Drawing.Point(6, 155);
+            AOFPath.Name = "AOFPath";
+            AOFPath.Size = new System.Drawing.Size(361, 23);
+            AOFPath.TabIndex = 48;
+            // 
+            // AutoOutputFolder
+            // 
+            AutoOutputFolder.AutoSize = true;
+            AutoOutputFolder.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            AutoOutputFolder.Location = new System.Drawing.Point(6, 132);
+            AutoOutputFolder.Name = "AutoOutputFolder";
+            AutoOutputFolder.Size = new System.Drawing.Size(429, 20);
+            AutoOutputFolder.TabIndex = 47;
+            AutoOutputFolder.Text = "Export final audios directly to a specified folder instead of asking every time";
+            AutoOutputFolder.UseVisualStyleBackColor = true;
+            AutoOutputFolder.CheckedChanged += AutoOutputFolder_CheckedChanged;
+            // 
+            // PerTrackStorage
+            // 
+            PerTrackStorage.AutoSize = true;
+            PerTrackStorage.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            PerTrackStorage.Location = new System.Drawing.Point(6, 72);
+            PerTrackStorage.Name = "PerTrackStorage";
+            PerTrackStorage.Size = new System.Drawing.Size(405, 20);
+            PerTrackStorage.TabIndex = 46;
+            PerTrackStorage.Text = "Store each exported track into a folder with the same name as the MIDI";
+            PerTrackStorage.UseVisualStyleBackColor = true;
+            // 
+            // PerTrackExportEach
+            // 
+            PerTrackExportEach.AutoSize = true;
+            PerTrackExportEach.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            PerTrackExportEach.Location = new System.Drawing.Point(6, 50);
+            PerTrackExportEach.Name = "PerTrackExportEach";
+            PerTrackExportEach.Size = new System.Drawing.Size(408, 20);
+            PerTrackExportEach.TabIndex = 45;
+            PerTrackExportEach.Text = "Disable automatic merging of the tracks, and export them all separately";
+            PerTrackExportEach.UseVisualStyleBackColor = true;
+            PerTrackExportEach.CheckedChanged += PerTrackExportEach_CheckedChanged;
+            // 
+            // MTMode
+            // 
+            MTMode.AutoSize = true;
+            MTMode.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            MTMode.Location = new System.Drawing.Point(6, 6);
+            MTMode.Name = "MTMode";
+            MTMode.Size = new System.Drawing.Size(409, 20);
+            MTMode.TabIndex = 44;
+            MTMode.Text = "Enable multi-threaded rendering mode, and render one MIDI per thread";
+            MTMode.UseVisualStyleBackColor = true;
+            MTMode.CheckedChanged += MTMode_CheckedChanged;
+            // 
+            // OkBtn
+            // 
+            OkBtn.Anchor = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            OkBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            OkBtn.Location = new System.Drawing.Point(395, 356);
+            OkBtn.Name = "OkBtn";
+            OkBtn.Size = new System.Drawing.Size(75, 23);
+            OkBtn.TabIndex = 3;
+            OkBtn.Text = "OK";
+            OkBtn.UseVisualStyleBackColor = true;
+            OkBtn.Click += OkBtn_Click;
+            // 
+            // DoActionAfterRenderVal
+            // 
+            DoActionAfterRenderVal.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            DoActionAfterRenderVal.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            DoActionAfterRenderVal.FormattingEnabled = true;
+            DoActionAfterRenderVal.Items.AddRange(new object[] { "Put the computer into sleep mode", "Put the computer into hibernation mode", "Turn the computer off", "Restart the computer" });
+            DoActionAfterRenderVal.Location = new System.Drawing.Point(6, 29);
+            DoActionAfterRenderVal.Name = "DoActionAfterRenderVal";
+            DoActionAfterRenderVal.Size = new System.Drawing.Size(255, 23);
+            DoActionAfterRenderVal.TabIndex = 1;
+            // 
+            // DoActionAfterRender
+            // 
+            DoActionAfterRender.AutoSize = true;
+            DoActionAfterRender.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            DoActionAfterRender.Location = new System.Drawing.Point(6, 6);
+            DoActionAfterRender.Name = "DoActionAfterRender";
+            DoActionAfterRender.Size = new System.Drawing.Size(397, 20);
+            DoActionAfterRender.TabIndex = 0;
+            DoActionAfterRender.Text = "Do one of the following actions once the computer is done rendering";
+            DoActionAfterRender.UseVisualStyleBackColor = true;
+            DoActionAfterRender.CheckedChanged += DoActionAfterRender_CheckedChanged;
+            // 
+            // tabControl1
+            // 
+            tabControl1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            tabControl1.Controls.Add(ASet);
+            tabControl1.Controls.Add(ESet);
+            tabControl1.Controls.Add(PCSet);
+            tabControl1.Location = new System.Drawing.Point(12, 12);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new System.Drawing.Size(462, 336);
+            tabControl1.TabIndex = 5;
+            // 
+            // ASet
+            // 
+            ASet.Controls.Add(groupBox1);
+            ASet.Controls.Add(MaxVoicesLabel);
+            ASet.Controls.Add(EnableLoudMax);
+            ASet.Controls.Add(Label6);
+            ASet.Controls.Add(NoteOff1);
+            ASet.Controls.Add(FrequencyBox);
+            ASet.Controls.Add(FXDisable);
+            ASet.Controls.Add(AudioFreqLabel);
+            ASet.Controls.Add(SincInter);
+            ASet.Controls.Add(MaxVoices);
+            ASet.Location = new System.Drawing.Point(4, 24);
+            ASet.Name = "ASet";
+            ASet.Padding = new System.Windows.Forms.Padding(3);
+            ASet.Size = new System.Drawing.Size(454, 308);
+            ASet.TabIndex = 0;
+            ASet.Text = "Audio Settings";
+            ASet.UseVisualStyleBackColor = true;
+            // 
+            // ESet
+            // 
+            ESet.Controls.Add(MTLimitVal);
+            ESet.Controls.Add(MTMode);
+            ESet.Controls.Add(MTLimitLab);
+            ESet.Controls.Add(PerTrackExportEach);
+            ESet.Controls.Add(MTLimit);
+            ESet.Controls.Add(PerTrackStorage);
+            ESet.Controls.Add(PerTrackMode);
+            ESet.Controls.Add(AutoOutputFolder);
+            ESet.Controls.Add(AOFBrowse);
+            ESet.Controls.Add(AOFPath);
+            ESet.Location = new System.Drawing.Point(4, 24);
+            ESet.Name = "ESet";
+            ESet.Padding = new System.Windows.Forms.Padding(3);
+            ESet.Size = new System.Drawing.Size(454, 308);
+            ESet.TabIndex = 1;
+            ESet.Text = "Export Settings";
+            ESet.UseVisualStyleBackColor = true;
+            // 
+            // AOFBrowse
+            // 
+            AOFBrowse.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            AOFBrowse.Location = new System.Drawing.Point(373, 154);
+            AOFBrowse.Name = "AOFBrowse";
+            AOFBrowse.Size = new System.Drawing.Size(75, 25);
+            AOFBrowse.TabIndex = 49;
+            AOFBrowse.Text = "Browse...";
+            AOFBrowse.UseVisualStyleBackColor = true;
+            AOFBrowse.Click += AOFBrowse_Click;
+            // 
+            // PCSet
+            // 
+            PCSet.Controls.Add(DoActionAfterRenderVal);
+            PCSet.Controls.Add(DoActionAfterRender);
+            PCSet.Location = new System.Drawing.Point(4, 24);
+            PCSet.Name = "PCSet";
+            PCSet.Size = new System.Drawing.Size(454, 308);
+            PCSet.TabIndex = 2;
+            PCSet.Text = "Post-Conversion Settings";
+            PCSet.UseVisualStyleBackColor = true;
             // 
             // Settings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(458, 618);
-            this.ControlBox = false;
-            this.Controls.Add(this.PostConvSettings);
-            this.Controls.Add(this.OkBtn);
-            this.Controls.Add(this.EventsSettings);
-            this.Controls.Add(this.AudioSettings);
-            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "Settings";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Settings";
-            this.Load += new System.EventHandler(this.Settings_Load);
-            this.AudioSettings.ResumeLayout(false);
-            this.AudioSettings.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MaxVoices)).EndInit();
-            this.EventsSettings.ResumeLayout(false);
-            this.EventsSettings.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MTLimitVal)).EndInit();
-            this.PostConvSettings.ResumeLayout(false);
-            this.PostConvSettings.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ReverbV)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ChorusV)).EndInit();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(487, 393);
+            ControlBox = false;
+            Controls.Add(tabControl1);
+            Controls.Add(OkBtn);
+            Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "Settings";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            Text = "Settings";
+            Load += Settings_Load;
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)ChorusV).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ReverbV).EndInit();
+            ((System.ComponentModel.ISupportInitialize)MaxVoices).EndInit();
+            ((System.ComponentModel.ISupportInitialize)MTLimitVal).EndInit();
+            tabControl1.ResumeLayout(false);
+            ASet.ResumeLayout(false);
+            ASet.PerformLayout();
+            ESet.ResumeLayout(false);
+            ESet.PerformLayout();
+            PCSet.ResumeLayout(false);
+            PCSet.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion
-
-        private System.Windows.Forms.GroupBox AudioSettings;
         internal System.Windows.Forms.CheckBox SincInter;
         internal System.Windows.Forms.Label MaxVoicesLabel;
         public System.Windows.Forms.NumericUpDown MaxVoices;
@@ -535,8 +486,6 @@
         internal System.Windows.Forms.CheckBox EnableLoudMax;
         internal System.Windows.Forms.CheckBox NoteOff1;
         internal System.Windows.Forms.CheckBox FXDisable;
-        private System.Windows.Forms.GroupBox EventsSettings;
-        private System.Windows.Forms.Button AOFBrowse;
         private System.Windows.Forms.TextBox AOFPath;
         internal System.Windows.Forms.CheckBox AutoOutputFolder;
         internal System.Windows.Forms.CheckBox PerTrackStorage;
@@ -547,7 +496,6 @@
         public System.Windows.Forms.NumericUpDown MTLimitVal;
         private System.Windows.Forms.Label MTLimitLab;
         internal System.Windows.Forms.CheckBox MTLimit;
-        private System.Windows.Forms.GroupBox PostConvSettings;
         private System.Windows.Forms.ComboBox DoActionAfterRenderVal;
         private System.Windows.Forms.CheckBox DoActionAfterRender;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -556,5 +504,10 @@
         private System.Windows.Forms.NumericUpDown ChorusV;
         private System.Windows.Forms.Label ChorusL;
         private System.Windows.Forms.NumericUpDown ReverbV;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage ASet;
+        private System.Windows.Forms.TabPage ESet;
+        private System.Windows.Forms.Button AOFBrowse;
+        private System.Windows.Forms.TabPage PCSet;
     }
 }

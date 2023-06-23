@@ -11,8 +11,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Midi;
 
 namespace OmniConverter
 {
@@ -54,9 +52,9 @@ namespace OmniConverter
                 Debug.PrintToConsole("ok", "Restored settings from old version.");
             }
 
-            if (Properties.Settings.Default.MultiThreadedLimitV == -1)
+            if (!Properties.Settings.Default.MultiThreadedLimit || Properties.Settings.Default.MultiThreadedLimitV == -1)
             {
-                Properties.Settings.Default.MultiThreadedLimitV = Environment.ProcessorCount;
+                Properties.Settings.Default.MultiThreadedLimitV = Environment.ProcessorCount - 1;
                 Properties.Settings.Default.Save();
                 Debug.PrintToConsole("ok", String.Format("MTL = {0}", Properties.Settings.Default.MultiThreadedLimit));
             }
@@ -77,7 +75,6 @@ namespace OmniConverter
                     case "/debug":
                     case "/mode":
                         Debug.EnableConsole();
-                        Debug.PrintToConsole("ok", "Restored settings from old version.");
                         break;
                     case "/reset":
                         if (MessageBox.Show("Are you sure you want to reset OmniConverter's settings?") == DialogResult.Yes)
@@ -85,11 +82,16 @@ namespace OmniConverter
                             Properties.Settings.Default.Reset();
                             Properties.Settings.Default.SUP = false;
                             Properties.Settings.Default.Save();
+                            Debug.PrintToConsole("ok", "Restored settings from old version.");
                             break;
                         }
                         else return;
                 }
             }
+
+#if DEBUG
+            Debug.EnableConsole();
+#endif
 
             CommonSoundFonts.LoadCSF();
 

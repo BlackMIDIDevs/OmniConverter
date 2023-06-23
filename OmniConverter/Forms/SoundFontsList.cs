@@ -9,8 +9,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Un4seen.Bass;
-using Un4seen.Bass.AddOn.Midi;
+using ManagedBass;
+using ManagedBass.Midi;
 
 namespace OmniConverter
 {
@@ -27,9 +27,11 @@ namespace OmniConverter
         {
             Debug.PrintToConsole("ok", "Rebinding Program.SFArray.List to SFList...");
 
+            CommonSoundFonts.FreeSoundFonts();
             SFList.DataSource = null;
             SFList.DataSource = Program.SFArray.List;
             SFList.DisplayMember = "GetSoundFontPath";
+            CommonSoundFonts.LoadSoundFonts();
 
             Debug.PrintToConsole("ok", "SFList bound successfully.");
         }
@@ -99,8 +101,8 @@ namespace OmniConverter
                     Debug.PrintToConsole("ok", String.Format("Current SoundFont = {0}", SF));
 
                     // Check if valid
-                    int SFH = BassMidi.BASS_MIDI_FontInit(SF, BASSFlag.BASS_DEFAULT);
-                    BASSError Err = Bass.BASS_ErrorGetCode();
+                    int SFH = BassMidi.FontInit(SF, FontInitFlags.Unicode);
+                    Errors Err = Bass.LastError;
 
                     if (Err == 0)
                     {
@@ -108,7 +110,7 @@ namespace OmniConverter
 
                         Int32 NotSFZ = (Path.GetExtension(SF) != ".sfz") ? -1 : 0;
                         int[] TV = new int[] { NotSFZ, NotSFZ, 0, NotSFZ, 0, 0 };
-                        BassMidi.BASS_MIDI_FontFree(SFH);
+                        BassMidi.FontFree(SFH);
 
                         // Split filename in case of automatic preset/bank assign values
                         Match match = Regex.Match(Path.GetFileNameWithoutExtension(SF), @"\d{3}\.\d{3}\.\d{3}\.\d{3}\.\d{1}", RegexOptions.Compiled | RegexOptions.IgnoreCase);

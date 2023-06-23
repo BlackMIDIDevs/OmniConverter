@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Forms;
-using Un4seen.Bass;
 using CSCore;
 using CSCore.Codecs.WAV;
 
@@ -14,7 +13,7 @@ namespace OmniConverter
     public partial class MIDIConverter : Form
     {
         private Converter Cnv;
-        public Boolean StopRequested = false;
+        public bool StopRequested = false;
 
         public MIDIConverter(String OutputPath)
         {
@@ -36,51 +35,25 @@ namespace OmniConverter
             CancelBtn.Enabled = false;
             new Thread(() =>
             {
-                Int32 SleepCount = 0;
-                DialogResult DR1 = 0, DR2 = 0;
+                DialogResult DR1 = 0;
 
                 if (Cnv.IsStillRendering())
                 {
                     Debug.PrintToConsole("wrn", "CThread is still alive! Asking if user wants to quit.");
 
-                    this.Invoke((MethodInvoker)delegate { 
-                        DR1 = MessageBox.Show("Are you sure you want to terminate the conversion process?", "The converter is still processing data", MessageBoxButtons.YesNo, MessageBoxIcon.Warning); 
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        DR1 = MessageBox.Show("Are you sure you want to terminate the conversion process?\n\nIt might take some time to terminate the background threads.", "The converter is still processing data", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                     });
-                    
+
                     switch (DR1)
                     {
                         case DialogResult.Yes:
                             StopRequested = true;
                             Cnv.RequestStop();
 
-                            while (Cnv.IsStillRendering())
-                            {
-                                SleepCount++;
-                                Thread.Sleep(10);
-
-                                if (SleepCount >= 500) break;
-
-                                Debug.PrintToConsole("wrn", "CThread is still alive! Waiting...");
-                            }
-
-                            if (SleepCount >= 5000)
-                            {
-                                Debug.PrintToConsole("err", "CThread is still alive!");
-
-                                this.Invoke((MethodInvoker)delegate {
-                                    DR2 = MessageBox.Show("The conversion threads seem to have got stuck, are you sure you want to continue?\n\nThis could cause unexpected behavior.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                                });
-
-                                switch (DR2)
-                                {
-                                    case DialogResult.Yes:
-                                        Cnv.ForceStop();
-                                        break;
-                                    default:
-                                    case DialogResult.No:
-                                        return;
-                                }
-                            }
+                            Debug.PrintToConsole("wrn", "Waiting for CThread to exit...");
+                            while (Cnv.IsStillRendering()) Thread.Sleep(1);
 
                             Debug.PrintToConsole("ok", "CThread is not active anymore.");
                             break;
@@ -136,8 +109,8 @@ namespace OmniConverter
                     UInt64 InvalidFiles = Cnv.MDV.GetInvalidMIDIsCount();
                     UInt64 TotalFiles = Cnv.MDV.GetTotalMIDIsCount();
 
-                    Int64 Tracks = Cnv.MDV.GetTotalTracks();
-                    Int64 CurrentTrack = Cnv.MDV.GetCurrentTrack();
+                    int Tracks = Cnv.MDV.GetTotalTracks();
+                    int CurrentTrack = Cnv.MDV.GetCurrentTrack();
 
                     switch (Cnv.GetStatus())
                     {
@@ -147,6 +120,7 @@ namespace OmniConverter
                             PB.Style = ProgressBarStyle.Marquee;
                             PB.Value = 0;
                             PB.Size = new System.Drawing.Size(PB.Size.Width, 26);
+
                             TPB.Visible = false;
                             break;
                         case "mconv":
@@ -158,27 +132,30 @@ namespace OmniConverter
                             PB.Style = ProgressBarStyle.Blocks;
                             PB.Value = Convert.ToInt32(Math.Round((ValidFiles + InvalidFiles) * 100.0 / TotalFiles));
                             PB.Size = new System.Drawing.Size(PB.Size.Width, 13);
+
                             TPB.Visible = true;
                             TPB.Style = ProgressBarStyle.Blocks;
                             TPB.Value = Convert.ToInt32(Math.Round(CurrentTrack * 100.0 / Tracks));
                             break;
+
                         case "sconv":
                             StatusLab.Text = String.Format("{0} file(s) out of {1} have been converted.\n\nPlease wait...",
                                 (ValidFiles + InvalidFiles).ToString("N0", new CultureInfo("is-IS")),
-                                TotalFiles.ToString("N0", new CultureInfo("is-IS")),
-                                CurrentTrack.ToString("N0", new CultureInfo("is-IS")), Tracks.ToString("N0", new CultureInfo("is-IS")));
+                                TotalFiles.ToString("N0", new CultureInfo("is-IS")));
 
                             PB.Style = ProgressBarStyle.Blocks;
                             PB.Value = Convert.ToInt32(Math.Round((ValidFiles + InvalidFiles) * 100.0 / TotalFiles));
                             PB.Size = new System.Drawing.Size(PB.Size.Width, 26);
+
                             TPB.Visible = false;
                             break;
+
                         case "aout":
                             StatusLab.Text = "Writing final audio file to disk.\n\nPlease do not turn off the computer during the process...";
                             PB.Style = ProgressBarStyle.Blocks;
                             PB.Value = Convert.ToInt32(Math.Round((ValidFiles + InvalidFiles) * 100.0 / TotalFiles));
-                            TPB.Style = ProgressBarStyle.Blocks;
-                            TPB.Value = Convert.ToInt32(Math.Round(CurrentTrack * 100.0 / Tracks));
+                            PB.Size = new System.Drawing.Size(PB.Size.Width, 26);
+                            TPB.Visible = false;
                             break;
                     }
                 }
