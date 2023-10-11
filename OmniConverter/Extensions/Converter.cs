@@ -325,10 +325,11 @@ namespace OmniConverter
                             MSM.Position = 0;
 
                             IWaveSource MStream;
+                            AntiClipping BAC;
                             if (Properties.Settings.Default.LoudMax)
                             {
                                 Debug.PrintToConsole("ok", "LoudMax enabled.");
-                                AntiClipping BAC = new AntiClipping(MSM, 0.1);
+                                BAC = new AntiClipping(MSM, 0.1);
                                 MStream = BAC.ToWaveSource(32);
                             }
                             else MStream = MSM.ToWaveSource(32);
@@ -373,8 +374,8 @@ namespace OmniConverter
                     break;
                 }
 
+                String Folder = OPath;
                 MultiStreamMerger MSM = new MultiStreamMerger(WF);
-                int t = 0;
 
                 MDV.SetTotalTracks(MFile.Tracks);
                 MDV.ResetCurrentTrack();
@@ -387,6 +388,20 @@ namespace OmniConverter
                     CTS = new CancellationTokenSource();
                     Debug.PrintToConsole("ok", $"PerTrackConv => MaxDegreeOfParallelism = {MT}");
 
+                    // Check if we need to export each track to a file
+                    if (Properties.Settings.Default.PerTrackCreateFolder)
+                    {
+                        // We do, create folder
+                        Folder += String.Format("\\{0}", Path.GetFileNameWithoutExtension(MFile.Name));
+
+                        if (Directory.Exists(Folder))
+                            Folder += string.Format(" - {0}", DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"));
+
+                        Directory.CreateDirectory(Folder);
+                    }
+
+                    Folder += "\\";
+
                     var ParallelThread = Task.Run(() =>
                     {
                         try
@@ -394,40 +409,34 @@ namespace OmniConverter
                             // Parallel.For(0, MFile.Tracks, new ParallelOptions() { MaxDegreeOfParallelism = MT, CancellationToken = CTS.Token }, T =>
                             ParallelLoopExt.ParallelFor(0, MFile.Tracks, MT, CTS.Token, T =>
                             {
+                                Task ConvThread;
+                                string SOutputDir = string.Empty;
+                                MultiStreamMerger tMSM;
+                                TaskStatus Trck;   
+
+                                ConvertWorker Worker;
+                                ISampleWriter Writer;
+
                                 if (StopRequested)
                                 {
                                     Debug.PrintToConsole("ok", "Stop requested. Stopping ParallelFor...");
                                     return;
                                 }
 
-                                if (MFile.NoteCount >= 0)
+                                if (MFile.MetaEventsCount >= 0)
                                 {
-                                    TaskStatus Trck = new TaskStatus($"Track {T}");
+                                    tMSM = new MultiStreamMerger(WF);
+                                    Trck = new TaskStatus($"Track {T}");
                                     Trck.Dock = DockStyle.Top;
                                     ThreadsPanel.Invoke((MethodInvoker)delegate { ThreadsPanel.Controls.Add(Trck); });
 
-                                    ConvertWorker Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
-                                    ISampleWriter Writer;
-                                    WaveWriter SDestination = null;
-                                    FileStream SFOpen = null;
+                                    Worker = new ConvertWorker(MFile.GetSingleTrackTimeBased(T), MFile.TimeLength.TotalSeconds);
                                     Debug.PrintToConsole("ok", $"ConvertWorker => T{T}, {MFile.TimeLength.TotalSeconds}");
 
                                     if (Properties.Settings.Default.PerTrackSeparateFiles)
-                                    {
-                                        // Check if we need to export each track to a file
-                                        String Folder = OPath;
-                                        if (Properties.Settings.Default.PerTrackSeparateFiles)
-                                        {
-                                            // We do, create folder
-                                            Folder += String.Format("\\{0}\\", Path.GetFileNameWithoutExtension(MFile.Name));
-
-                                            if (!Directory.Exists(Folder))
-                                                Directory.CreateDirectory(Folder);
-                                        }
-                                        else Folder += " ";
-
+                                    {        
                                         // Prepare the filename
-                                        String SOutputDir = String.Format("{0}Track {1}.{2}",
+                                        SOutputDir = String.Format("{0}Track {1}.{2}",
                                             Folder, T, Properties.Settings.Default.Codec);
 
                                         // Check if file already exists
@@ -437,13 +446,11 @@ namespace OmniConverter
 
                                         Debug.PrintToConsole("ok", String.Format("{0} - Output file: {1}", T, SOutputDir));
 
-                                        SFOpen = File.Open(SOutputDir, FileMode.Create);
-                                        SDestination = new WaveWriter(SFOpen, WF);
-                                        Writer = new WaveSampleWriter(SDestination);
+                                        Writer = tMSM.GetWriter();
                                     }
                                     else Writer = MSM.GetWriter();
 
-                                    var ConvThread = Task.Run(() => Worker.Convert(Writer, WF, CTS.Token));
+                                    ConvThread = Task.Run(() => Worker.Convert(Writer, WF, CTS.Token));
                                     Debug.PrintToConsole("ok", $"ConvThread started for T{T}");
 
                                     int ov = 0;
@@ -463,8 +470,42 @@ namespace OmniConverter
                                         }
                                     }
 
-                                    ConvThread.Wait();
-                                    ConvThread.Dispose();
+                                    if (ConvThread != null)
+                                    {
+                                        ConvThread.Wait();
+                                        ConvThread.Dispose();
+                                    }
+
+                                    if (Properties.Settings.Default.PerTrackSeparateFiles)
+                                    {
+                                        IWaveSource tMStream;
+                                        AntiClipping BAC;
+                                        if (Properties.Settings.Default.LoudMax)
+                                        {
+                                            Debug.PrintToConsole("ok", "LoudMax enabled.");
+                                            BAC = new AntiClipping(tMSM, 0.1);
+                                            tMStream = BAC.ToWaveSource(32);
+                                        }
+                                        else tMStream = tMSM.ToWaveSource(32);
+
+                                        // Reset MSM position
+                                        tMSM.Position = 0;
+
+                                        FileStream tFOpen = File.Open(SOutputDir, FileMode.Create);
+                                        WaveWriter tDestination = new WaveWriter(tFOpen, WF);
+                                        Debug.PrintToConsole("ok", "Output file is open.");
+
+                                        Int32 FRead = 0;
+                                        byte[] FBuffer = new byte[1024 * 16];
+
+                                        Debug.PrintToConsole("ok", String.Format("Writing data for {0} to disk...", SOutputDir));
+                                        while ((FRead = tMStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
+                                            tDestination.Write(FBuffer, 0, FRead);
+                                        Debug.PrintToConsole("ok", String.Format("Done writing {0}.", SOutputDir));
+
+                                        tDestination.Dispose();
+                                        tFOpen.Dispose();
+                                    }
 
                                     if (Writer != null)
                                     {
@@ -475,9 +516,6 @@ namespace OmniConverter
                                     }
 
                                     ThreadsPanel.Invoke((MethodInvoker)delegate { Trck.Dispose(); });
-
-                                    if (SDestination != null) SDestination.Dispose();
-                                    if (SFOpen != null) SFOpen.Dispose();
 
                                     if (!StopRequested) MDV.AddTrack();
                                 }
@@ -500,47 +538,52 @@ namespace OmniConverter
                     break;
                 else MDV.AddValidMIDI();
 
-                // Time to save the file
-                String OutputDir = String.Format("{0}\\{1}.{2}",
+                if (!Properties.Settings.Default.PerTrackSeparateFiles)
+                {
+                    // Time to save the file
+                    String OutputDir = String.Format("{0}\\{1}.{2}",
                     OPath, Path.GetFileNameWithoutExtension(MFile.Name), Properties.Settings.Default.Codec);
 
-                // Check if file already exists
-                if (File.Exists(OutputDir))
-                    OutputDir = String.Format("{0}\\{1} - {2}.{3}",
-                        OPath, Path.GetFileNameWithoutExtension(MFile.Name),
-                        DateTime.Now.ToString("yyyyMMdd HHmmsstt"), Properties.Settings.Default.Codec);
+                    // Check if file already exists
+                    if (File.Exists(OutputDir))
+                        OutputDir = String.Format("{0}\\{1} - {2}.{3}",
+                            OPath, Path.GetFileNameWithoutExtension(MFile.Name),
+                            DateTime.Now.ToString("yyyyMMdd HHmmsstt"), Properties.Settings.Default.Codec);
 
-                Debug.PrintToConsole("ok", String.Format("Output file: {0}", OutputDir));
+                    Debug.PrintToConsole("ok", String.Format("Output file: {0}", OutputDir));
 
-                // Reset MSM position
-                MSM.Position = 0;
+                    // Reset MSM position
+                    MSM.Position = 0;
 
-                // Prepare wave source
-                IWaveSource MStream;
-                if (Properties.Settings.Default.LoudMax)
-                {
-                    Debug.PrintToConsole("ok", "LoudMax enabled.");
-                    AntiClipping BAC = new AntiClipping(MSM, 0.1);
-                    MStream = BAC.ToWaveSource(32);
+                    // Prepare wave source
+                    IWaveSource MStream;
+                    AntiClipping BAC;
+                    if (Properties.Settings.Default.LoudMax)
+                    {
+                        Debug.PrintToConsole("ok", "LoudMax enabled.");
+                        BAC = new AntiClipping(MSM, 0.1);
+                        MStream = BAC.ToWaveSource(32);
+                    }
+                    else MStream = MSM.ToWaveSource(32);
+
+                    FileStream FOpen = File.Open(OutputDir, FileMode.Create);
+                    WaveWriter Destination = new WaveWriter(FOpen, WF);
+                    Debug.PrintToConsole("ok", "Output file is open.");
+
+                    Int32 FRead = 0;
+                    byte[] FBuffer = new byte[1024 * 16];
+
+                    Status = "aout";
+                    Debug.PrintToConsole("ok", String.Format("Writing data for {0} to disk...", OutputDir));
+                    while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
+                        Destination.Write(FBuffer, 0, FRead);
+                    Debug.PrintToConsole("ok", String.Format("Done writing {0}.", OutputDir));
+
+                    Destination.Dispose();
+                    FOpen.Dispose();
                 }
-                else MStream = MSM.ToWaveSource(32);
-
-                FileStream FOpen = File.Open(OutputDir, FileMode.Create);
-                WaveWriter Destination = new WaveWriter(FOpen, WF);
-                Debug.PrintToConsole("ok", "Output file is open.");
-
-                Int32 FRead = 0;
-                byte[] FBuffer = new byte[1024 * 16];
-
-                Status = "aout";
-                Debug.PrintToConsole("ok", String.Format("Writing data for {0} to disk...", OutputDir));
-                while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
-                    Destination.Write(FBuffer, 0, FRead);
-                Debug.PrintToConsole("ok", String.Format("Done writing {0}.", OutputDir));
 
                 MSM.Dispose();
-                Destination.Dispose();
-                FOpen.Dispose();
             }
         }
 

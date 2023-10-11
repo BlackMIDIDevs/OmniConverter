@@ -2,6 +2,7 @@
 using Octokit;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
@@ -314,6 +315,11 @@ namespace OmniConverter
         private void CheckForUpdates_Click(object sender, EventArgs e)
         {
             UpdateSystem.CheckForUpdates((Control.ModifierKeys == Keys.Shift), false, false);
+        }
+
+        private void DownloadConvSrc_Click(object sender, EventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/KaleidonKep99/OmniConverter") { UseShellExecute = true });
         }
     }
 }

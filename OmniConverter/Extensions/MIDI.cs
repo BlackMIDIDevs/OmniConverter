@@ -38,6 +38,8 @@ namespace OmniConverter
         public IEnumerable<IEnumerable<MIDIEvent>> GetIterateTracksTimeBased() =>
             LoadedFile.IterateTracks().Select(track => track.MergeWith(MetaEvents).MakeTimeBased(LoadedFile.PPQ));
 
+        public int MetaEventsCount => MetaEvents.Count();
+
         public long ID { get; private set; }
         public string Name { get; private set; }
         public string Path { get; private set; }

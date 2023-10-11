@@ -20,7 +20,7 @@ namespace OmniConverter
 {
     public partial class InfoWindow : Form
     {
-        private Version Converter = new Version(0, 0, 10, 0);
+        private Version Converter = new Version(0, 0, 11, 0);
 
         private ToolTip DynamicToolTip = new ToolTip();
         private RegistryKey WVerKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", false);
@@ -132,17 +132,17 @@ namespace OmniConverter
 
         private void GitHubPage_Click(object sender, EventArgs e)
         {
-            Process.Start(Properties.Settings.Default.ProjectLink);
+            Process.Start(new ProcessStartInfo(Properties.Settings.Default.ProjectLink) { UseShellExecute = true });
         }
 
         private void DonateKep_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://www.paypal.me/Keppy99");
+            Process.Start(new ProcessStartInfo("https://www.paypal.me/Keppy99") { UseShellExecute = true });
         }
 
         private void DonateArd_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://www.paypal.me/arduano");
+            Process.Start(new ProcessStartInfo("https://www.paypal.me/arduano") { UseShellExecute = true });
         }
 
         private void OMLicense_Click(object sender, EventArgs e)

@@ -79,6 +79,7 @@
             OCMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { Files, Help });
             OCMenu.Location = new System.Drawing.Point(0, 0);
             OCMenu.Name = "OCMenu";
+            OCMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             OCMenu.Size = new System.Drawing.Size(784, 24);
             OCMenu.TabIndex = 1;
             // 
@@ -91,6 +92,7 @@
             // 
             // AddMIDIsToQueue
             // 
+            AddMIDIsToQueue.Image = Properties.Resources.Add;
             AddMIDIsToQueue.Name = "AddMIDIsToQueue";
             AddMIDIsToQueue.Size = new System.Drawing.Size(235, 22);
             AddMIDIsToQueue.Text = "Add MIDIs to the queue";
@@ -98,6 +100,7 @@
             // 
             // RemoveMIDIsFromQueue
             // 
+            RemoveMIDIsFromQueue.Image = Properties.Resources.Remove;
             RemoveMIDIsFromQueue.Name = "RemoveMIDIsFromQueue";
             RemoveMIDIsFromQueue.Size = new System.Drawing.Size(235, 22);
             RemoveMIDIsFromQueue.Text = "Remove MIDIs from the queue";
@@ -105,6 +108,7 @@
             // 
             // ClearQueue
             // 
+            ClearQueue.Image = Properties.Resources.Clear;
             ClearQueue.Name = "ClearQueue";
             ClearQueue.Size = new System.Drawing.Size(235, 22);
             ClearQueue.Text = "Clear queue";
@@ -117,6 +121,7 @@
             // 
             // ExitFromConverter
             // 
+            ExitFromConverter.Image = Properties.Resources.Sleep;
             ExitFromConverter.Name = "ExitFromConverter";
             ExitFromConverter.Size = new System.Drawing.Size(235, 22);
             ExitFromConverter.Text = "Exit";
@@ -131,6 +136,7 @@
             // 
             // InfoAboutConverter
             // 
+            InfoAboutConverter.Image = Properties.Resources.Info;
             InfoAboutConverter.Name = "InfoAboutConverter";
             InfoAboutConverter.Size = new System.Drawing.Size(276, 22);
             InfoAboutConverter.Text = "Information about the converter";
@@ -143,12 +149,14 @@
             // 
             // CreateIssueGitHub
             // 
+            CreateIssueGitHub.Image = Properties.Resources.Octocat;
             CreateIssueGitHub.Name = "CreateIssueGitHub";
             CreateIssueGitHub.Size = new System.Drawing.Size(276, 22);
             CreateIssueGitHub.Text = "Create an issue on GitHub";
             // 
             // CheckForUpdates
             // 
+            CheckForUpdates.Image = Properties.Resources.Download;
             CheckForUpdates.Name = "CheckForUpdates";
             CheckForUpdates.Size = new System.Drawing.Size(276, 22);
             CheckForUpdates.Text = "Check for updates";
@@ -161,9 +169,11 @@
             // 
             // DownloadConvSrc
             // 
+            DownloadConvSrc.Image = Properties.Resources.Octocat;
             DownloadConvSrc.Name = "DownloadConvSrc";
             DownloadConvSrc.Size = new System.Drawing.Size(276, 22);
             DownloadConvSrc.Text = "Download the converter's source code";
+            DownloadConvSrc.Click += DownloadConvSrc_Click;
             // 
             // InfoBox
             // 
@@ -398,10 +408,12 @@
             // 
             OCContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { AddMIDIsToQueueRC, RemoveMIDIsFromQueueRC, ClearQueueRC });
             OCContextMenu.Name = "OCContextMenu";
-            OCContextMenu.Size = new System.Drawing.Size(236, 70);
+            OCContextMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+            OCContextMenu.Size = new System.Drawing.Size(236, 92);
             // 
             // AddMIDIsToQueueRC
             // 
+            AddMIDIsToQueueRC.Image = Properties.Resources.Add;
             AddMIDIsToQueueRC.Name = "AddMIDIsToQueueRC";
             AddMIDIsToQueueRC.Size = new System.Drawing.Size(235, 22);
             AddMIDIsToQueueRC.Text = "Add MIDIs to the queue";
@@ -409,6 +421,7 @@
             // 
             // RemoveMIDIsFromQueueRC
             // 
+            RemoveMIDIsFromQueueRC.Image = Properties.Resources.Remove;
             RemoveMIDIsFromQueueRC.Name = "RemoveMIDIsFromQueueRC";
             RemoveMIDIsFromQueueRC.Size = new System.Drawing.Size(235, 22);
             RemoveMIDIsFromQueueRC.Text = "Remove MIDIs from the queue";
@@ -416,6 +429,7 @@
             // 
             // ClearQueueRC
             // 
+            ClearQueueRC.Image = Properties.Resources.Clear;
             ClearQueueRC.Name = "ClearQueueRC";
             ClearQueueRC.Size = new System.Drawing.Size(235, 22);
             ClearQueueRC.Text = "Clear queue";
