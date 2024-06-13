@@ -59,6 +59,7 @@ namespace OmniConverter
                             break;
                         default:
                         case DialogResult.No:
+                            this.Invoke((MethodInvoker)delegate { CancelBtn.Enabled = true; });
                             return;
                     }
                 }

@@ -77,9 +77,8 @@ namespace OmniConverter
     {
         private readonly object Lock = new object();
         private BassFlags Flags;
-        private int Handle;
         private bool _disposed = false;
-
+        public int Handle { get; private set; } = 0;
         public string UniqueID { get; private set; } = IDGenerator.GetID();
         public bool ErroredOut { get; private set; } = false;
         public bool CanSeek { get; private set; } = false;
@@ -89,7 +88,6 @@ namespace OmniConverter
         private Random RTSR = new Random();
         private bool RTSMode { get; } = false;
         private uint EventC;
-        private MidiEvent[] EventS;
 
         private int VolHandle;
         private VolumeFxParameters VolParam;
@@ -241,6 +239,18 @@ namespace OmniConverter
             };
 
             return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.Struct, ev);
+        }
+
+        public int ActiveVoices
+        {
+            get
+            {
+                float voices = 0.0f;
+                Bass.ChannelGetAttribute(Handle, ChannelAttribute.MidiVoicesActive, out voices);
+
+                return (int)voices;
+            }
+            set { throw new NotSupportedException("You can't \"set\" the currently active voices. Like... ?????????"); }
         }
 
         public long Position

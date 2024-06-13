@@ -53,18 +53,18 @@ namespace OmniConverter
             SoundFont SF = (SoundFont)SFList.SelectedItem;
             Boolean Valid = (SF != null);
 
-            NotSFZ = Valid ? ((Path.GetExtension(SF.GetSoundFontPath).ToLowerInvariant() != ".sfz") ? -1 : 0) : 0;
+            NotSFZ = Valid ? ((Path.GetExtension(SF.SoundFontPath).ToLowerInvariant() != ".sfz") ? -1 : 0) : 0;
             SP.Minimum = NotSFZ;
             SB.Minimum = NotSFZ;
             DP.Minimum = NotSFZ;
 
-            SP.Value = Valid ? SF.GetSourcePreset : 0;
-            SB.Value = Valid ? SF.GetSourceBank : 0;
-            DP.Value = Valid ? SF.GetDestinationPreset : 0;
-            DB.Value = Valid ? SF.GetDestinationBank : 0;
-            DBLSB.Value = Valid ? SF.GetDestinationBankLSB : 0;
-            Enabled.Checked = Valid ? SF.IsEnabled : false;
-            XGM.Checked = Valid ? SF.GetXGMode : false;
+            SP.Value = Valid ? SF.SourcePreset : 0;
+            SB.Value = Valid ? SF.SourceBank : 0;
+            DP.Value = Valid ? SF.DestinationPreset : 0;
+            DB.Value = Valid ? SF.DestinationBank : 0;
+            DBLSB.Value = Valid ? SF.DestinationBankLSB : 0;
+            Enabled.Checked = Valid ? SF.Enabled : false;
+            XGM.Checked = Valid ? SF.XGMode : false;
 
             SFSettings.Enabled = Valid;
             MvU.Enabled = Valid;
@@ -177,7 +177,7 @@ namespace OmniConverter
                 Int32 NewIndex = Program.SFArray.List.Move(OldIndex, D);
                 if (NewIndex != -1) SelectedItemsBefore.Add(NewIndex);
 
-                Debug.PrintToConsole("ok", String.Format("Moved SoundFont {0}. Direction = {1}", SF.GetSoundFontPath, D));
+                Debug.PrintToConsole("ok", String.Format("Moved SoundFont {0}. Direction = {1}", SF.SoundFontPath, D));
             }
 
             SFList.ClearSelected();
@@ -216,7 +216,7 @@ namespace OmniConverter
             Graphics g = e.Graphics;
 
             g.FillRectangle(new SolidBrush(e.BackColor), e.Bounds);
-            g.DrawString(SF.GetSoundFontPath, e.Font, new SolidBrush(SF.IsEnabled ? e.ForeColor : SystemColors.GrayText), new PointF(e.Bounds.X, e.Bounds.Y));
+            g.DrawString(SF.SoundFontPath, e.Font, new SolidBrush(SF.Enabled ? e.ForeColor : SystemColors.GrayText), new PointF(e.Bounds.X, e.Bounds.Y));
 
             e.DrawFocusRectangle();
         }

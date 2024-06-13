@@ -9,15 +9,16 @@ namespace OmniConverter
 {
     public class SoundFont
     {
-        private String SoundFontPath;
-        private Int32 SourcePreset;
-        private Int32 SourceBank;
-        private Int32 DestinationPreset;
-        private Int32 DestinationBank;
-        private Int32 DestinationBankLSB;
-        private Boolean Enabled;
-        private Boolean XGMode;
-        public Int32 SoundFontHandle { get; set; }
+        public string SoundFontPath { get; private set; }
+        public int SourcePreset { get; private set; }
+        public int SourceBank { get; private set; }
+        public int DestinationPreset { get; private set; }
+        public int DestinationBank { get; private set; }
+        public int DestinationBankLSB { get; private set; }
+        public bool Enabled { get; private set; }
+        public bool XGMode { get; private set; }
+
+        public int SoundFontHandle;
 
         public SoundFont()
         {
@@ -58,15 +59,6 @@ namespace OmniConverter
             Enabled = E;
             XGMode = XGM;
         }
-
-        public String GetSoundFontPath { get { return SoundFontPath; } }
-        public Int32 GetSourcePreset { get { return SourcePreset; } }
-        public Int32 GetSourceBank { get { return SourceBank; } }
-        public Int32 GetDestinationPreset { get { return DestinationPreset; } }
-        public Int32 GetDestinationBank { get { return DestinationBank; } }
-        public Int32 GetDestinationBankLSB { get { return DestinationBankLSB; } }
-        public Boolean IsEnabled { get { return Enabled; } }
-        public Boolean GetXGMode { get { return XGMode; } }
     }
 
     public class VST

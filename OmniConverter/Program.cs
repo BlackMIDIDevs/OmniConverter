@@ -38,11 +38,13 @@ namespace OmniConverter
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-          
+
+#if !DEBUG
             if (Properties.Settings.Default.PreRelease)
                 MessageBox.Show("You are using a pre-release version of the converter.\n" +
                     "Anything you might try and see here might not make it into the final release.\n\n" +
                     "You have been warned.\n\nPress OK to continue.", "OmniConverter - Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+#endif
 
             if (Properties.Settings.Default.SUP)
             {

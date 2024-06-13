@@ -157,27 +157,27 @@ namespace OmniConverter
 
             foreach (SoundFont SF in Program.SFArray.List)
             {
-                if (!SF.IsEnabled)
+                if (!SF.Enabled)
                 {
                     Debug.PrintToConsole("ok", "SoundFont is disabled, there's no need to load it.");
                     continue;
                 }
 
                 MidiFontEx TSF;
-                Debug.PrintToConsole("ok", String.Format("Preparing BASS_MIDI_FONTEX for {0}...", SF.GetSoundFontPath));
+                Debug.PrintToConsole("ok", String.Format("Preparing BASS_MIDI_FONTEX for {0}...", SF.SoundFontPath));
 
-                TSF.Handle = BassMidi.FontInit(SF.GetSoundFontPath, SF.GetXGMode ? FontInitFlags.XGDrums : (FontInitFlags)0 | FontInitFlags.Unicode);
+                TSF.Handle = BassMidi.FontInit(SF.SoundFontPath, SF.XGMode ? FontInitFlags.XGDrums : (FontInitFlags)0 | FontInitFlags.Unicode);
                 Debug.PrintToConsole("ok", String.Format("SoundFont handle initialized. Handle = {0:X8}", TSF.Handle));
 
-                TSF.SoundFontPreset = SF.GetSourcePreset;
-                TSF.SoundFontBank = SF.GetSourceBank;
-                TSF.DestinationPreset = SF.GetDestinationPreset;
-                TSF.DestinationBank = SF.GetDestinationBank;
-                TSF.DestinationBankLSB = SF.GetDestinationBankLSB;
+                TSF.SoundFontPreset = SF.SourcePreset;
+                TSF.SoundFontBank = SF.SourceBank;
+                TSF.DestinationPreset = SF.DestinationPreset;
+                TSF.DestinationBank = SF.DestinationBank;
+                TSF.DestinationBankLSB = SF.DestinationBankLSB;
                 Debug.PrintToConsole("ok",
                     String.Format(
                         "spreset = {0}, sbank = {1}, dpreset = {2}, dbank = {3}, dbanklsb = {4}, xg = {5}",
-                        TSF.SoundFontPreset, TSF.SoundFontBank, TSF.DestinationPreset, TSF.DestinationBank, TSF.DestinationBankLSB, SF.GetXGMode
+                        TSF.SoundFontPreset, TSF.SoundFontBank, TSF.DestinationPreset, TSF.DestinationBank, TSF.DestinationBankLSB, SF.XGMode
                         )
                     );
 
@@ -187,7 +187,7 @@ namespace OmniConverter
                     BMFEList.Add(TSF);
                     Debug.PrintToConsole("ok", "SoundFont loaded and added to BASS_MIDI_FONTEX array.");
                 }
-                else Debug.PrintToConsole("err", String.Format("Could not load {0}. BASSERR: {1}", SF.GetSoundFontPath, Bass.LastError));
+                else Debug.PrintToConsole("err", String.Format("Could not load {0}. BASSERR: {1}", SF.SoundFontPath, Bass.LastError));
             }
 
             Debug.PrintToConsole("ok", "Reversing array...");

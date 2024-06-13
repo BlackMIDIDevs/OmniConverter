@@ -13,6 +13,7 @@ namespace OmniConverter
 
         private void Settings_Load(object sender, EventArgs e)
         {
+            UnlimitedVoices.Checked = Properties.Settings.Default.KhangVoices;
             MaxVoices.Value = Properties.Settings.Default.VoiceLimit;
             FrequencyBox.Text = Properties.Settings.Default.Frequency.ToString();
 
@@ -41,6 +42,10 @@ namespace OmniConverter
 
             DoActionAfterRender.Checked = Properties.Settings.Default.DoActionAfterRender;
             DoActionAfterRenderVal.SelectedIndex = Properties.Settings.Default.DoActionAfterRenderV.LimitToRange(0, DoActionAfterRenderVal.Items.Count - 1);
+
+            RealTimeSimulation.Checked = Properties.Settings.Default.RTSMode;
+            fpsValue.Value = Properties.Settings.Default.RTSFPS;
+            frameFluctValue.Value = Properties.Settings.Default.RTSFluct;
 
             MTMode_CheckedChanged(sender, e);
             MTLimit_CheckedChanged(sender, e);
@@ -101,6 +106,7 @@ namespace OmniConverter
 
         private void OkBtn_Click(object sender, EventArgs e)
         {
+            Properties.Settings.Default.KhangVoices = UnlimitedVoices.Checked;
             Properties.Settings.Default.VoiceLimit = (Int32)MaxVoices.Value;
             Properties.Settings.Default.Frequency = Int32.Parse(FrequencyBox.SelectedItem.ToString());
 
@@ -127,9 +133,26 @@ namespace OmniConverter
             Properties.Settings.Default.DoActionAfterRender = DoActionAfterRender.Checked;
             Properties.Settings.Default.DoActionAfterRenderV = DoActionAfterRenderVal.SelectedIndex;
 
+            Properties.Settings.Default.RTSMode = RealTimeSimulation.Checked;
+            Properties.Settings.Default.RTSFPS = fpsValue.Value;
+            Properties.Settings.Default.RTSFluct = frameFluctValue.Value;
+
             Properties.Settings.Default.Save();
 
             Close();
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            MaxVoices.Maximum = UnlimitedVoices.Checked ? int.MaxValue : 100000;
+        }
+
+        private void RealTimeSimulation_CheckedChanged(object sender, EventArgs e)
+        {
+            fpsLab.Enabled = RealTimeSimulation.Checked;
+            fpsValue.Enabled = RealTimeSimulation.Checked;
+            frameFluctValue.Enabled = RealTimeSimulation.Checked;
+            frameFluctLab.Enabled = RealTimeSimulation.Checked;
         }
     }
 }

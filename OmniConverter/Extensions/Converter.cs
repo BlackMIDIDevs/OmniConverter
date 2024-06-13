@@ -3,19 +3,19 @@ using CSCore.Codecs.WAV;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ManagedBass;
-using System.Xml;
-using System.Drawing;
-using System.Linq;
-using System.Xml.Linq;
-using CSCore.Streams;
+using ManagedBass.Midi;
+using Microsoft.VisualBasic;
+using Octokit;
+using FileMode = System.IO.FileMode;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
+using System.Globalization;
 
 namespace OmniConverter
 {
@@ -84,29 +84,52 @@ namespace OmniConverter
     class ConvertWorker
     {
         IEnumerable<MIDIEvent> events;
+        bool rtsmode = false;
+        double rtsfps = 60.0;
+        double rtsfluct = 5;
+        int activevoices = 0;
+        double curfr = 0;
         double length;
         double converted;
 
         public double Progress => converted / length;
+        public int ActiveVoices => activevoices;
+        public bool IsRTS => rtsmode;
+        public double Framerate => 1 / curfr;
 
         public ConvertWorker(IEnumerable<MIDIEvent> events, double length)
         {
             this.events = events;
             this.length = length;
         }
+        double RoundToNearest(double n, double x)
+        {
+            return Math.Round(n / x) * x;
+        }
 
         public void Convert(ISampleWriter output, CSCore.WaveFormat format, CancellationToken CTS)
         {
             BASSMIDI bass;
+            Random r = new Random();
+            rtsmode = Properties.Settings.Default.RTSMode;
+            rtsfps = (double)Properties.Settings.Default.RTSFPS;
+            rtsfluct = (double)Properties.Settings.Default.RTSFluct;
 
             Debug.PrintToConsole("ok", $"Initializing BASSMIDI for thread...");
+
+            var rtsfr = (1.0 / rtsfps);
+            var percfps = (rtsfr / 100) * rtsfluct;
+            var minfps = rtsfr - percfps;
+            var maxfps = rtsfr + percfps;
 
             using (bass = new BASSMIDI(format, CTS))
             {
                 ISampleSource bassSource;
                 float[] buffer = new float[2048 * 16];
+                var factor = (format.SampleRate / 1000);
                 long prevWriteTime = 0;
                 double time = 0;
+
                 int read;
 
                 /*if (loudmax) bassSource = new AntiClipping(bass, 0.1);
@@ -134,9 +157,21 @@ namespace OmniConverter
                         time += e.DeltaTime;
                         converted = time;
                         var eb = e.GetData();
-                        var writeTime = (long)(time * format.SampleRate);
+
+                        if (rtsmode)
+                            curfr = r.NextDouble() * (maxfps - minfps) + minfps;
+
+                        long writeTime = (long)((rtsmode ? RoundToNearest(time, curfr) : time) * format.SampleRate);
+
+                        // If writeTime ends up being negative, clamp it to 0
+                        if (writeTime < 0)
+                            writeTime = 0;
+
                         var offset = (int)((writeTime - prevWriteTime) * 2);
-                        prevWriteTime = writeTime;
+
+                        // Never EVER go back in time!!!!!!
+                        if (writeTime > prevWriteTime) // <<<<< EVER!!!!!!!!!
+                            prevWriteTime = writeTime;
 
                         while (offset > 0)
                         {
@@ -154,6 +189,8 @@ namespace OmniConverter
                             }
                         }
 
+                        activevoices = bass.ActiveVoices;
+
                         switch (e)
                         {
 /*
@@ -168,7 +205,7 @@ namespace OmniConverter
 
                             case ControlChangeEvent ev:
                                 if (Properties.Settings.Default.RVOverrideToggle && (ev.Controller == 0x5B || ev.Controller == 0x5D))
-                                    continue;
+                                    break;
 
                                 goto default;
 
@@ -193,7 +230,7 @@ namespace OmniConverter
 
                             default:
                                 bass.SendEventRaw(eb);
-                                continue;
+                                break;
                         }
                     }
                 }
@@ -238,10 +275,10 @@ namespace OmniConverter
             Debug.PrintToConsole("ok", "CThread started.");
         }
 
-        public Boolean IsStillRendering() { return CThread.IsAlive; }
         public void RequestStop() { StopRequested = true; CTS.Cancel(); }
-        public String GetStatus() { return Status; }
-        public string GetError() { return StError; }
+        public Boolean IsStillRendering() => CThread.IsAlive;
+        public String GetStatus() => Status;
+        public string GetError() => StError;
 
         private void PerMIDIConv(int MT, CSCore.WaveFormat WF, Panel ThreadsPanel, string OPath)
         {
@@ -307,7 +344,11 @@ namespace OmniConverter
                                 {
                                     ov = v;
 
-                                    MIDIT.UpdateTitle($"{v}%");
+                                    string title = $"{Worker.ActiveVoices.ToString(",0", CultureInfo.InvariantCulture)} voices";
+                                    title += Worker.IsRTS ? $", RTS @ {Worker.Framerate.ToString("0.0")}FPS" : "";
+                                    title += $" >> {v}%";
+
+                                    MIDIT.UpdateTitle(title);
                                     MIDIT.UpdatePB(v);
                                 }
                             }
@@ -465,7 +506,11 @@ namespace OmniConverter
                                         {
                                             ov = v;
 
-                                            Trck.UpdateTitle($"{v}%");
+                                            string title = $"{Worker.ActiveVoices.ToString(",0", CultureInfo.InvariantCulture)} voices";
+                                            title += Worker.IsRTS ? $", RTS @ {Worker.Framerate.ToString("0.0")}FPS" : "";
+                                            title += $" >> {v}%";
+
+                                            Trck.UpdateTitle(title);
                                             Trck.UpdatePB(v);
                                         }
                                     }
@@ -505,14 +550,6 @@ namespace OmniConverter
 
                                         tDestination.Dispose();
                                         tFOpen.Dispose();
-                                    }
-
-                                    if (Writer != null)
-                                    {
-                                        if (Writer.GetType() == typeof(MultiStreamMerger))
-                                            ((MultiStreamMerger)Writer).Dispose();
-                                        else if (Writer.GetType() == typeof(WaveSampleWriter))
-                                            ((WaveSampleWriter)Writer).Dispose();
                                     }
 
                                     ThreadsPanel.Invoke((MethodInvoker)delegate { Trck.Dispose(); });
@@ -604,7 +641,18 @@ namespace OmniConverter
             if (!BassReady)
                 throw new Exception("Unable to initialize BASS!");
 
-            Bass.Configure(Configuration.MidiVoices, Properties.Settings.Default.VoiceLimit);
+            if (!Properties.Settings.Default.KhangVoices && Properties.Settings.Default.VoiceLimit > 100000)
+            {
+                Properties.Settings.Default.VoiceLimit = 100000;
+                Properties.Settings.Default.Save();
+            }
+
+            bool succ = Bass.Configure(Configuration.MidiVoices, Properties.Settings.Default.VoiceLimit);
+
+            if (!succ && Properties.Settings.Default.KhangVoices)
+                throw new Exception("Khang mod not implemented by current BASSMIDI library!");
+            else if (!succ)
+                throw new Exception("Voice limit not valid!");
 
             Debug.PrintToConsole("ok", $"BASS initialized. (ERR: {Bass.LastError})");
 

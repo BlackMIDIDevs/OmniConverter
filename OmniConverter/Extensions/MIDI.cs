@@ -10,6 +10,45 @@ using MIDIModificationFramework.MIDIEvents;
 
 namespace OmniConverter
 {
+    public class EventTools
+    {
+        enum MIDIEventType
+        {
+            NoteOff = 0x80,
+            NoteOn = 0x90,
+            Aftertouch = 0xA0,
+            CC = 0xB0,
+            PatchChange = 0xC0,
+            ChannelPressure = 0xD0,
+            PitchBend = 0xE0,
+
+            SystemMessageStart = 0xF0,
+            SystemMessageEnd = 0xF7,
+
+            MIDITCQF = 0xF1,
+            SongPositionPointer = 0xF2,
+            SongSelect = 0xF3,
+            TuneRequest = 0xF6,
+            TimingClock = 0xF8,
+            Start = 0xFA,
+            Continue = 0xFB,
+            Stop = 0xFC,
+            ActiveSensing = 0xFE,
+            SystemReset = 0xFF,
+
+            Unknown1 = 0xF4,
+            Unknown2 = 0xF5,
+            Unknown3 = 0xF9,
+            Unknown4 = 0xFD
+        };
+
+        static uint GetStatus(uint ev) { return (ev & 0xFF); }
+        static uint GetCommand(uint ev) { return (ev & 0xF0); }
+        static uint GetChannel(uint ev) { return (ev & 0xF); }
+        static uint GetFirstParam(uint ev) { return ((ev >> 8) & 0xFF); }
+        static uint GetSecondParam(uint ev) { return ((ev >> 16) & 0xFF); }
+    }
+
     public class MIDI : IDisposable
     {
         private MidiFile LoadedFile;

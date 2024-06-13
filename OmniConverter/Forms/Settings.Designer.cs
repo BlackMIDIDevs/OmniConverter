@@ -57,6 +57,13 @@
             DoActionAfterRender = new System.Windows.Forms.CheckBox();
             tabControl1 = new System.Windows.Forms.TabControl();
             ASet = new System.Windows.Forms.TabPage();
+            groupBox2 = new System.Windows.Forms.GroupBox();
+            RealTimeSimulation = new System.Windows.Forms.CheckBox();
+            frameFluctValue = new System.Windows.Forms.NumericUpDown();
+            fpsLab = new System.Windows.Forms.Label();
+            frameFluctLab = new System.Windows.Forms.Label();
+            fpsValue = new System.Windows.Forms.NumericUpDown();
+            UnlimitedVoices = new System.Windows.Forms.CheckBox();
             ESet = new System.Windows.Forms.TabPage();
             AOFBrowse = new System.Windows.Forms.Button();
             PCSet = new System.Windows.Forms.TabPage();
@@ -67,6 +74,9 @@
             ((System.ComponentModel.ISupportInitialize)MTLimitVal).BeginInit();
             tabControl1.SuspendLayout();
             ASet.SuspendLayout();
+            groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)frameFluctValue).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)fpsValue).BeginInit();
             ESet.SuspendLayout();
             PCSet.SuspendLayout();
             SuspendLayout();
@@ -79,7 +89,7 @@
             groupBox1.Controls.Add(ReverbV);
             groupBox1.Controls.Add(ReverbL);
             groupBox1.Controls.Add(EnableRCOverride);
-            groupBox1.Location = new System.Drawing.Point(6, 156);
+            groupBox1.Location = new System.Drawing.Point(6, 151);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new System.Drawing.Size(442, 81);
             groupBox1.TabIndex = 46;
@@ -193,11 +203,11 @@
             // MaxVoices
             // 
             MaxVoices.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            MaxVoices.Location = new System.Drawing.Point(384, 6);
+            MaxVoices.Location = new System.Drawing.Point(361, 6);
             MaxVoices.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
             MaxVoices.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             MaxVoices.Name = "MaxVoices";
-            MaxVoices.Size = new System.Drawing.Size(64, 23);
+            MaxVoices.Size = new System.Drawing.Size(87, 23);
             MaxVoices.TabIndex = 39;
             MaxVoices.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             MaxVoices.Value = new decimal(new int[] { 100000, 0, 0, 0 });
@@ -383,6 +393,8 @@
             // 
             // ASet
             // 
+            ASet.Controls.Add(groupBox2);
+            ASet.Controls.Add(UnlimitedVoices);
             ASet.Controls.Add(groupBox1);
             ASet.Controls.Add(MaxVoicesLabel);
             ASet.Controls.Add(EnableLoudMax);
@@ -400,6 +412,93 @@
             ASet.TabIndex = 0;
             ASet.Text = "Audio Settings";
             ASet.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            groupBox2.Controls.Add(RealTimeSimulation);
+            groupBox2.Controls.Add(frameFluctValue);
+            groupBox2.Controls.Add(fpsLab);
+            groupBox2.Controls.Add(frameFluctLab);
+            groupBox2.Controls.Add(fpsValue);
+            groupBox2.Location = new System.Drawing.Point(6, 238);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new System.Drawing.Size(442, 64);
+            groupBox2.TabIndex = 63;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "RTS Mode (NEW!)";
+            // 
+            // RealTimeSimulation
+            // 
+            RealTimeSimulation.AutoSize = true;
+            RealTimeSimulation.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            RealTimeSimulation.Location = new System.Drawing.Point(6, 27);
+            RealTimeSimulation.Name = "RealTimeSimulation";
+            RealTimeSimulation.Size = new System.Drawing.Size(227, 20);
+            RealTimeSimulation.TabIndex = 58;
+            RealTimeSimulation.Text = "Enable real-time playback simulation";
+            RealTimeSimulation.UseVisualStyleBackColor = true;
+            RealTimeSimulation.CheckedChanged += RealTimeSimulation_CheckedChanged;
+            // 
+            // frameFluctValue
+            // 
+            frameFluctValue.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            frameFluctValue.Enabled = false;
+            frameFluctValue.Location = new System.Drawing.Point(389, 36);
+            frameFluctValue.Name = "frameFluctValue";
+            frameFluctValue.Size = new System.Drawing.Size(48, 23);
+            frameFluctValue.TabIndex = 61;
+            frameFluctValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            frameFluctValue.Value = new decimal(new int[] { 5, 0, 0, 0 });
+            // 
+            // fpsLab
+            // 
+            fpsLab.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            fpsLab.AutoSize = true;
+            fpsLab.Enabled = false;
+            fpsLab.Location = new System.Drawing.Point(360, 15);
+            fpsLab.Name = "fpsLab";
+            fpsLab.Size = new System.Drawing.Size(29, 15);
+            fpsLab.TabIndex = 60;
+            fpsLab.Text = "FPS:";
+            // 
+            // frameFluctLab
+            // 
+            frameFluctLab.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            frameFluctLab.AutoSize = true;
+            frameFluctLab.Enabled = false;
+            frameFluctLab.Location = new System.Drawing.Point(264, 39);
+            frameFluctLab.Name = "frameFluctLab";
+            frameFluctLab.Size = new System.Drawing.Size(125, 15);
+            frameFluctLab.TabIndex = 62;
+            frameFluctLab.Text = "Frame fluctuation (%):";
+            // 
+            // fpsValue
+            // 
+            fpsValue.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            fpsValue.Enabled = false;
+            fpsValue.Location = new System.Drawing.Point(389, 12);
+            fpsValue.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
+            fpsValue.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            fpsValue.Name = "fpsValue";
+            fpsValue.Size = new System.Drawing.Size(48, 23);
+            fpsValue.TabIndex = 59;
+            fpsValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            fpsValue.Value = new decimal(new int[] { 60, 0, 0, 0 });
+            // 
+            // UnlimitedVoices
+            // 
+            UnlimitedVoices.AutoSize = true;
+            UnlimitedVoices.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            UnlimitedVoices.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            UnlimitedVoices.Location = new System.Drawing.Point(274, 6);
+            UnlimitedVoices.Name = "UnlimitedVoices";
+            UnlimitedVoices.Size = new System.Drawing.Size(84, 20);
+            UnlimitedVoices.TabIndex = 50;
+            UnlimitedVoices.Text = "Unlimited";
+            UnlimitedVoices.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            UnlimitedVoices.UseVisualStyleBackColor = true;
+            UnlimitedVoices.CheckedChanged += checkBox1_CheckedChanged;
             // 
             // ESet
             // 
@@ -451,7 +550,7 @@
             ControlBox = false;
             Controls.Add(tabControl1);
             Controls.Add(OkBtn);
-            Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            Font = new System.Drawing.Font("Segoe UI", 9F);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "Settings";
@@ -469,6 +568,10 @@
             tabControl1.ResumeLayout(false);
             ASet.ResumeLayout(false);
             ASet.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)frameFluctValue).EndInit();
+            ((System.ComponentModel.ISupportInitialize)fpsValue).EndInit();
             ESet.ResumeLayout(false);
             ESet.PerformLayout();
             PCSet.ResumeLayout(false);
@@ -509,5 +612,12 @@
         private System.Windows.Forms.TabPage ESet;
         private System.Windows.Forms.Button AOFBrowse;
         private System.Windows.Forms.TabPage PCSet;
+        internal System.Windows.Forms.CheckBox UnlimitedVoices;
+        private System.Windows.Forms.GroupBox groupBox2;
+        internal System.Windows.Forms.CheckBox RealTimeSimulation;
+        public System.Windows.Forms.NumericUpDown frameFluctValue;
+        private System.Windows.Forms.Label fpsLab;
+        private System.Windows.Forms.Label frameFluctLab;
+        public System.Windows.Forms.NumericUpDown fpsValue;
     }
 }

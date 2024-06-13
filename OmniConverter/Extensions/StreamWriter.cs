@@ -15,7 +15,7 @@ namespace OmniConverter
         void Write(float* buffer, int offset, int count);
     }
 
-    public class MultiStreamMerger : ISampleSource
+    public sealed class MultiStreamMerger : ISampleSource
     {
         class Writer : ISampleWriter
         {

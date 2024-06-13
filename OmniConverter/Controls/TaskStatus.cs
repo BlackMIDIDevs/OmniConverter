@@ -25,7 +25,7 @@ namespace OmniConverter
             }
 
             if (!string.IsNullOrEmpty(Text))
-                MIDIT.Text = $"{OgTitle} - {Text}";
+                MIDIT.Text = $"{Text} - {OgTitle}";
             else
                 MIDIT.Text = OgTitle;
         }
