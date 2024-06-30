@@ -672,6 +672,7 @@ namespace OmniConverter
                 float[] buffer = new float[64 * waveFormat.BlockAlign];
                 long prevWriteTime = 0;
                 double deltaTime = 0;
+                byte[] scratch = new byte[16];
 
                 Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {midiRenderer.UniqueID}.");
 
@@ -696,7 +697,7 @@ namespace OmniConverter
 
                             deltaTime += e.DeltaTime;
                             converted = deltaTime;
-                            var eb = e.GetData();
+                            var eb = e.GetData(scratch);
 
                             if (rtsMode)
                                 curFrametime = r.NextDouble() * (maxFps - minFps) + minFps;

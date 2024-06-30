@@ -320,7 +320,7 @@ namespace OmniConverter
         {
             var status = data[0];
             var param1 = data[1];
-            var param2 = data.Length == 3 ? data[2] : 0;
+            var param2 = data.Length >= 3 ? data[2] : 0;
             
             int eventParams;
             var eventType = MidiEventType.Note;
