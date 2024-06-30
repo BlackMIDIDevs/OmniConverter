@@ -260,16 +260,18 @@ namespace OmniConverter
                     Dispatcher.UIThread.Post(() => midiPanel = new TaskStatus(midi.Name, _panelRef));
 
                     IEnumerable<MIDIEvent> evs = [];
+                    bool loaded = false;
                     try
                     {
                         evs = midi.GetFullMIDITimeBased();
+                        loaded = true;
                     }
                     catch (Exception ex)
                     {
                         Debug.PrintToConsole(Debug.LogType.Error, $"{ex.Message}");
                     }
 
-                    if (evs.Count() > 0)
+                    if (loaded)
                     {
                         var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile);
 
