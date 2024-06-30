@@ -13,6 +13,8 @@ Every other module is covered by its own license, which you can find in the link
 # Credits
 Avalonia UI: https://github.com/AvaloniaUI/Avalonia
 <br />
+CSCore: https://github.com/filoe/cscore
+<br />
 ManagedBass: https://github.com/ManagedBass/ManagedBass
 <br />
 MIDIModificationFramework: https://github.com/arduano/MIDIModificationFramework
