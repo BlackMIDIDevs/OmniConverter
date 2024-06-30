@@ -75,7 +75,7 @@ namespace OmniConverter
 
     public class SoundFonts
     {
-        private ObservableCollection<SoundFont> _sfList;
+        private ObservableCollection<SoundFont>? _sfList;
 
         public SoundFonts()
         {
@@ -87,26 +87,38 @@ namespace OmniConverter
             _sfList = sfList;
         }
 
-        public ObservableCollection<SoundFont> GetSoundFontList() => _sfList;
+        public ObservableCollection<SoundFont> GetSoundFontList() 
+        {
+            if (_sfList != null)
+                return _sfList;
+
+            return [];
+        }
+
+        public int GetSoundFontsCount()
+        {
+            if (_sfList != null)
+                return _sfList.Count;
+
+            return 0;
+        }
 
         public void Add(SoundFont? sf)
         {
-            if (sf != null)
+            if (_sfList != null && sf != null)
                 _sfList.Add(sf);
         }
 
         public void Remove(SoundFont? sf)
         {
-            if (sf != null)
+            if (_sfList != null && sf != null)
                 _sfList.Remove(sf);
         }
 
         public void Move(SoundFont? sf, MoveDirection direction)
         {
-            if (sf != null)
+            if (_sfList != null && sf != null)
             {
-                List<int> itemsBefore = new List<int>();
-
                 int oldIndex = _sfList.IndexOf(sf);
                 _sfList.Move(oldIndex, direction);
             }

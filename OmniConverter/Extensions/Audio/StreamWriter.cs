@@ -60,54 +60,51 @@ namespace OmniConverter
             {
                 if (Length > Stream.Length)
                 {
-                    if (Length < Stream.data.Length) Stream.Length = Length;
-                    else
+                    lock (Stream)
                     {
-                        int NewSize = (int)(Stream.data.Length * 1.2);
+                        if (Length < Stream.data.Length) Stream.Length = Length;
+                        else
+                        {
+                            int NewSize = (int)(Stream.data.Length * 1.2);
 
-                        if (NewSize < Length)
-                            NewSize = Length;
+                            if (NewSize < Length)
+                                NewSize = Length;
 
-                        Array.Resize(ref Stream.data, NewSize);
-                        Stream.Length = Length;
+                            Array.Resize(ref Stream.data, NewSize);
+                            Stream.Length = Length;
 
-                        GC.Collect(2);
-                    }
+                            GC.Collect(2);
+                        }
+                    }                  
                 }
             }
 
             public unsafe void Write(float[] buffer, int offset, int count)
             {
-                lock (Stream)
+                ResizeStream(Position + count);
+
+                fixed (float* dest = Stream.data)
                 {
-                    ResizeStream(Position + count);
-
-                    fixed (float* dest = Stream.data)
-                    {
-                        float* _dest = dest + Position;
-                        for (int i = 0; i < count; i++)
-                            _dest[i] += buffer[i + offset];
-                    }
-
-                    Position += count;
+                    float* _dest = dest + Position;
+                    for (int i = 0; i < count; i++)
+                        _dest[i] += buffer[i + offset];
                 }
+
+                Position += count;
             }
 
             public unsafe void Write(float* buffer, int offset, int count)
             {
-                lock (Stream)
+                ResizeStream(Position + count);
+
+                fixed (float* dest = Stream.data)
                 {
-                    ResizeStream(Position + count);
-
-                    fixed (float* dest = Stream.data)
-                    {
-                        float* _dest = dest + Position;
-                        for (int i = 0; i < count; i++)
-                            _dest[i] += buffer[i + offset];
-                    }
-
-                    Position += count;
+                    float* _dest = dest + Position;
+                    for (int i = 0; i < count; i++)
+                        _dest[i] += buffer[i + offset];
                 }
+
+                Position += count;
             }
         }
 
