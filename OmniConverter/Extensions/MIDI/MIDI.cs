@@ -66,6 +66,7 @@ namespace OmniConverter
         public long Notes { get => _noteCount; }
         public ulong Size { get => _fileSize; }
         public string HumanReadableSize { get => MiscFunctions.BytesToHumanReadableSize(_fileSize); }
+        public MidiFile LoadedFile { get => _loadedFile; }
 
         public string HumanReadableTime { get => MiscFunctions.TimeSpanToHumanReadableTime(_timeLength); }
 
@@ -247,6 +248,11 @@ namespace OmniConverter
             AppleUniformTypeIdentifiers = new[] { "midi" },
             MimeTypes = new[] { "audio/midi" }
         };
+
+        public void EnablePooling()
+        {
+            _loadedFile.Pooled = true;
+        }
     }
 
     public class MIDIValidator

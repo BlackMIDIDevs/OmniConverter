@@ -237,6 +237,7 @@ namespace OmniConverter
                     }
 
                     var midi = _midis[nMidi];
+                    midi.EnablePooling();
 
                     // Begin conversion
                     AutoFillInfo(ConvStatus.SingleConv);
@@ -270,7 +271,7 @@ namespace OmniConverter
 
                     if (evs.Count() > 0)
                     {
-                        var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds);
+                        var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile);
 
                         // Initialize memory stream
                         var msm = new MultiStreamMerger(waveFormat);
@@ -370,6 +371,7 @@ namespace OmniConverter
 
             foreach (MIDI midi in _midis)
             {
+                midi.EnablePooling();
                 AutoFillInfo(ConvStatus.Prep);
 
                 if (_cancToken.IsCancellationRequested)
@@ -417,7 +419,7 @@ namespace OmniConverter
                                 trackPanel?.UpdateTitle("Loading...");
                                 trackPanel?.UpdateProgress(0.0);
 
-                                var eventsProcesser = new EventsProcesser(_audioRenderer, midi.GetSingleTrackTimeBased(track), midi.Length.TotalSeconds);
+                                var eventsProcesser = new EventsProcesser(_audioRenderer, midi.GetSingleTrackTimeBased(track), midi.Length.TotalSeconds, midi.LoadedFile);
                                 Debug.PrintToConsole(Debug.LogType.Message, $"ConvertWorker => T{track}, {midi.Length.TotalSeconds}");
 
                                 // Per track!
@@ -592,6 +594,7 @@ namespace OmniConverter
         MIDIRenderer? midiRenderer = null;
         AudioEngine audioRenderer;
         IEnumerable<MIDIEvent>? events = new List<MIDIEvent>();
+        MidiFile file;
 
         bool rtsMode = false;
         double curFrametime = 0.0;
@@ -607,11 +610,12 @@ namespace OmniConverter
         public bool IsRTS => rtsMode;
         public double Framerate => 1 / curFrametime;
 
-        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length)
+        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length, MidiFile file)
         {
             this.audioRenderer = audioRenderer;
             this.events = events;
             this.length = length;
+            this.file = file;
         }
         double RoundToNearest(double n, double x)
         {
@@ -742,6 +746,8 @@ namespace OmniConverter
 
                             _activeVoices = midiRenderer.ActiveVoices;
                             //_renderingTime = bass.RenderingTime;
+
+                            file.Return(e);
                         }
                     }
                 }
