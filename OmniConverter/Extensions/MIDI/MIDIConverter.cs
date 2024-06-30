@@ -75,7 +75,7 @@ namespace OmniConverter
                 var biggestMidi = _midis.MaxBy(x => x.Tracks);
 
                 var v = Program.Settings.MaxVoices;
-                var mem = (ulong)((Program.Settings.MaxVoices * 288) * biggestMidi.Tracks);
+                var mem = (ulong)((Program.Settings.MaxVoices * 312) * biggestMidi.Tracks);
                 var memusage = MiscFunctions.BytesToHumanReadableSize(mem);
 
                 var re = MessageBox.Show(
