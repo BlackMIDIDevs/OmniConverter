@@ -2,7 +2,6 @@
 using Avalonia.Threading;
 using CSCore;
 using CSCore.Codecs.WAV;
-using ManagedBass;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
 using System;
