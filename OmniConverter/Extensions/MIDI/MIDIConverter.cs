@@ -757,6 +757,8 @@ namespace OmniConverter
                         output.Write(buffer, 0, read);
                 }              
             }
+
+            output.Flush();
         }
     }
 }

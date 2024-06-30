@@ -10,10 +10,9 @@ namespace OmniConverter
 {
     public unsafe interface ISampleWriter
     {
-        int Position { get; set; }
-
         void Write(float[] buffer, int offset, int count);
         void Write(float* buffer, int offset, int count);
+        void Flush();
     }
 
     public sealed class WaveSampleWriter : ISampleWriter, IDisposable
@@ -41,6 +40,8 @@ namespace OmniConverter
         {
             throw new NotImplementedException();
         }
+
+        public void Flush() { }
     }
 
     public sealed class MultiStreamMerger : ISampleSource
@@ -49,7 +50,10 @@ namespace OmniConverter
         {
             MultiStreamMerger Stream;
 
-            public int Position { get; set; }
+            const int BUF_SIZE = 1 << 20;
+            float[] buf = new float[BUF_SIZE];
+            int streamPos = 0;
+            int bufPos = 0;
 
             public Writer(MultiStreamMerger stream)
             {
@@ -60,51 +64,74 @@ namespace OmniConverter
             {
                 if (Length > Stream.Length)
                 {
-                    lock (Stream)
+                    if (Length < Stream.data.Length) Stream.Length = Length;
+                    else
                     {
-                        if (Length < Stream.data.Length) Stream.Length = Length;
-                        else
-                        {
-                            int NewSize = (int)(Stream.data.Length * 1.2);
+                        int NewSize = (int)(Stream.data.Length * 1.2);
 
-                            if (NewSize < Length)
-                                NewSize = Length;
+                        if (NewSize < Length)
+                            NewSize = Length;
 
-                            Array.Resize(ref Stream.data, NewSize);
-                            Stream.Length = Length;
+                        Array.Resize(ref Stream.data, NewSize);
+                        Stream.Length = Length;
 
-                            GC.Collect(2);
-                        }
-                    }                  
+                        GC.Collect(2);
+                    }   
                 }
             }
 
             public unsafe void Write(float[] buffer, int offset, int count)
             {
-                ResizeStream(Position + count);
+                int remaining = count;
 
-                fixed (float* dest = Stream.data)
+                while (remaining != 0)
                 {
-                    float* _dest = dest + Position;
-                    for (int i = 0; i < count; i++)
-                        _dest[i] += buffer[i + offset];
-                }
+                    int chunk = Math.Min(remaining, BUF_SIZE - bufPos);
+                    Array.Copy(buffer, offset, buf, bufPos, chunk);
 
-                Position += count;
+                    offset += chunk;
+                    bufPos += chunk;
+                    remaining -= chunk;
+
+                    if (bufPos == BUF_SIZE)
+                        Flush();
+                }
             }
 
             public unsafe void Write(float* buffer, int offset, int count)
             {
-                ResizeStream(Position + count);
+                int remaining = count;
 
-                fixed (float* dest = Stream.data)
+                while (remaining != 0)
                 {
-                    float* _dest = dest + Position;
-                    for (int i = 0; i < count; i++)
-                        _dest[i] += buffer[i + offset];
-                }
+                    int chunk = Math.Min(remaining, BUF_SIZE - bufPos);
+                    Marshal.Copy((IntPtr)buffer + offset * 4, buf, bufPos, chunk);
 
-                Position += count;
+                    offset += chunk;
+                    bufPos += chunk;
+                    remaining -= chunk;
+
+                    if (bufPos == BUF_SIZE)
+                        Flush();
+                }
+            }
+
+            public unsafe void Flush()
+            {
+                lock (Stream)
+                {
+                    ResizeStream(streamPos + bufPos);
+
+                    fixed (float* dest = Stream.data)
+                    {
+                        float* _dest = dest + streamPos;
+                        for (int i = 0; i < bufPos; i++)
+                            _dest[i] += buf[i];
+                    }
+
+                    streamPos += bufPos;
+                    bufPos = 0;
+                }
             }
         }
 
