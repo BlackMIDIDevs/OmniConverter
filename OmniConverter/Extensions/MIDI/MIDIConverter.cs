@@ -294,6 +294,8 @@ namespace OmniConverter
                                 midiPanel?.UpdateProgress(cachedPerc = perc);
                                 AutoFillInfo(ConvStatus.SingleConv);
                             }
+
+                            Thread.Sleep(5);
                         }
 
                         midiPanel?.UpdateProgress(100.0);
@@ -454,6 +456,8 @@ namespace OmniConverter
                                         trackPanel?.UpdateProgress(cachedPerc = perc);
                                         AutoFillInfo(ConvStatus.MultiConv);
                                     }
+
+                                    Thread.Sleep(5);
                                 }
 
                                 // Update panel to 100%
