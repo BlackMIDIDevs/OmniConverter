@@ -7,6 +7,7 @@ using MIDIModificationFramework.MIDIEvents;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -221,6 +222,9 @@ namespace OmniConverter
 
             AutoFillInfo(ConvStatus.Prep);
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             Parallel.For(0, _midis.Count, _parallelOptions, nMidi =>
             {
                 try
@@ -347,7 +351,7 @@ namespace OmniConverter
             });
 
             if (!_cancToken.IsCancellationRequested)
-                MiscFunctions.PerformShutdownCheck();
+                MiscFunctions.PerformShutdownCheck(stopwatch);
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -358,6 +362,9 @@ namespace OmniConverter
             var perTrackFile = Program.Settings.PerTrackFile;
             var audioLimiter = Program.Settings.AudioLimiter;
             var codec = Program.Settings.Codec;
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
 
             foreach (MIDI midi in _midis)
             {
@@ -566,7 +573,7 @@ namespace OmniConverter
             }
 
             if (!_cancToken.IsCancellationRequested)
-                MiscFunctions.PerformShutdownCheck();
+                MiscFunctions.PerformShutdownCheck(stopwatch);
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }

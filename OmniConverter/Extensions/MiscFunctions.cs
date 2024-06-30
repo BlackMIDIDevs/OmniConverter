@@ -50,12 +50,12 @@ namespace OmniConverter
                 );
         }
 
-        public static void PerformShutdownCheck()
+        public static void PerformShutdownCheck(Stopwatch stopwatch)
         {
             var action = Program.Settings.AfterRenderAction;
 
             // Currently only under Windows, sorry!
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action < 4)
             {
                 if (action >= 0)
                 {
@@ -78,9 +78,6 @@ namespace OmniConverter
                         case 3:
                             PSI = new ProcessStartInfo("shutdown", "/r /t 15 /c \"Automatic restart through OmniConverter.\"");
                             break;
-                        case 4:
-                            Program.Stop();
-                            break;
                         default:
                             break;
                     }
@@ -93,7 +90,18 @@ namespace OmniConverter
                     }
                 }
             }
-            else if (action == 4) Program.Stop();
+            else
+            {
+                switch (action)
+                {
+                    case 4:
+                        Program.Stop();
+                        break;
+                    case 5:
+                        MessageBox.Show($"Completed in {stopwatch}", "OmniConverter");
+                        break;
+                }
+            }
         }
     }
 }
