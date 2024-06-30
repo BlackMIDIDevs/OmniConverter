@@ -19,12 +19,6 @@
   <ItemGroup>
     <Content Include="OCLogo.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="E:\GitHub\OmniConverter\OmniConverter\OmniConverter.png" Link="Assets\OmniConverter.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.0.11" />
@@ -48,11 +42,12 @@
     <ProjectReference Include="..\ManagedBass\src\AddOns\BassFx\BassFx.csproj" />
     <ProjectReference Include="..\ManagedBass\src\AddOns\BassMidi\Portable\BassMidi.csproj" />
     <ProjectReference Include="..\ManagedBass\src\Bass\Portable\Bass.csproj" />
-    <ProjectReference Include="E:\GitHub\OmniConverter\MIDIModificationFramework\MIDIModificationFramework.csproj" />
+    <ProjectReference Include="..\MIDIModificationFramework\MIDIModificationFramework.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="OCLogo.ico" />
   </ItemGroup>
 
   <ItemGroup>

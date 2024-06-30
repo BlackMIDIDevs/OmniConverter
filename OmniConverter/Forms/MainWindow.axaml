@@ -12,7 +12,8 @@
         x:Class="OmniConverter.MainWindow"
         Title="OmniConverter"
 	    WindowStartupLocation="CenterScreen"
-        RequestedThemeVariant="Dark">
+        RequestedThemeVariant="Dark"
+        Icon="/OCLogo.ico">
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="_File">

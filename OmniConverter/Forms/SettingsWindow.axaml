@@ -101,7 +101,8 @@
 						<ComboBoxItem>Put the computer into hibernation mode</ComboBoxItem>
 						<ComboBoxItem>Turn the computer off</ComboBoxItem>
 						<ComboBoxItem>Restart the computer</ComboBoxItem>
-						<ComboBoxItem>Close the application</ComboBoxItem>
+                        <ComboBoxItem>Close the application</ComboBoxItem>
+                        <ComboBoxItem>Show completion time</ComboBoxItem>
 					</ComboBox>
 				</StackPanel>
 			</TabItem>

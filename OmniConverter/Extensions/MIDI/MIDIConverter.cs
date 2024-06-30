@@ -7,6 +7,7 @@ using MIDIModificationFramework.MIDIEvents;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -74,7 +75,7 @@ namespace OmniConverter
                 var biggestMidi = _midis.MaxBy(x => x.Tracks);
 
                 var v = Program.Settings.MaxVoices;
-                var mem = (ulong)((Program.Settings.MaxVoices * 288) * biggestMidi.Tracks);
+                var mem = (ulong)((Program.Settings.MaxVoices * 312) * biggestMidi.Tracks);
                 var memusage = MiscFunctions.BytesToHumanReadableSize(mem);
 
                 var re = MessageBox.Show(
@@ -221,6 +222,9 @@ namespace OmniConverter
 
             AutoFillInfo(ConvStatus.Prep);
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             Parallel.For(0, _midis.Count, _parallelOptions, nMidi =>
             {
                 try
@@ -233,6 +237,7 @@ namespace OmniConverter
                     }
 
                     var midi = _midis[nMidi];
+                    midi.EnablePooling();
 
                     // Begin conversion
                     AutoFillInfo(ConvStatus.SingleConv);
@@ -255,18 +260,20 @@ namespace OmniConverter
                     Dispatcher.UIThread.Post(() => midiPanel = new TaskStatus(midi.Name, _panelRef));
 
                     IEnumerable<MIDIEvent> evs = [];
+                    bool loaded = false;
                     try
                     {
                         evs = midi.GetFullMIDITimeBased();
+                        loaded = true;
                     }
                     catch (Exception ex)
                     {
                         Debug.PrintToConsole(Debug.LogType.Error, $"{ex.Message}");
                     }
 
-                    if (evs.Count() > 0)
+                    if (loaded)
                     {
-                        var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds);
+                        var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile);
 
                         // Initialize memory stream
                         var msm = new MultiStreamMerger(waveFormat);
@@ -290,6 +297,8 @@ namespace OmniConverter
                                 midiPanel?.UpdateProgress(cachedPerc = perc);
                                 AutoFillInfo(ConvStatus.SingleConv);
                             }
+
+                            Thread.Sleep(5);
                         }
 
                         midiPanel?.UpdateProgress(100.0);
@@ -347,7 +356,7 @@ namespace OmniConverter
             });
 
             if (!_cancToken.IsCancellationRequested)
-                MiscFunctions.PerformShutdownCheck();
+                MiscFunctions.PerformShutdownCheck(stopwatch);
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -359,8 +368,12 @@ namespace OmniConverter
             var audioLimiter = Program.Settings.AudioLimiter;
             var codec = Program.Settings.Codec;
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             foreach (MIDI midi in _midis)
             {
+                midi.EnablePooling();
                 AutoFillInfo(ConvStatus.Prep);
 
                 if (_cancToken.IsCancellationRequested)
@@ -408,7 +421,7 @@ namespace OmniConverter
                                 trackPanel?.UpdateTitle("Loading...");
                                 trackPanel?.UpdateProgress(0.0);
 
-                                var eventsProcesser = new EventsProcesser(_audioRenderer, midi.GetSingleTrackTimeBased(track), midi.Length.TotalSeconds);
+                                var eventsProcesser = new EventsProcesser(_audioRenderer, midi.GetSingleTrackTimeBased(track), midi.Length.TotalSeconds, midi.LoadedFile);
                                 Debug.PrintToConsole(Debug.LogType.Message, $"ConvertWorker => T{track}, {midi.Length.TotalSeconds}");
 
                                 // Per track!
@@ -447,6 +460,8 @@ namespace OmniConverter
                                         trackPanel?.UpdateProgress(cachedPerc = perc);
                                         AutoFillInfo(ConvStatus.MultiConv);
                                     }
+
+                                    Thread.Sleep(5);
                                 }
 
                                 // Update panel to 100%
@@ -566,7 +581,7 @@ namespace OmniConverter
             }
 
             if (!_cancToken.IsCancellationRequested)
-                MiscFunctions.PerformShutdownCheck();
+                MiscFunctions.PerformShutdownCheck(stopwatch);
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -581,6 +596,7 @@ namespace OmniConverter
         MIDIRenderer? midiRenderer = null;
         AudioEngine audioRenderer;
         IEnumerable<MIDIEvent>? events = new List<MIDIEvent>();
+        MidiFile file;
 
         bool rtsMode = false;
         double curFrametime = 0.0;
@@ -596,11 +612,12 @@ namespace OmniConverter
         public bool IsRTS => rtsMode;
         public double Framerate => 1 / curFrametime;
 
-        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length)
+        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length, MidiFile file)
         {
             this.audioRenderer = audioRenderer;
             this.events = events;
             this.length = length;
+            this.file = file;
         }
         double RoundToNearest(double n, double x)
         {
@@ -657,6 +674,7 @@ namespace OmniConverter
                 float[] buffer = new float[64 * waveFormat.BlockAlign];
                 long prevWriteTime = 0;
                 double deltaTime = 0;
+                byte[] scratch = new byte[16];
 
                 Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {midiRenderer.UniqueID}.");
 
@@ -681,7 +699,7 @@ namespace OmniConverter
 
                             deltaTime += e.DeltaTime;
                             converted = deltaTime;
-                            var eb = e.GetData();
+                            var eb = e.GetData(scratch);
 
                             if (rtsMode)
                                 curFrametime = r.NextDouble() * (maxFps - minFps) + minFps;
@@ -731,6 +749,8 @@ namespace OmniConverter
 
                             _activeVoices = midiRenderer.ActiveVoices;
                             //_renderingTime = bass.RenderingTime;
+
+                            file.Return(e);
                         }
                     }
                 }
@@ -750,6 +770,8 @@ namespace OmniConverter
                         output.Write(buffer, 0, read);
                 }              
             }
+
+            output.Flush();
         }
     }
 }
