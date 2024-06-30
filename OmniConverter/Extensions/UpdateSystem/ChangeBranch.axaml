@@ -1,0 +1,57 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
+        xmlns:themes="using:GroupBox.Avalonia.Themes"
+		xmlns:oc="using:OmniConverter"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="315"
+		Width="600" Height="315"
+        x:Class="OmniConverter.ChangeBranch"
+        Title="Change branch"
+		CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        RequestedThemeVariant="Dark">
+	<StackPanel Margin="10">
+		<Grid ColumnDefinitions="2*, 1*" >
+			<Label Grid.Column="0" Content="Select the update branch you want to be in:" VerticalAlignment="Center"/>
+			<ComboBox Name="SelectedBranch" HorizontalAlignment="Right" Grid.Column="1" Width="240" SelectedIndex="1">
+				<ComboBoxItem>Delayed branch</ComboBoxItem>
+				<ComboBoxItem>Release branch (Default)</ComboBoxItem>
+				<ComboBoxItem>Canary branch</ComboBoxItem>
+			</ComboBox>
+		</Grid>
+		<ctrl:GroupBox Header="Description of the branches" Theme="{StaticResource GroupBoxClassic}">
+			<TextBlock>
+				Canary: Receive all updates.
+				<LineBreak />
+				You may get broken updates that haven't been fully tested, 
+				<LineBreak />
+				or have features that may get removed in the next canary release.
+				<LineBreak />
+				Designed for testers and early adopters.
+				<LineBreak />
+				<LineBreak />
+				Release: Receive occasional updates and urgent bugfixes (Eg. from version x.0.x.x
+				<LineBreak />
+				to x.1.x.x).
+				<LineBreak />
+				Recommended.
+				<LineBreak />
+				<LineBreak />
+				Delayed: You will only get major releases (Eg. from version 0.x.x.x to 1.x.x.x).
+				<LineBreak />
+				For those who do not wish to update often. Some issues sent on GitHub using this
+				<LineBreak />
+				release may not get accepted. Not recommended.
+			</TextBlock>
+		</ctrl:GroupBox>
+		<Grid Grid.Row="1" ColumnDefinitions="160, 160, 1*, 160" Margin="0, 4, 0, 0">
+			<StackPanel Orientation="Horizontal">
+				<Label VerticalAlignment="Center" Content="Current update branch:"/>
+				<Label Name="CurrentBranch" VerticalAlignment="Center" Content="None selected"/>
+			</StackPanel>
+			<Button Name="ConfirmBtn" Content="OK" Grid.Column="3" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" Click="ConfirmBranchChange"/>
+		</Grid>
+	</StackPanel>
+</Window>

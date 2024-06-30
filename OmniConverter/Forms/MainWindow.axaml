@@ -1,0 +1,134 @@
+
+
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
+        xmlns:themes="using:GroupBox.Avalonia.Themes"
+		xmlns:oc="using:OmniConverter"
+        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="650"
+		Width="1024" Height="650"
+        x:Class="OmniConverter.MainWindow"
+        Title="OmniConverter"
+	    WindowStartupLocation="CenterScreen"
+        RequestedThemeVariant="Dark">
+	<DockPanel>
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="_File">
+				<MenuItem Icon="" Header="_Add MIDIs to queue" Click="AddMIDI">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="/Assets/Add.png"/>
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="_Remove MIDIs from queue" Click="RemoveMIDI">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="/Assets/Remove.png"/>
+					</MenuItem.Icon>
+				</MenuItem>
+				<MenuItem Header="_Clear MIDI queue" Click="ClearList">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="/Assets/Clear.png"/>
+					</MenuItem.Icon>
+				</MenuItem>
+				<Separator />
+				<MenuItem Header="_Exit">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="/Assets/Sleep.png"/>
+					</MenuItem.Icon>
+				</MenuItem>
+			</MenuItem>
+			<MenuItem Header="_?">
+				<MenuItem Header="_About the converter" Click="OpenInfoWindow">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="/Assets/Info.png"/>
+					</MenuItem.Icon>
+				</MenuItem>
+				<Separator />
+				<MenuItem Header="Check for _updates" Click="CheckForUpdatesBtn">
+					<MenuItem.Icon>
+						<Image Width="16" Height="16" Source="/Assets/Download.png"/>
+					</MenuItem.Icon>
+				</MenuItem>
+			</MenuItem>
+		</Menu>
+		<Grid DockPanel.Dock="Bottom" Name="MainView" RowDefinitions="4*, 160" Margin="10" DragDrop.AllowDrop="True">
+			<Panel Grid.Row="0">
+				<ListBox Name="MIDIListView" SelectionMode="Multiple" SelectionChanged="SelectedMIDIChanged" Margin="0, 0, 0, 8">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Name="MIDITemplate" x:DataType="oc:MIDI" Text="{Binding Name}"/>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+				<Label Name="AddMIDIsLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Add some MIDIs to begin." FontSize="64" Opacity="0.25">
+					<Label.Effect>
+						<DropShadowEffect OffsetX="0" OffsetY="0" Opacity="1" />
+					</Label.Effect>
+				</Label>
+				<Panel.ContextMenu>
+					<ContextMenu>
+						<MenuItem Icon="" Header="_Add MIDIs to queue" Click="AddMIDI">
+							<MenuItem.Icon>
+								<Image Width="16" Height="16" Source="/Assets/Add.png"/>
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Header="_Remove MIDIs from queue" Click="RemoveMIDI">
+							<MenuItem.Icon>
+								<Image Width="16" Height="16" Source="/Assets/Remove.png"/>
+							</MenuItem.Icon>
+						</MenuItem>
+						<MenuItem Header="_Clear MIDI queue" Click="ClearList">
+							<MenuItem.Icon>
+								<Image Width="16" Height="16" Source="/Assets/Clear.png"/>
+							</MenuItem.Icon>
+						</MenuItem>
+					</ContextMenu>
+				</Panel.ContextMenu>
+			</Panel>			
+			<Grid ColumnDefinitions="4*, 210" Grid.Row="1">
+				<ctrl:GroupBox Name="InfoGroupBox" Header="Information" Grid.Column="0"
+						 Theme="{StaticResource GroupBoxClassic}">
+					<StackPanel>
+						<Grid ColumnDefinitions="100, 6*">
+							<Label Grid.Column="0">Filename:</Label>
+							<Label Grid.Column="1" Name="InfoName">-</Label>
+						</Grid>
+						<Grid ColumnDefinitions="100, 6*">
+							<Label Grid.Column="0">Full path:</Label>
+							<Label Grid.Column="1" Name="InfoFullPath">-</Label>
+						</Grid>
+						<Grid ColumnDefinitions="100, 6*">
+							<Label Grid.Column="0">Length:</Label>
+							<Label Grid.Column="1" Name="InfoLength">-:--.---</Label>
+						</Grid>
+						<Grid ColumnDefinitions="100, 6*">
+							<Label Grid.Column="0">Tracks:</Label>
+							<Label Grid.Column="1" Name="InfoTracks">-</Label>
+						</Grid>
+						<Grid ColumnDefinitions="100, 6*">
+							<Label Grid.Column="0">Note count:</Label>
+							<Label Grid.Column="1" Name="InfoNoteCount">-</Label>
+						</Grid>
+						<Grid ColumnDefinitions="100, 6*">
+							<Label Grid.Column="0">Size:</Label>
+							<Label Grid.Column="1" Name="InfoSize">--.- -</Label>
+						</Grid>
+					</StackPanel>
+				</ctrl:GroupBox>
+				<Grid Grid.Column="1" RowDefinitions="1*, 2*, 1*, 1*" Margin="10, 0, 0, 0" >
+					<Button Name="ConvertMIDIsBtn" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Convert MIDIs" Click="ConvertMIDIs"/>
+					<StackPanel Grid.Row="1" Orientation="Vertical">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<Label>Volume:</Label>
+							<Label Name="OutputVolumeLab">100%</Label>
+						</StackPanel>
+						<Slider Name="OutputVolumeSlider" Minimum="0.0" Maximum="100.0" Value="100" PropertyChanged="OutputVolumeSliderChanged" />
+					</StackPanel>
+					<Button Name="OutputSettings" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Settings" Click="OpenSettings"/>
+					<Button Name="SoundFontConfig" Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="SoundFonts" Click="OpenSoundFontsManager"/>
+				</Grid>
+			</Grid>
+		</Grid>
+	</DockPanel>
+</Window>

@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
+        xmlns:themes="using:GroupBox.Avalonia.Themes"
+		xmlns:oc="using:OmniConverter"
+        mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="500"
+		Width="700" Height="500"
+        x:Class="OmniConverter.MIDIWindow"
+        Title="Waiting..."
+		ShowInTaskbar="False"
+		WindowStartupLocation="CenterOwner"
+		RequestedThemeVariant="Dark">
+	<Grid RowDefinitions="140, 64, 1*" Name="MainView" Margin="10">
+		<Label Name="MIDIStatus" Grid.Row="0" Content="Waiting..." HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+		<Grid Grid.Row="1" ColumnDefinitions="8*, 140">
+			<Grid Name="ProgressBars" Grid.Column="0" RowDefinitions="1*, 0*">
+				<ProgressBar Name="Progress" Grid.Row="0" Value="0" ShowProgressText="True" />
+				<ProgressBar Name="TrackProgress" Grid.Row="1" Value="0" ShowProgressText="True" IsVisible="False" />
+			</Grid>
+			<Button Name="CancelBtn" Click="CancelBtnClick" Grid.Column="1" Content="Cancel" Margin="10, 0, 0, 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+		</Grid>
+		<ctrl:GroupBox Name="LogAreaGroup" Grid.Row="2" Header="Log" Theme="{StaticResource GroupBoxClassic}">
+			<ScrollViewer>
+				<StackPanel Name="LogArea" />
+			</ScrollViewer>
+		</ctrl:GroupBox>
+	</Grid>
+</Window>

@@ -1,0 +1,77 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:oc="using:OmniConverter"
+		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
+		xmlns:themes="using:GroupBox.Avalonia.Themes"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+		Width="1000" Height="600"
+        x:Class="OmniConverter.SoundFontsManager"
+        Title="SoundFonts Manager"
+		ShowInTaskbar="False"
+		WindowStartupLocation="CenterOwner"
+        RequestedThemeVariant="Dark">
+	<Grid Name="MainView" RowDefinitions="4*, 70" Margin="10">
+		<Grid Name="SoundFontList" ColumnDefinitions="4*, 260" Grid.Row="0">
+			<ListBox Name="SoundFontListView" SelectionMode="Multiple" Grid.Column="0" DragDrop.AllowDrop="True" SelectionChanged="SelectedSFChanged">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Name="SoundFontTemplate" x:DataType="oc:SoundFont" Text="{Binding SoundFontPath}"/>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+			<ctrl:GroupBox Grid.Column="1" Header="Settings" Theme="{StaticResource GroupBoxClassic}" Margin="10, 0, 0, 0">
+				<Panel>
+					<StackPanel Name="SettingsArea">
+						<StackPanel Margin="4">
+							<Label Content="SOURCE" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+							<Grid ColumnDefinitions="1*, 2*">
+								<Label Grid.Column="0" Content="Preset:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+								<NumericUpDown Name="SourcePreset" Grid.Column="1" Value="-1" Minimum="-1" Maximum="127" HorizontalContentAlignment="Center" FormatString="0" />
+							</Grid>
+							<Grid ColumnDefinitions="1*, 2*">
+								<Label Grid.Column="0" Content="Bank:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+								<NumericUpDown Name="SourceBank" Grid.Column="1" Value="-1" Minimum="-1" Maximum="127" HorizontalContentAlignment="Center" FormatString="0" />
+							</Grid>
+						</StackPanel>
+						<StackPanel Margin="4">
+							<Label Content="DESTINATION" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+							<Grid ColumnDefinitions="1*, 2*">
+								<Label Grid.Column="0" Content="Bank:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+								<NumericUpDown Name="DestinationBank" Grid.Column="1" Value="0" Minimum="0" Maximum="127" HorizontalContentAlignment="Center" FormatString="0" />
+							</Grid>
+							<Grid ColumnDefinitions="1*, 2*">
+								<Label Grid.Column="0" Content="LSB:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+								<NumericUpDown Name="DestinationBankLSB" Grid.Column="1" Value="0" Minimum="-1" Maximum="127" HorizontalContentAlignment="Center" FormatString="0" />
+							</Grid>
+							<Grid ColumnDefinitions="1*, 2*">
+								<Label Grid.Column="0" Content="Preset:" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+								<NumericUpDown Name="DestinationPreset" Grid.Column="1" Value="-1" Minimum="-1" Maximum="127" HorizontalContentAlignment="Center" FormatString="0" />
+							</Grid>
+						</StackPanel>
+						<StackPanel Margin="4">
+							<Label Content="ADDITIONAL SET." HorizontalContentAlignment="Center" FontWeight="Bold"/>
+							<CheckBox Name="XGMode" Content="Load XG bank first" HorizontalAlignment="Center" />
+						</StackPanel>
+					</StackPanel>
+					<StackPanel VerticalAlignment="Bottom">
+						<CheckBox Name="Enabled" Content="Enabled" HorizontalAlignment="Center" />
+						<Button Name="ApplySFSettings" Content="Apply SF settings" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="4" Click="ApplySoundFontSettings" />
+					</StackPanel>
+				</Panel>
+			</ctrl:GroupBox>
+		</Grid>
+		<Grid Grid.Row="1" ColumnDefinitions="160, 160, 1*, 160" Margin="0, 4, 0, 0">
+			<Grid Grid.Column="0" RowDefinitions="1*, 1*">
+				<Button Name="AddSF" Content="Add SoundFont" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" Click="AddSoundFont"/>
+				<Button Name="RemoveSF" Content="Remove SoundFont" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" Click="RemoveSoundFont" />
+			</Grid>
+			<Grid Grid.Column="1" RowDefinitions="1*, 1*">
+				<Button Name="MoveUp" Content="Move up" Grid.Row="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" Click="MoveSoundFontUp" />
+				<Button Name="MoveDown" Content="Move down" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" Click="MoveSoundFontDown" />
+			</Grid>
+			<Button Name="CloseBtn" Content="Close" Grid.Column="3" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="2" Click="CloseSoundFontManager"/>
+		</Grid>
+	</Grid>
+</Window>

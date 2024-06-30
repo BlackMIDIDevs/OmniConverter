@@ -1,0 +1,121 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
+        xmlns:themes="using:GroupBox.Avalonia.Themes"
+		xmlns:oc="using:OmniConverter"
+        mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="550"
+		Width="750" Height="580"
+        x:Class="OmniConverter.SettingsWindow"
+        Title="Settings"
+		ShowInTaskbar="False"
+		CanResize="False"
+		WindowStartupLocation="CenterOwner"
+		RequestedThemeVariant="Dark">
+	<Grid RowDefinitions="1*, 80">
+		<TabControl Grid.Row="0">
+			<TabItem Header="Audio">
+				<StackPanel Margin="4">
+					<Grid ColumnDefinitions="1*, 2*" Margin="2">
+						<Label Grid.Column="0" Content="Voice limit" VerticalAlignment="Center"/>
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+							<CheckBox Name="KhangMod" Content="Uncap limit" Margin="0, 0, 10, 0" IsCheckedChanged="KhangModCheck"/>
+							<NumericUpDown Name="MaxVoices" HorizontalAlignment="Right" Width="180" FormatString="0" Value="100000" Minimum="1" Maximum="100000" ValueChanged="MaxVoicesChanged" />
+						</StackPanel>
+					</Grid>
+					<Grid ColumnDefinitions="4*, 1*" Margin="2">
+						<Label Grid.Column="0" Content="Sample rate" VerticalAlignment="Center"/>
+						<ComboBox Name="SampleRate" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="5" MaxDropDownHeight="200">
+							<ComboBoxItem>384000</ComboBoxItem>
+							<ComboBoxItem>192000</ComboBoxItem>
+							<ComboBoxItem>96000</ComboBoxItem>
+							<ComboBoxItem>88200</ComboBoxItem>
+							<ComboBoxItem>64000</ComboBoxItem>
+							<ComboBoxItem>48000</ComboBoxItem>
+							<ComboBoxItem>44100</ComboBoxItem>
+							<ComboBoxItem>32000</ComboBoxItem>
+							<ComboBoxItem>22050</ComboBoxItem>
+							<ComboBoxItem>11025</ComboBoxItem>
+							<ComboBoxItem>8000</ComboBoxItem>
+							<ComboBoxItem>4000</ComboBoxItem>
+						</ComboBox>
+					</Grid>
+					<CheckBox Name="SincInter" Content="Enable sinc interpolation" Margin="2" />
+					<CheckBox Name="DisableFX" Content="Disable sound effects (Reverb, Chorus etc.)" Margin="2" />
+					<CheckBox Name="NoteOff1" Content="Only release the oldest instance of a note upon note-off event" Margin="2" />
+					<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent clipping above 0dB" Margin="2" />
+					<ctrl:GroupBox Header="Control Event Override" Theme="{StaticResource GroupBoxClassic}" Margin="0, 2, 0, 0" >
+						<StackPanel>
+							<CheckBox Name="OverrideEffects" Content="Override reverb and chorus events" IsCheckedChanged="OverrideEffectsCheck"/>
+							<StackPanel Orientation="Horizontal">
+								<Grid Name="ReverbValPanel" Grid.Column="0" ColumnDefinitions="1*, 1*" Margin="2">
+									<Label Grid.Column="0" Content="Reverb" VerticalAlignment="Center"/>
+									<NumericUpDown Name="ReverbValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" />
+								</Grid>
+								<Grid Name="ChorusValPanel" Grid.Column="1" ColumnDefinitions="1*, 1*" Margin="24, 2, 2, 2">
+									<Label Grid.Column="0" Content="Chorus" VerticalAlignment="Center"/>
+									<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" />
+								</Grid>
+							</StackPanel>
+						</StackPanel>
+					</ctrl:GroupBox>
+					<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 10, 0, 0" >
+						<Grid ColumnDefinitions="1*, 1*" >
+							<CheckBox Name="RTSMode" Grid.Column="0" Content="Enable real time playback simulation" IsCheckedChanged="RTSModeCheck" />
+							<StackPanel Name="RTSPanel" Grid.Column="1" Orientation="Vertical">
+								<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
+									<Label Grid.Column="0" Content="FPS" VerticalAlignment="Center"/>
+									<NumericUpDown Name="RTSFPS" HorizontalAlignment="Right" Grid.Column="2" Width="160" Minimum="0" Maximum="9999" FormatString="0.00" />
+								</StackPanel>
+								<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
+									<Label Content="Frame fluctuation (%)" VerticalAlignment="Center"/>
+									<NumericUpDown Name="RTSFluct" HorizontalAlignment="Right" Width="160" Minimum="0" Maximum="100" FormatString="0.00" />
+								</StackPanel>
+							</StackPanel>
+						</Grid>
+					</ctrl:GroupBox>
+				</StackPanel>
+			</TabItem>
+			<TabItem Header="Export">
+				<StackPanel Margin="4">
+					<CheckBox Name="MTMode" Content="Enable multi-threaded rendering mode, and render one MIDI (or MIDI track) per thread" Margin="2" IsCheckedChanged="MTModeCheck" />
+					<Grid Name="LimitThreadsPanel" ColumnDefinitions="2*, 1*" Margin="2" >
+						<CheckBox Name="LimitThreads" Content="Limit the amount of system threads available to the app" Grid.Column="0" IsCheckedChanged="LimitThreadsCheck" />
+						<StackPanel Name="MaxThreadsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >
+							<Label Content="Threads" VerticalAlignment="Center"/>
+							<NumericUpDown Name="MaxThreads" HorizontalAlignment="Right" Width="160" FormatString="0" Minimum="1" Maximum="128" />
+						</StackPanel>
+					</Grid>
+					<CheckBox Name="PerTrackMode" Content="Render each track separately, then merge all of them in one audio file" Margin="2, 16, 0, 0" IsCheckedChanged="PerTrackModeCheck" />
+					<CheckBox Name="PerTrackFile" IsEnabled="False" Content="Disable automatic merging of the tracks, and export all in separate files" Margin="2" IsCheckedChanged="PerTrackFileCheck"  />
+					<CheckBox Name="PerTrackStorage" IsEnabled="False" Content="Store each exported track into a folder with the same name as the MIDI" Margin="2" />
+					<CheckBox Name="AutoExportToFolder" Content="Do not ask for an export folder, and export renders directly to this folder:" Margin="2, 16, 0, 0" IsCheckedChanged="AutoExportFolderCheck" />
+					<Grid Name="AutoExportFolderPanel" ColumnDefinitions="1*, 96" Margin="2" >
+						<TextBox Name="AutoExportFolderPath" Grid.Column="0" Margin="0, 0, 10, 0" />
+						<Button Content="Browse" HorizontalContentAlignment="Center" Grid.Column="1" Width="96" Click="AutoExportFolderSelection"/>
+					</Grid>
+					<CheckBox Name="AfterRenderAction" Content="Do one of the following actions once the computer is done rendering" Margin="2, 16, 0, 0" IsCheckedChanged="AfterRenderActionCheck"/>
+					<ComboBox Name="AfterRenderSelectedAction" Width="320" SelectedIndex="1" MaxDropDownHeight="200" Margin="2" IsEnabled="False">
+						<ComboBoxItem>Put the computer into sleep mode</ComboBoxItem>
+						<ComboBoxItem>Put the computer into hibernation mode</ComboBoxItem>
+						<ComboBoxItem>Turn the computer off</ComboBoxItem>
+						<ComboBoxItem>Restart the computer</ComboBoxItem>
+						<ComboBoxItem>Close the application</ComboBoxItem>
+					</ComboBox>
+				</StackPanel>
+			</TabItem>
+			<TabItem>
+				<Panel>
+					<Image Source="/Assets/Khangaroo.png"/>
+					<Label HorizontalAlignment="Center" VerticalAlignment="Center" Content="KHANG!" FontSize="64" >
+						<Label.Effect>
+							<DropShadowEffect OffsetX="0" OffsetY="0" Opacity="100" />
+						</Label.Effect>
+					</Label>
+				</Panel>
+			</TabItem>
+		</TabControl>
+		<Button Grid.Row="1" Name="ApplyBtn" Content="OK" HorizontalAlignment="Right" VerticalAlignment="Center" HorizontalContentAlignment="Center" Width="96" Margin="24" Click="ApplySettings" />
+	</Grid>
+</Window>

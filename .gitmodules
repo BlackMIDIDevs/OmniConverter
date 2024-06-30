@@ -3,4 +3,7 @@
 url=https://github.com/KaleidonKep99/MIDIModificationFramework.git
 [submodule "ManagedBass"]
 	path = ManagedBass
-	url = https://github.com/KaleidonKep99/ManagedBass
+	url = https://github.com/ManagedBass/ManagedBass
+[submodule "FLParser"]
+	path = FLParser
+	url = https://github.com/Kaydax/FLParser
