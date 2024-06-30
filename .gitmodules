@@ -4,3 +4,6 @@ url=https://github.com/KaleidonKep99/ManagedBass
 [submodule "FLParser"]
 	path = FLParser
 	url = https://github.com/Kaydax/FLParser
+[submodule "MIDIModificationFramework"]
+	path = MIDIModificationFramework
+	url = https://github.com/KaleidonKep99/MIDIModificationFramework
