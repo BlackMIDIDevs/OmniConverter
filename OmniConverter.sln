@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OmniConverter", "OmniConver
 		{EAC480C1-E85D-40FB-8B23-9A1D7F050C2A} = {EAC480C1-E85D-40FB-8B23-9A1D7F050C2A}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIDIModificationFramework", "E:\GitHub\OmniConverter\MIDIModificationFramework\MIDIModificationFramework.csproj", "{A5EBE366-17DF-44A9-A870-FB274EA299AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIDIModificationFramework", "MIDIModificationFramework\MIDIModificationFramework.csproj", "{A5EBE366-17DF-44A9-A870-FB274EA299AE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bass", "ManagedBass\src\Bass\Portable\Bass.csproj", "{EAC480C1-E85D-40FB-8B23-9A1D7F050C2A}"
 EndProject
