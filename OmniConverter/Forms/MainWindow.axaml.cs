@@ -136,7 +136,7 @@ namespace OmniConverter
 
                 InfoFullPath.Content = item.Path;
                 InfoName.Content = item.Name;
-                InfoNoteCount.Content = item.Notes.ToString("N0", new CultureInfo("is-IS"));
+                InfoNoteCount.Content = item.Notes.ToString("N0");
                 InfoLength.Content = item.HumanReadableTime;
                 InfoTracks.Content = item.Tracks;
                 InfoSize.Content = item.HumanReadableSize;

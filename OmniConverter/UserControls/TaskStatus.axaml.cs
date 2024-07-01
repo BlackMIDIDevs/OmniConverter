@@ -40,7 +40,6 @@ public partial class TaskStatus : UserControl
         _feeder.Tick += FeederTick;
         _feeder.Interval = TimeSpan.FromMilliseconds(100);
         _feeder.Start();
-
     }
 
     public void Dispose()

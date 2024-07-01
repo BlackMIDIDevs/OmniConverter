@@ -75,7 +75,7 @@ namespace OmniConverter
                 var biggestMidi = _midis.MaxBy(x => x.Tracks);
 
                 var v = Program.Settings.MaxVoices;
-                var mem = (ulong)((Program.Settings.MaxVoices * 312) * biggestMidi.Tracks);
+                var mem = ((ulong)v * 312) * (ulong)Program.Settings.ThreadsCount;
                 var memusage = MiscFunctions.BytesToHumanReadableSize(mem);
 
                 var re = MessageBox.Show(
@@ -144,19 +144,12 @@ namespace OmniConverter
                     break;
 
                 case ConvStatus.SingleConv:
-                    _curStatus = string.Format("{0} file(s) out of {1} have been converted.\n\nPlease wait...",
-                                (_valid + _nonvalid).ToString("N0", new CultureInfo("is-IS")),
-                                _total.ToString("N0", new CultureInfo("is-IS")));
-
+                    _curStatus = $"{_valid + _nonvalid:N0} file(s) out of {_total:N0} have been converted.\n\nPlease wait...";
                     _progress = Math.Round((_valid + _nonvalid) * 100.0 / _total);
                     break;
 
                 case ConvStatus.MultiConv:
-                    _curStatus = string.Format("{0} file(s) out of {1} have been converted.\nRendered {2} track(s) out of {3}.\nPlease wait...",
-                                (_valid + _nonvalid).ToString("N0", new CultureInfo("is-IS")),
-                                _total.ToString("N0", new CultureInfo("is-IS")),
-                                _curTrack.ToString("N0", new CultureInfo("is-IS")), _tracks.ToString("N0", new CultureInfo("is-IS")));
-                    _progress = Math.Round((_valid + _nonvalid) * 100.0 / _total);
+                    _curStatus = $"{_valid + _nonvalid:N0} file(s) out of {_total:N0} have been converted.\nRendered {_curTrack:N0} track(s) out of {_tracks:N0}.\nPlease wait...";
                     _tracksProgress = Math.Round(_curTrack * 100.0 / _tracks);
                     break;
 
@@ -214,6 +207,20 @@ namespace OmniConverter
             }
         }
 
+        private string GetOutputFilename(string filename, string codec = "wav")
+        {
+            var outputFile = string.Format("{0}/{1}.{2}",
+                        _outputPath, Path.GetFileNameWithoutExtension(filename), codec);
+
+            // Check if file already exists
+            if (File.Exists(outputFile))
+                outputFile = string.Format("{0}/{1} - {2}.{3}",
+                    _outputPath, Path.GetFileNameWithoutExtension(filename),
+                    DateTime.Now.ToString("yyyy-MM-dd HHmmss"), codec);
+
+            return outputFile;
+        }
+
         private void PerMIDIConversion(CSCore.WaveFormat waveFormat)
         {
             // Cache settings
@@ -229,7 +236,6 @@ namespace OmniConverter
             {
                 try
                 {
-
                     if (_cancToken.IsCancellationRequested)
                     {
                         Debug.PrintToConsole(Debug.LogType.Message, "Stop requested. Stopping ParallelFor...");
@@ -244,14 +250,7 @@ namespace OmniConverter
                     _validator.SetCurrentMIDI(midi.Path);
 
                     // Prepare the filename
-                    string outputFile = string.Format("{0}/{1}.{2}",
-                        _outputPath, Path.GetFileNameWithoutExtension(midi.Name), codec);
-
-                    // Check if file already exists
-                    if (File.Exists(outputFile))
-                        outputFile = string.Format("{0}/{1} - {2}.{3}",
-                            _outputPath, Path.GetFileNameWithoutExtension(midi.Name),
-                            DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), codec);
+                    string outputFile = GetOutputFilename(midi.Name, codec);
 
                     Debug.PrintToConsole(Debug.LogType.Message, String.Format("Output file: {0}", outputFile));
 
@@ -287,7 +286,7 @@ namespace OmniConverter
                             var perc = Math.Round(eventsProcesser.Progress * 100.0);
 
                             if (_cancToken.IsCancellationRequested)
-                                break;
+                                throw new OperationCanceledException();
 
                             midiPanel?.UpdateTitle(eventsProcesser);
                             //midiPanel?.UpdateRemainingTime(midiRenderer);
@@ -393,7 +392,7 @@ namespace OmniConverter
                         folder += string.Format("/{0}", Path.GetFileNameWithoutExtension(midi.Name));
 
                         if (Directory.Exists(folder))
-                            folder += string.Format(" - {0}", DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"));
+                            folder += string.Format(" - {0}", DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
 
                         Directory.CreateDirectory(folder);
                     }
@@ -450,7 +449,7 @@ namespace OmniConverter
                                     var perc = Math.Round(eventsProcesser.Progress * 100.0);
 
                                     if (_cancToken.IsCancellationRequested)
-                                        break;
+                                        throw new OperationCanceledException();
 
                                     trackPanel?.UpdateTitle(eventsProcesser);
                                     //trackPanel?.UpdateRemainingTime(midiRenderer);
@@ -475,6 +474,8 @@ namespace OmniConverter
                                 }
 
                                 eventsProcesser.Dispose();
+
+                                Dispatcher.UIThread.Post(() => trackPanel?.Dispose());
 
                                 if (perTrackFile)
                                 {
@@ -515,32 +516,18 @@ namespace OmniConverter
                         catch (Exception ex)
                         {
                             Debug.PrintToConsole(Debug.LogType.Error, string.Format("{0} - {1}", ex.InnerException?.ToString(), ex.Message.ToString()));
-                        }
-
-                        Dispatcher.UIThread.Post(() => trackPanel?.Dispose());
+                        }                 
                     });
 
                     try
                     {
-                        if (_cancToken.IsCancellationRequested)
-                            break;
-
-                        else _validator.AddValidMIDI();
-
                         if (!perTrackFile)
                         {
                             // Reset MSM position
                             msm.Position = 0;
 
                             // Time to save the file
-                            var OutputDir = string.Format("{0}/{1}.{2}",
-                            _outputPath, Path.GetFileNameWithoutExtension(midi.Name), codec);
-
-                            // Check if file already exists
-                            if (File.Exists(OutputDir))
-                                OutputDir = string.Format("{0}/{1} - {2}.{3}",
-                                    _outputPath, Path.GetFileNameWithoutExtension(midi.Name),
-                                    DateTime.Now.ToString("yyyyMMdd HHmmsstt"), codec);
+                            var OutputDir = GetOutputFilename(midi.Name, codec);
 
                             Debug.PrintToConsole(Debug.LogType.Message, String.Format("Output file: {0}", OutputDir));
 
@@ -572,6 +559,11 @@ namespace OmniConverter
                             fileWriter.Dispose();
                             targetFile.Dispose();
                         }
+
+                        if (!_cancToken.IsCancellationRequested)
+                            break;
+
+                        else _validator.AddValidMIDI();
                     }
                     catch (Exception ex)
                     {
@@ -607,8 +599,8 @@ namespace OmniConverter
         public double RemainingTime => length - converted;
         public double ConvertedTime => converted;
 
-        public int ActiveVoices => _activeVoices;
-        public float RenderingTime => _renderingTime;
+        public int ActiveVoices => midiRenderer != null ? midiRenderer.ActiveVoices : 0;
+        public float RenderingTime => midiRenderer != null ? midiRenderer.RenderingTime : 0.0f;
         public bool IsRTS => rtsMode;
         public double Framerate => 1 / curFrametime;
 
@@ -747,7 +739,6 @@ namespace OmniConverter
                                     break;
                             }
 
-                            _activeVoices = midiRenderer.ActiveVoices;
                             //_renderingTime = bass.RenderingTime;
 
                             file.Return(e);
