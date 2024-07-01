@@ -293,6 +293,7 @@ namespace OmniConverter
     public abstract class MIDIWorker : IDisposable
     {
         public abstract void Dispose();
+        public abstract string GetCustomTitle();
         public abstract string GetStatus();
         public abstract double GetProgress();
 

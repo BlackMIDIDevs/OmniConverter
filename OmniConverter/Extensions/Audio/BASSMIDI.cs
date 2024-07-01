@@ -171,6 +171,7 @@ namespace OmniConverter
                             )
                         );
 
+                    BassMidi.FontLoad(bsf.Handle, bsf.SoundFontPreset, bsf.SoundFontBank);
                     _bassArray.Add(bsf);
                     Debug.PrintToConsole(Debug.LogType.Message, "SoundFont loaded and added to BASS_MIDI_FONTEX array.");
                 }
@@ -257,6 +258,7 @@ namespace OmniConverter
             if (SfArray != null)
             {
                 BassMidi.StreamSetFonts(Handle, SfArray, SfArray.Length);
+
                 Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Loaded {SfArray.Length} SoundFonts.");
             }
 

@@ -64,6 +64,4 @@ namespace OmniConverter
         }
         protected abstract void Dispose(bool disposing);
     }
-
-
 }

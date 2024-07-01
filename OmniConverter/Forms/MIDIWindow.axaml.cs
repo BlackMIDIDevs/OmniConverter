@@ -116,11 +116,16 @@ public partial class MIDIWindow : Window
 
     private void FeederTick(object? sender, EventArgs e)
     {
+        string customTitle = _worker?.GetCustomTitle() ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(customTitle))
+            Title = customTitle;
+
         MIDIStatus.Content = _worker?.GetStatus();
-        Progress.Value = (double)_worker?.GetProgress();
+        Progress.Value = _worker?.GetProgress() ?? 0;
 
         if (TrackProgress.IsVisible)
-            TrackProgress.Value = ((MIDIConverter)_worker).GetTracksProgress();
+            TrackProgress.Value = ((MIDIConverter?)_worker).GetTracksProgress();
     }
 
     private void CancelBtnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

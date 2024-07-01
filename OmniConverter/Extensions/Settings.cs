@@ -49,7 +49,7 @@ namespace OmniConverter
         public bool SincInter = true;
 
         [JsonProperty]
-        public string Codec = "wav";
+        public string SelectedCodec = ".wav";
 
         [JsonProperty]
         public bool RichPresence = true;

@@ -80,7 +80,7 @@ namespace OmniConverter
         }
 
         public override void CancelWork() => _cancToken?.Cancel();
-
+        public override string GetCustomTitle() => string.Empty;
         public override string GetStatus() => _curStatus;
         public override double GetProgress() => _progress;
 
@@ -165,18 +165,18 @@ namespace OmniConverter
                 switch (ext)
                 {
                     case ".flp":
-                        MIDIStruct = FLP.Load(CMI, str, Path.GetFileName(str), _parallelOptions, (p, t) =>
+                        MIDIStruct = FLP.Load(CMI, str, Path.GetFileName(str), _parallelOptions, (current, total) =>
                         {
-                            midiPanel?.UpdateTitle($"{p}/{t}");
-                            midiPanel?.UpdateProgress(100 * p / t);
+                            midiPanel?.UpdateTitle($"{current}/{total}");
+                            midiPanel?.UpdateProgress(100 * current / total);
                         });
                         break;
 
                     default:
-                        MIDIStruct = MIDI.Load(CMI, str, Path.GetFileName(str), _parallelOptions, (p, t) =>
+                        MIDIStruct = MIDI.Load(CMI, str, Path.GetFileName(str), _parallelOptions, (current, total) =>
                         {
-                            midiPanel?.UpdateTitle($"{p}/{t}");
-                            midiPanel?.UpdateProgress(100 * p / t);
+                            midiPanel?.UpdateTitle($"{current}/{total}");
+                            midiPanel?.UpdateProgress(100 * current / total);
                         });
                         break;
                 }
