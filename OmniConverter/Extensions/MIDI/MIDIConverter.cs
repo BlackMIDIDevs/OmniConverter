@@ -267,7 +267,7 @@ namespace OmniConverter
                     string outputFile1 = GetOutputFilename(midi.Name, codec, true);
                     string outputFile2 = GetOutputFilename(midi.Name, codec, false);
 
-                    Debug.PrintToConsole(Debug.LogType.Message, String.Format("Output file: {0}", outputFile1));
+                    Debug.PrintToConsole(Debug.LogType.Message, $"Output file: {outputFile1}");
 
                     TaskStatus? midiPanel = null;
 
@@ -312,7 +312,7 @@ namespace OmniConverter
 
                         eventsProcesser.Dispose();
 
-                        Debug.PrintToConsole(Debug.LogType.Message, String.Format("Thread for MIDI {0} is done rendering data.", outputFile1));
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Thread for MIDI {outputFile1} is done rendering data.");
 
                         Dispatcher.UIThread.Post(() => midiPanel?.Dispose());
 
@@ -338,12 +338,12 @@ namespace OmniConverter
                         int FRead = 0;
                         byte[] FBuffer = new byte[1024 * 16];
 
-                        Debug.PrintToConsole(Debug.LogType.Message, String.Format("Writing data for {0} to disk...", outputFile1));
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
                         while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
                             FDestination.Write(FBuffer, 0, FRead);
-                        Debug.PrintToConsole(Debug.LogType.Message, String.Format("Done writing {0}.", outputFile1));
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
 
-                        Debug.PrintToConsole(Debug.LogType.Message, "Converting to final user selected codec...");
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
                         if (codec != AudioCodecType.PCM)
                         {
                             FFMpegArguments
@@ -355,7 +355,7 @@ namespace OmniConverter
 
                             File.Delete(outputFile1);
                         }
-                        Debug.PrintToConsole(Debug.LogType.Message, String.Format("Done. ({0})", outputFile2));
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
 
                         msm.Dispose();
                         FDestination.Dispose();
@@ -556,7 +556,7 @@ namespace OmniConverter
                             var outputFile1 = GetOutputFilename(midi.Name, codec, true);
                             var outputFile2 = GetOutputFilename(midi.Name, codec, false);
 
-                            Debug.PrintToConsole(Debug.LogType.Message, String.Format("Output file: {0}", outputFile1));
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Output file: {outputFile1}");
 
                             // Prepare wave source
                             IWaveSource? MStream = null;
@@ -575,14 +575,14 @@ namespace OmniConverter
                             int FRead = 0;
                             byte[] FBuffer = new byte[1024 * 16];
 
-                            Debug.PrintToConsole(Debug.LogType.Message, String.Format("Writing data for {0} to disk...", outputFile1));
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
                             AutoFillInfo(ConvStatus.AudioOut);
 
                             while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
                                 fileWriter.Write(FBuffer, 0, FRead);
-                            Debug.PrintToConsole(Debug.LogType.Message, String.Format("Done writing {0}.", outputFile1));
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
 
-                            Debug.PrintToConsole(Debug.LogType.Message, "Converting to final user selected codec...");
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
                             if (codec != AudioCodecType.PCM)
                             {
                                 FFMpegArguments
@@ -594,7 +594,7 @@ namespace OmniConverter
 
                                 File.Delete(outputFile1);
                             }
-                            Debug.PrintToConsole(Debug.LogType.Message, String.Format("Done. ({0})", outputFile2));
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
 
                             MStream.Dispose();
                             fileWriter.Dispose();
