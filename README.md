@@ -6,7 +6,7 @@
 - Multi-threading support, to convert multiple MIDIs or multiple tracks of the same MIDI, at the same time
 
 # License
-The base code for OmniConverter is licensed under the GNU Lesser General Public License 3.0.
+The base code for OmniConverter is licensed under the GNU Lesser General Public License 2.0.
 <br />
 Every other module is covered by its own license, which you can find in the links down below.
 
