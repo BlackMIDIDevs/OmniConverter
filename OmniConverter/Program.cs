@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -75,7 +76,7 @@ namespace OmniConverter
             catch (Exception ex)
             {
                 if (startup) Debug.PrintToConsole(Debug.LogType.Error, ex.ToString());
-                else MessageBox.Show(ex.ToString(), "OmniConverter - ERROR", null, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                else MessageBox.Show(ex.ToString(), "OmniConverter - ERROR", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
             }
         }
 
@@ -166,9 +167,8 @@ namespace OmniConverter
 
             lock (Lock)
             {
-
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(string.Format($"[{(func == ".ctor" ? "Thread" : func)} -> {Path.GetFileName(file)}, L{line}] - "));
+                Console.Write($"[{(func == ".ctor" ? "Thread" : func)} -> {Path.GetFileName(file)}, L{line}] - ");
 
                 switch (Type)
                 {

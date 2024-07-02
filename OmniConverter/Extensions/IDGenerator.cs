@@ -9,6 +9,6 @@ namespace OmniConverter
     internal static class IDGenerator
     {
         private static Random rnd = new Random();
-        public static string GetID() => rnd.Next(Int32.MinValue, Int32.MaxValue).ToString("X8");
+        public static string GetID() => rnd.Next(int.MinValue, int.MaxValue).ToString("X8");
     }
 }

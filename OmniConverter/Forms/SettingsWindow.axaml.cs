@@ -259,7 +259,7 @@ public partial class SettingsWindow : Window
         {
             if (!Directory.Exists(newExportPath))
             {
-                MessageBox.Show($"\"{newExportPath}\" does not exist.\n\nPlease pick a valid export path.", "OmniConverter - Error", this, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                MessageBox.Show(this, $"\"{newExportPath}\" does not exist.\n\nPlease pick a valid export path.", "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                 success = false;
             }
 
@@ -274,12 +274,12 @@ public partial class SettingsWindow : Window
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    MessageBox.Show($"You do not have enough permissions to write to \"{newExportPath}\".\n\nPlease pick a path you have write access to.", "OmniConverter - Error", this, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                    MessageBox.Show(this, $"You do not have enough permissions to write to \"{newExportPath}\".\n\nPlease pick a path you have write access to.", "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                     success = false;
                 }
                 catch (IOException)
                 {
-                    MessageBox.Show($"An I/O error has occurred while testing the path \"{newExportPath}\" for write permissions.\n\nPlease pick another path.", "OmniConverter - Error", this, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                    MessageBox.Show(this, $"An I/O error has occurred while testing the path \"{newExportPath}\" for write permissions.\n\nPlease pick another path.", "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                     success = false;
                 }
                 finally

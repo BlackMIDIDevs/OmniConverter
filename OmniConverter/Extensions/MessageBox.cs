@@ -80,7 +80,12 @@ namespace OmniConverter
             return await _.ShowWindowAsync();
         }
 
-        public static MsgBoxResult Show(string text, string title = "OmniConverter - Information", Window? owner = null, ButtonEnum buttons = ButtonEnum.Ok, Icon icon = Icon.Info, HyperLinkParams? hlparams = null)
+        public static MsgBoxResult Show(string text, string title = "OmniConverter - Information", ButtonEnum buttons = ButtonEnum.Ok, Icon icon = Icon.Info)
+        {
+            return Show(null, text, title, buttons, icon, null);
+        }
+
+        public static MsgBoxResult Show(Window? owner, string text, string title = "OmniConverter - Information", ButtonEnum buttons = ButtonEnum.Ok, Icon icon = Icon.Info, HyperLinkParams? hlparams = null)
         {
             MsgBoxResult result = MsgBoxResult.Unknown;
             var source = new CancellationTokenSource();

@@ -87,9 +87,9 @@ namespace OmniConverter
                 var mem = ((ulong)v * 312) * (ulong)Program.Settings.ThreadsCount;
                 var memusage = MiscFunctions.BytesToHumanReadableSize(mem);
 
-                var re = MessageBox.Show(
+                var re = MessageBox.Show(_winRef,
                     $"You set your voice limit to {v}.\nThis will require {memusage} of physical memory.\n\nAre you sure you want to continue?",
-                    "OmniConverter - Warning", _winRef, MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
+                    "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
                 switch (re)
                 {
                     case MessageBox.MsgBoxResult.No:
@@ -102,7 +102,7 @@ namespace OmniConverter
 
             if (Program.SoundFontsManager.GetSoundFontsCount() < 1)
             {
-                MessageBox.Show("You need to add SoundFonts to the SoundFonts list to start the conversion process.", "OmniConverter - Error", _winRef, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                MessageBox.Show(_winRef, "You need to add SoundFonts to the SoundFonts list to start the conversion process.", "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                 return false;
             }
 
@@ -135,9 +135,15 @@ namespace OmniConverter
             int _tracks = _validator.GetTotalTracks();
             int _curTrack = _validator.GetCurrentTrack();
 
-            ulong _valid = _validator.GetValidMIDIsCount();
-            ulong _nonvalid = _validator.GetInvalidMIDIsCount();
-            ulong _total = _validator.GetTotalMIDIsCount();
+            ulong _valid = _validator.GetValidMIDIs();
+            ulong _nonvalid = _validator.GetInvalidMIDIs();
+            ulong _total = _validator.GetTotalMIDIs();
+
+            int _midiEvents = _validator.GetProcessedMIDIEvents();
+            int _totalMidiEvents = _validator.GetTotalMIDIEvents();
+
+            int _processed = _validator.GetProcessedEvents();
+            int _all = _validator.GetTotalEvents();
 
             switch (intStatus)
             {
@@ -158,7 +164,7 @@ namespace OmniConverter
                         $"{_valid + _nonvalid:N0} file(s) out of {_total:N0} have been converted.\n\n" +
                         $"Please wait..." +
                         $"\nElapsed time: {MiscFunctions.TimeSpanToHumanReadableTime(_convElapsedTime.Elapsed)}";
-                    _progress = Math.Round((_valid + _nonvalid) * 100.0 / _total);
+                    _progress = Math.Round(_processed * 100.0 / _all);
                     break;
 
                 case ConvStatus.MultiConv:
@@ -167,13 +173,14 @@ namespace OmniConverter
                         $"Rendered {_curTrack:N0} track(s) out of {_tracks:N0}.\n" +
                         $"Please wait..." +
                         $"\nElapsed time: {MiscFunctions.TimeSpanToHumanReadableTime(_convElapsedTime.Elapsed)}";
-                    _tracksProgress = Math.Round(_curTrack * 100.0 / _tracks);
+                    _progress = Math.Round(_processed * 100.0 / _all);
+                    _tracksProgress = Math.Round(_midiEvents * 100.0 / _totalMidiEvents);
                     break;
 
                 case ConvStatus.AudioOut:
                     _curStatus = "Writing final audio file to disk.\n\nPlease do not turn off the computer...";
-                    _progress = Math.Round((_valid + _nonvalid) * 100.0 / _total);
-                    _tracksProgress = Math.Round(_curTrack * 100.0 / _tracks);
+                    _progress = Math.Round(_processed * 100.0 / _all);
+                    _tracksProgress = Math.Round(_midiEvents * 100.0 / _totalMidiEvents);
                     break;
 
                 default:
@@ -204,7 +211,9 @@ namespace OmniConverter
                 {
                     if (Program.Settings.PerTrackMode)
                     {
-                        Dispatcher.UIThread.Post(() => ((MIDIWindow)_winRef).EnableTrackProgress(true));
+                        if (_midis.Count > 1)
+                            Dispatcher.UIThread.Post(() => ((MIDIWindow)_winRef).EnableTrackProgress(true));
+
                         PerTrackConversion();
                     }
                     else PerMIDIConversion();
@@ -238,6 +247,15 @@ namespace OmniConverter
             return outputFile;
         }
 
+        private void GetTotalEventsCount()
+        {
+            List<int> totalEvents = new();
+            foreach (MIDI midi in _midis)
+                totalEvents.Add(midi.GetFullMIDITimeBased().Count());
+
+            _validator.SetTotalEventsCount(totalEvents);
+        }
+
         private void PerMIDIConversion()
         {
             // Cache settings
@@ -245,6 +263,7 @@ namespace OmniConverter
             var codec = Program.Settings.AudioCodec;
 
             AutoFillInfo(ConvStatus.Prep);
+            GetTotalEventsCount();
 
             _convElapsedTime.Reset();
             _convElapsedTime.Start();
@@ -292,7 +311,7 @@ namespace OmniConverter
                         var msm = new MultiStreamMerger(_waveFormat);
                         var sampleWriter = msm.GetWriter();
 
-                        var cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token));
+                        var cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token, f => _validator.AddEvent()));
 
                         while (!cvThread.IsCompleted)
                         {
@@ -311,7 +330,7 @@ namespace OmniConverter
                         }
 
                         eventsProcesser.Dispose();
-
+                        
                         Debug.PrintToConsole(Debug.LogType.Message, $"Thread for MIDI {outputFile1} is done rendering data.");
 
                         Dispatcher.UIThread.Post(() => midiPanel?.Dispose());
@@ -365,7 +384,7 @@ namespace OmniConverter
                 catch (OperationCanceledException) { }
                 catch (Exception ex)
                 {
-                    Debug.PrintToConsole(Debug.LogType.Error, string.Format("{0} - {1}", ex.InnerException?.ToString(), ex.Message.ToString()));
+                    Debug.PrintToConsole(Debug.LogType.Error, $"{ex.InnerException} - {ex.Message}");
                 }
             });
 
@@ -382,6 +401,7 @@ namespace OmniConverter
             var audioLimiter = Program.Settings.AudioLimiter;
             var codec = Program.Settings.AudioCodec;
 
+            GetTotalEventsCount();
             _convElapsedTime.Reset();
             _convElapsedTime.Start();
 
@@ -396,10 +416,17 @@ namespace OmniConverter
                 _customTitle = midi.Name;
                 string folder = _outputPath;
 
+                var midiData = midi.GetIterateTracksTimeBased();
+                var temp = 0;
+
+                for (int i = 0; i < midiData.Count(); i++)
+                    temp += midiData.ElementAt(i).Count();
+
+                _validator.SetTotalMIDIEvents(temp);
+                _validator.SetTotalTracks(midiData.Count());
+
                 using (MultiStreamMerger msm = new(_waveFormat))
                 {
-                    _validator.SetTotalTracks(midi.Tracks);
-                    _validator.ResetCurrentTrack();
 
                     // Per track!
                     if (perTrackFile)
@@ -415,7 +442,7 @@ namespace OmniConverter
 
                     folder += "/";
 
-                    Parallel.For(0, midi.Tracks, _parallelOptions, track =>
+                    Parallel.For(0, midiData.Count(), _parallelOptions, track =>
                     {
                         try
                         {
@@ -460,10 +487,20 @@ namespace OmniConverter
                                 }
                                 else sampleWriter = msm.GetWriter();
 
-                                var eventsProcesser = new EventsProcesser(_audioRenderer, midi.GetSingleTrackTimeBased(track), midi.Length.TotalSeconds, midi.LoadedFile);
+                                var trackData = midiData.ElementAt(track);
+
+                                var eventsProcesser = new EventsProcesser(_audioRenderer, trackData, midi.Length.TotalSeconds, midi.LoadedFile);
                                 Dispatcher.UIThread.Post(() => trackPanel = new TaskStatus($"Track {track}", _panelRef, eventsProcesser));
 
-                                cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token));
+                                cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token, f =>
+                                {
+                                    try
+                                    {
+                                        _validator.AddEvent();
+                                        return _validator.AddMIDIEvent();
+                                    }
+                                    catch (ObjectDisposedException) { return 0; }
+                                }));
                                 Debug.PrintToConsole(Debug.LogType.Message, $"ConvThread started for T{track}");
 
                                 while (!cvThread.IsCompleted)
@@ -541,7 +578,7 @@ namespace OmniConverter
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
-                            Debug.PrintToConsole(Debug.LogType.Error, string.Format("{0} - {1}", ex.InnerException?.ToString(), ex.Message.ToString()));
+                            Debug.PrintToConsole(Debug.LogType.Error, $"{ex.InnerException} - {ex.Message}");
                         }                 
                     });
 
@@ -576,10 +613,12 @@ namespace OmniConverter
                             byte[] FBuffer = new byte[1024 * 16];
 
                             Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
+                            
                             AutoFillInfo(ConvStatus.AudioOut);
 
                             while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
                                 fileWriter.Write(FBuffer, 0, FRead);
+
                             Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
 
                             Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
@@ -608,7 +647,7 @@ namespace OmniConverter
                     }
                     catch (Exception ex)
                     {
-                        Debug.PrintToConsole(Debug.LogType.Error, string.Format("{0} - {1}", ex.InnerException?.ToString(), ex.Message.ToString()));
+                        Debug.PrintToConsole(Debug.LogType.Error, $"{ex.InnerException} - {ex.Message}");
                     }
                 }
             }
@@ -675,7 +714,7 @@ namespace OmniConverter
             _disposed = true;
         }
 
-        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken)
+        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<int, int>? f = null)
         {
             Random r = new Random();
 
@@ -784,6 +823,8 @@ namespace OmniConverter
                                     break;
                             }
 
+                            if (f != null)
+                                _ = f(1);
                             //_renderingTime = bass.RenderingTime;
 
                             file.Return(e);

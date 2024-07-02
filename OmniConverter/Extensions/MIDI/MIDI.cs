@@ -262,14 +262,24 @@ namespace OmniConverter
         private ulong _notvalid;
         private ulong _total;
 
-        private int _tracks = 0;
-        private int _curTrack = 0;
+        private int _midiEvents;
+        private int _curMidiEvents;
+
+        private List<int> _events;
+        private int _processedEvents;
+
+        private int _tracks;
+        private int _curTrack;
 
         public MIDIValidator(ulong total)
         {
             _currentMidi = "";
             _valid = 0;
             _notvalid = 0;
+            _midiEvents = 0;
+            _curMidiEvents = 0;
+            _events = new();
+            _processedEvents = 0;
             _tracks = 0;
             _curTrack = 0;
             _total = total;
@@ -279,13 +289,24 @@ namespace OmniConverter
         public string GetCurrentMIDI() { return _currentMidi; }
         public void AddValidMIDI() { _valid++; }
         public void AddInvalidMIDI() { _notvalid++; }
-        public ulong GetValidMIDIsCount() { return _valid; }
-        public ulong GetInvalidMIDIsCount() { return _notvalid; }
-        public ulong GetTotalMIDIsCount() { return _total; }
+        public ulong GetValidMIDIs() { return _valid; }
+        public ulong GetInvalidMIDIs() { return _notvalid; }
+        public ulong GetTotalMIDIs() { return _total; }
 
-        public void SetTotalTracks(int tracks) { _tracks = tracks; }
+        public void SetTotalEventsCount(List<int> events) { _events = events; }
+        public int AddEvent() { return _processedEvents++; }
+        public int AddEvents(int events) { return _processedEvents += events; }
+        public int GetTotalEvents() { return _events.Sum(); }
+        public int GetProcessedEvents() { return _processedEvents; }
+
+        public void SetTotalMIDIEvents(int events) { _midiEvents = events; _curMidiEvents = 0; }
+        public int AddMIDIEvent() { return _curMidiEvents++; }
+        public int AddMIDIEvents(int events) { return _curMidiEvents += events; }
+        public int GetTotalMIDIEvents() { return _midiEvents; }
+        public int GetProcessedMIDIEvents() { return _curMidiEvents; }
+
+        public void SetTotalTracks(int tracks) { _tracks = tracks; _curTrack = 0; }
         public void AddTrack() { _curTrack++; }
-        public void ResetCurrentTrack() { _curTrack = 0; }
         public int GetTotalTracks() { return _tracks; }
         public int GetCurrentTrack() { return _curTrack; }
     }
