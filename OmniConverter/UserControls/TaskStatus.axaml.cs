@@ -93,21 +93,28 @@ public partial class TaskStatus : UserControl
         var dtCurrent = DateTime.Now;
         var playedNotes = evProc?.PlayedNotes;
         var rtsMode = evProc?.IsRTS ?? false;
-        var progress = evProc?.Progress * 100 ?? 0;
+        var progress = evProc?.Progress ?? 0;
         var processed = evProc?.Processed ?? 0;
         var remaining = evProc?.Remaining ?? 0;
         var activeVoices = evProc?.ActiveVoices ?? 0;
         var framerate = evProc?.Framerate ?? 0;
 
-        var title = $"{activeVoices.ToString("n0")} voices";
+        var title = string.Empty;
+        var etaText = "?";
+
+        title += $"{activeVoices:n0} voices";
 
         if (rtsMode)
             title += $" @ {framerate:n}FPS";
 
         var speed = processed / (dtCurrent - _dtStart).TotalSeconds;
-        _eta = TimeSpan.FromSeconds(remaining / (speed == 0 ? 0.001 : speed));
+        if (speed > 0)
+        {
+            _eta = TimeSpan.FromSeconds(remaining / speed);
+            etaText = MiscFunctions.TimeSpanToHumanReadableTime(_eta);
+        }
 
-        title += $", ETA {MiscFunctions.TimeSpanToHumanReadableTime(ETA)}, {playedNotes:n0} notes";
+        title += $", {playedNotes:n0} notes, ETA {etaText}";
 
         JobDescription.Content = GetFinalTitle(title);
         Progress.Value = progress > 100.0 ? 100.0 : progress;
