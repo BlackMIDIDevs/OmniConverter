@@ -43,17 +43,17 @@
 					</Grid>
 					<Grid Name="AudioCodecPanel" Margin="2" ColumnDefinitions="2*, 1*">
 						<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
-						<ComboBox Name="AudioCodec" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200">
-							<ComboBoxItem>.wav (PCM)</ComboBoxItem>
-							<ComboBoxItem>.mp3 (LAME)</ComboBoxItem>
-							<ComboBoxItem>.ogg (Vorbis)</ComboBoxItem>
-							<ComboBoxItem>.flac (FLAC)</ComboBoxItem>
+						<ComboBox Name="AudioCodec" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
+							<ComboBoxItem>.wav (IEEE, lossless)</ComboBoxItem>
+							<ComboBoxItem>.flac (FLAC, lossless)</ComboBoxItem>
+							<ComboBoxItem>.mp3 (LAME, lossy)</ComboBoxItem>
+							<ComboBoxItem>.ogg (Vorbis, lossy)</ComboBoxItem>
 						</ComboBox>
 					</Grid>
 					<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
 						<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
 						<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-							<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="999999" FormatString="0" IsEnabled="False" />
+							<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="999999" FormatString="0" IsEnabled="False"/>
 						</StackPanel>
 					</Grid>
 					<CheckBox Name="SincInter" Content="Enable sinc interpolation" Margin="2" />
@@ -94,7 +94,7 @@
 			</TabItem>
 			<TabItem Header="Export">
 				<StackPanel Margin="4">
-					<CheckBox Name="MTMode" Content="Enable multi-threaded rendering mode, and render one MIDI (or MIDI track) per thread" Margin="2, 16, 0, 0" IsCheckedChanged="MTModeCheck" />
+					<CheckBox Name="MTMode" Content="Enable multi-threaded rendering mode, and render one MIDI (or MIDI track) per thread" Margin="2" IsCheckedChanged="MTModeCheck" />
 					<Grid Name="LimitThreadsPanel" ColumnDefinitions="2*, 1*" Margin="2" >
 						<CheckBox Name="LimitThreads" Content="Limit the amount of system threads available to the app" Grid.Column="0" IsCheckedChanged="LimitThreadsCheck" />
 						<StackPanel Name="MaxThreadsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >

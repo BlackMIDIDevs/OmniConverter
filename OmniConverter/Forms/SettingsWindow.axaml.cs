@@ -117,6 +117,21 @@ public partial class SettingsWindow : Window
             MaxVoices.Value = MaxVoices.Maximum;
     }
 
+    private void AudioCodecChanged(object? sender, SelectionChangedEventArgs e)
+    {   
+        if (AudioCodec != null)
+        {
+            if (AudioCodec.SelectedIndex <= 1)
+            {
+                AudioBitrate.IsEnabled = false;
+            }
+            else
+            {
+                AudioBitrate.IsEnabled = true;
+            }
+        }
+    }
+
     private void OverrideEffectsCheck(object? sender, RoutedEventArgs e)
     {
         if (OverrideEffects.IsChecked != null)
