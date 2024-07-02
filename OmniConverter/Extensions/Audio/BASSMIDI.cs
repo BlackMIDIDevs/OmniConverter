@@ -150,13 +150,13 @@ namespace OmniConverter
                 }
 
                 MidiFontEx bsf;
-                Debug.PrintToConsole(Debug.LogType.Message, String.Format("Preparing BASS_MIDI_FONTEX for {0}...", sf.SoundFontPath));
+                Debug.PrintToConsole(Debug.LogType.Message, $"Preparing BASS_MIDI_FONTEX for {sf.SoundFontPath}...");
 
                 var sfHandle = BassMidi.FontInit(sf.SoundFontPath, sf.XGMode ? FontInitFlags.XGDrums : (FontInitFlags)0);
 
                 if (sfHandle != 0)
                 {
-                    Debug.PrintToConsole(Debug.LogType.Message, String.Format("SoundFont handle initialized. Handle = {0:X8}", sfHandle));
+                    Debug.PrintToConsole(Debug.LogType.Message, $"SoundFont handle initialized. Handle = {sfHandle:X8}");
 
                     bsf.Handle = sfHandle;
                     bsf.SoundFontPreset = sf.SourcePreset;
@@ -175,7 +175,7 @@ namespace OmniConverter
                     _bassArray.Add(bsf);
                     Debug.PrintToConsole(Debug.LogType.Message, "SoundFont loaded and added to BASS_MIDI_FONTEX array.");
                 }
-                else Debug.PrintToConsole(Debug.LogType.Error, String.Format("Could not load {0}. BASSERR: {1}", sf.SoundFontPath, Bass.LastError));
+                else Debug.PrintToConsole(Debug.LogType.Error, $"Could not load {sf.SoundFontPath}. BASSERR: {Bass.LastError}");
             }
 
             if (_bassArray.Count > 0) 
@@ -225,41 +225,37 @@ namespace OmniConverter
 
             bool isFloat = WaveFormat.WaveFormatTag == AudioEncoding.IeeeFloat;
             Flags = BassFlags.Decode | BassFlags.MidiDecayEnd;
+            Debug.PrintToConsole(Debug.LogType.Message, $"Stream unique ID: {UniqueID}");
 
-            Debug.PrintToConsole(Debug.LogType.Message, String.Format("Stream unique ID: {0}", UniqueID));
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - VoiceLimit = {Program.Settings.MaxVoices}.");
+            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - VoiceLimit = {Program.Settings.MaxVoices}");
 
             Flags |= Program.Settings.SincInter ? BassFlags.SincInterpolation : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - SincInter = {Program.Settings.SincInter}.");
+            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - SincInter = {Program.Settings.SincInter}");
 
             Flags |= Program.Settings.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - DisableEffects = {Program.Settings.DisableEffects}.");
+            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - DisableEffects = {Program.Settings.DisableEffects}");
 
             Flags |= Program.Settings.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - NoteOff1 = {Program.Settings.NoteOff1}.");
+            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - NoteOff1 = {Program.Settings.NoteOff1}");
 
             Flags |= isFloat ? BassFlags.Float : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - isFloat = {isFloat}.");
+            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - isFloat = {isFloat}");
 
             Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
-            if (!CheckError("Unable to open MIDI stream."))
-            {
+            if (CheckError("Unable to open MIDI stream."))
                 return;
-            }
-            else Debug.PrintToConsole(Debug.LogType.Message, String.Format("{0} - Stream is open.", UniqueID));
+
+            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Stream is open.");
 
             VolHandle = Bass.ChannelSetFX(Handle, EffectType.Volume, 1);
-            if (!CheckError("Unable to set volume FX."))
-            {
+            if (CheckError("Unable to set volume FX."))
                 return;
-            }
 
             SfArray = bass.GetSoundFontsArray();
             if (SfArray != null)
             {
                 BassMidi.StreamSetFonts(Handle, SfArray, SfArray.Length);
-
-                Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Loaded {SfArray.Length} SoundFonts.");
+                Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Loaded {SfArray.Length} SoundFonts");
             }
 
             Initialized = true;
@@ -270,10 +266,10 @@ namespace OmniConverter
             if (Bass.LastError != 0)
             {
                 Debug.PrintToConsole(Debug.LogType.Error, $"{UniqueID} - {Error}.");
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         public override unsafe int Read(float[] buffer, int offset, int count)

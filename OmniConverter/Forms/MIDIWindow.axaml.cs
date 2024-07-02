@@ -99,7 +99,7 @@ public partial class MIDIWindow : Window
                 if (!string.IsNullOrEmpty(outputFolder))
                     _worker = new MIDIConverter(outputFolder, Program.Settings.MultiThreadedMode ? Program.Settings.ThreadsCount : 1, this, LogArea, _winRef.MIDIs);
             }
-            else MessageBox.Show("There are no MIDIs to convert.", "OmniConverter - Information", this);
+            else MessageBox.Show(this, "There are no MIDIs to convert.", "OmniConverter - Information");
         }
 
         if (_worker != null)
@@ -134,7 +134,7 @@ public partial class MIDIWindow : Window
         {
             if (_worker.IsRunning())
             {
-                var dr = MessageBox.Show("Are you sure you want to terminate the current process?", "The converter is still busy", this, MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
+                var dr = MessageBox.Show(this, "Are you sure you want to terminate the current process?", "The converter is still busy", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
                 switch (dr)
                 {
                     case MessageBox.MsgBoxResult.Yes:

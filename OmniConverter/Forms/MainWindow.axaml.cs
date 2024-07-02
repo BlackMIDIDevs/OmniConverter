@@ -76,7 +76,7 @@ namespace OmniConverter
 
             if (_midiWindow != null)
             {
-                MessageBox.Show("The converter is already rendering.", "OmniConverter - Hey", this);
+                MessageBox.Show(this, "The converter is already rendering.", "OmniConverter - Hey");
                 return;
             }
 
@@ -188,7 +188,7 @@ namespace OmniConverter
 
         private void ClearList(object? sender, RoutedEventArgs e)
         {
-            var dr = MessageBox.Show("Are you sure you want to clear the list?", "OmniConverter - Warning", this, MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
+            var dr = MessageBox.Show(this, "Are you sure you want to clear the list?", "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
             
             switch (dr)
             {

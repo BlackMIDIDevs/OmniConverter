@@ -86,11 +86,9 @@ namespace OmniConverter
 
         public override bool IsRunning() => _midiAnalysis != null ? _midiAnalysis.IsAlive : false;
 
-        private void UpdateInfo()
+        private void UpdateInfo(string status  = "Initializing...")
         {
-            _curStatus = String.Format("Parsed {0} file(s) out of {1}.\nPlease wait...",
-                (_valid + _notvalid).ToString("N0", new CultureInfo("is-IS")),
-                _total.ToString("N0", new CultureInfo("is-IS")));
+            _curStatus = status;
             _progress = Math.Round((_valid + _notvalid) * 100.0 / _total);
         }
 
@@ -120,7 +118,7 @@ namespace OmniConverter
 
                         CheckDirectory(ref CurrentMaxIndex, _files[T]);
 
-                        UpdateInfo();
+                        UpdateInfo($"Parsed {_valid + _notvalid:n0} file(s) out of {_total:n0}.\nPlease wait...");
                     }
                     catch (OperationCanceledException) { }
                     catch (Exception ex)
@@ -132,14 +130,9 @@ namespace OmniConverter
             catch (OperationCanceledException) { }
 
             if (_notvalid > 0 && !_silent && !_cancToken.IsCancellationRequested)
-            {
-                _curStatus = string.Format("Out of {0} files, {1} were valid and {2} were not.",
-                            (_valid + _notvalid).ToString("N0", new CultureInfo("is-IS")),
-                            _valid.ToString("N0", new CultureInfo("is-IS")),
-                            _notvalid.ToString("N0", new CultureInfo("is-IS")));
-                _progress = 100;
-            }
-            else Dispatcher.UIThread.Post(_winRef.Close);
+                UpdateInfo($"Out of {_valid + _notvalid:n0} files, {_valid:n0} were valid and {_notvalid:n0} were not.");
+            else 
+                Dispatcher.UIThread.Post(_winRef.Close);
         }
 
         // Check if file is valid
@@ -239,7 +232,7 @@ namespace OmniConverter
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "OmniConverter - Import Error", _winRef);
+                MessageBox.Show(_winRef, ex.ToString(), "OmniConverter - Import Error");
             }
         }
 
@@ -252,7 +245,7 @@ namespace OmniConverter
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString(), "OmniConverter - Import Error", _winRef);
+                MessageBox.Show(_winRef, ex.ToString(), "OmniConverter - Import Error");
             }
         }
 

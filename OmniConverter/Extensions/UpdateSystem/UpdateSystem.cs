@@ -88,7 +88,7 @@ namespace OmniConverter
                     RVal = OLVer.ToString();
                 }
 
-                var msg = MessageBox.Show(UText, UTitle, _owner, MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Question);
+                var msg = MessageBox.Show(_owner, UText, UTitle, MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Question);
                 if (msg == MessageBox.MsgBoxResult.Yes) CheckThenUpdate(RVal, UpdateSystem.NORMAL);
             }
         }
@@ -96,7 +96,7 @@ namespace OmniConverter
         public static void NoUpdates(bool startup, bool internetok)
         {
             if (!startup)
-                MessageBox.Show("No updates for the converter have been found.", $"{ProductName} - No updates found", _owner, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Info);
+                MessageBox.Show(_owner, "No updates for the converter have been found.", $"{ProductName} - No updates found", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Info);
         }
 
         public static void CheckChangelog()
@@ -104,7 +104,7 @@ namespace OmniConverter
             bool internetok = IsInternetAvailable();
             if (internetok == false)
             {
-                MessageBox.Show("There's no Internet connection.\n\nYou can't see the changelog without one.", $"{ProductName} - No Internet connection available", _owner, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                MessageBox.Show(_owner, "There's no Internet connection.\n\nYou can't see the changelog without one.", $"{ProductName} - No Internet connection available", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
             }
             else
             {
@@ -115,7 +115,7 @@ namespace OmniConverter
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("An error has occurred while trying to show you the latest changelog.\nPlease try again later.", $"{ProductName} - Unknown Error", _owner, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                    MessageBox.Show(_owner, "An error has occurred while trying to show you the latest changelog.\nPlease try again later.", $"{ProductName} - Unknown Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                 }
             }
         }
@@ -260,7 +260,7 @@ namespace OmniConverter
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("An error has occurred while checking for updates.\nPlease try again later.", $"{ProductName} - Unknown Error", _owner, MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                    MessageBox.Show(_owner, "An error has occurred while checking for updates.\nPlease try again later.", $"{ProductName} - Unknown Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                     NoUpdates(startup, internetok);
                 }
             }
