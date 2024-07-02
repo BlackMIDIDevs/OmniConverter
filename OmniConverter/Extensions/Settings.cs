@@ -7,6 +7,14 @@ using System.Security.Cryptography;
 
 namespace OmniConverter
 {
+    public enum AudioCodecType
+    {
+        PCM,
+        LAME,
+        Vorbis,
+        FLAC
+    }
+
     public class Settings
     {
         [JsonProperty]
@@ -16,6 +24,10 @@ namespace OmniConverter
         public float Volume = 100.0f;
         [JsonProperty]
         public int SampleRate = 48000;
+        [JsonProperty]
+        public AudioCodecType AudioCodec = AudioCodecType.PCM;
+        [JsonProperty]
+        public int AudioBitrate = 256; // kbps
 
         [JsonProperty]
         public int MaxVoices = 1000;
