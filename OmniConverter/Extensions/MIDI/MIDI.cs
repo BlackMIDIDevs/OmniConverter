@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Xml.Linq;
-using Avalonia.Platform.Storage;
-using static System.Net.WebRequestMethods;
-using Octokit;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace OmniConverter
 {

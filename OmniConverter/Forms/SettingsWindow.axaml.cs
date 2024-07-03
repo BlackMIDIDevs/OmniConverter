@@ -156,8 +156,8 @@ public partial class SettingsWindow : Window
     {
         if (OverrideEffects.IsChecked != null)
         {
-            ReverbValPanel.IsEnabled = (bool)OverrideEffects.IsChecked;
-            ChorusValPanel.IsEnabled = (bool)OverrideEffects.IsChecked;
+            ReverbValue.IsEnabled = (bool)OverrideEffects.IsChecked;
+            ChorusValue.IsEnabled = (bool)OverrideEffects.IsChecked;
         }
     }
 

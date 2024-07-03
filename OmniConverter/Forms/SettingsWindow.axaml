@@ -5,7 +5,7 @@
 		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
         xmlns:themes="using:GroupBox.Avalonia.Themes"
 		xmlns:oc="using:OmniConverter"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
 		Width="800" Height="550"
         x:Class="OmniConverter.SettingsWindow"
         Title="Settings"
@@ -15,104 +15,100 @@
 		RequestedThemeVariant="Dark">
 	<Grid RowDefinitions="1*, 80">
 		<TabControl Grid.Row="0">
-			<TabItem Header="Audio">
-				<StackPanel Margin="4">
-					<Grid ColumnDefinitions="1*, 2*" Margin="2">
-						<Label Grid.Column="0" Content="Voice limit" VerticalAlignment="Center"/>
-						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
-							<CheckBox Name="KhangMod" Content="Uncap limit" Margin="0, 0, 10, 0" IsCheckedChanged="KhangModCheck"/>
-							<NumericUpDown Name="MaxVoices" HorizontalAlignment="Right" Width="180" FormatString="0" Value="100000" Minimum="1" Maximum="100000" ValueChanged="MaxVoicesChanged" />
-						</StackPanel>
-					</Grid>
-					<Grid ColumnDefinitions="4*, 1*" Margin="2">
-						<Label Grid.Column="0" Content="Sample rate" VerticalAlignment="Center"/>
-						<ComboBox Name="SampleRate" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="5" MaxDropDownHeight="200">
-							<ComboBoxItem>384000</ComboBoxItem>
-							<ComboBoxItem>192000</ComboBoxItem>
-							<ComboBoxItem>96000</ComboBoxItem>
-							<ComboBoxItem>88200</ComboBoxItem>
-							<ComboBoxItem>64000</ComboBoxItem>
-							<ComboBoxItem>48000</ComboBoxItem>
-							<ComboBoxItem>44100</ComboBoxItem>
-							<ComboBoxItem>32000</ComboBoxItem>
-							<ComboBoxItem>22050</ComboBoxItem>
-							<ComboBoxItem>11025</ComboBoxItem>
-							<ComboBoxItem>8000</ComboBoxItem>
-							<ComboBoxItem>4000</ComboBoxItem>
-						</ComboBox>
-					</Grid>
-					<Grid Name="AudioCodecPanel" Margin="2" ColumnDefinitions="2*, 1*">
-						<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
-						<ComboBox Name="AudioCodec" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
-							<ComboBoxItem>.wav (IEEE, lossless)</ComboBoxItem>
-							<ComboBoxItem>.flac (FLAC, lossless)</ComboBoxItem>
-							<ComboBoxItem>.mp3 (LAME, lossy)</ComboBoxItem>
-							<ComboBoxItem>.ogg (Vorbis, lossy)</ComboBoxItem>
-						</ComboBox>
-					</Grid>
-					<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
-						<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
-						<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-							<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="999999" FormatString="0" IsEnabled="False"/>
-						</StackPanel>
-					</Grid>
-					<CheckBox Name="SincInter" Content="Enable sinc interpolation" Margin="2" />
-					<CheckBox Name="DisableFX" Content="Disable sound effects (Reverb, Chorus etc.)" Margin="2" />
-					<CheckBox Name="NoteOff1" Content="Only release the oldest instance of a note upon note-off event" Margin="2" />
-					<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent clipping above 0dB" Margin="2" />
-					<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 10, 0, 0" >
-						<Grid ColumnDefinitions="1*, 1*" >
-							<CheckBox Name="RTSMode" Grid.Column="0" Content="Enable real time playback simulation" IsCheckedChanged="RTSModeCheck" />
-							<StackPanel Name="RTSPanel" Grid.Column="1" Orientation="Vertical">
-								<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
-									<Label Grid.Column="0" Content="FPS" VerticalAlignment="Center"/>
-									<NumericUpDown Name="RTSFPS" HorizontalAlignment="Right" Grid.Column="2" Width="160" Minimum="0" Maximum="9999" FormatString="0.00" />
-								</StackPanel>
-								<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
-									<Label Content="Frame fluctuation (%)" VerticalAlignment="Center"/>
-									<NumericUpDown Name="RTSFluct" HorizontalAlignment="Right" Width="160" Minimum="0" Maximum="100" FormatString="0.00" />
-								</StackPanel>
+			<TabItem Header="Audio renderer">
+				<ScrollViewer VerticalScrollBarVisibility="Visible">
+					<StackPanel Margin="4">
+						<Grid ColumnDefinitions="1*, 2*" Margin="2">
+							<Label Grid.Column="0" Content="Voice limit" VerticalAlignment="Center"/>
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+								<CheckBox Name="KhangMod" Content="Uncap limit" Margin="0, 0, 10, 0" IsCheckedChanged="KhangModCheck"/>
+								<NumericUpDown Name="MaxVoices" HorizontalAlignment="Right" Width="180" FormatString="0" Value="100000" Minimum="1" Maximum="100000" ValueChanged="MaxVoicesChanged" />
 							</StackPanel>
 						</Grid>
-					</ctrl:GroupBox>
-				</StackPanel>
+						<Grid ColumnDefinitions="4*, 1*" Margin="2">
+							<Label Grid.Column="0" Content="Sample rate" VerticalAlignment="Center"/>
+							<ComboBox Name="SampleRate" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="5" MaxDropDownHeight="200">
+								<ComboBoxItem>384000</ComboBoxItem>
+								<ComboBoxItem>192000</ComboBoxItem>
+								<ComboBoxItem>96000</ComboBoxItem>
+								<ComboBoxItem>88200</ComboBoxItem>
+								<ComboBoxItem>64000</ComboBoxItem>
+								<ComboBoxItem>48000</ComboBoxItem>
+								<ComboBoxItem>44100</ComboBoxItem>
+								<ComboBoxItem>32000</ComboBoxItem>
+								<ComboBoxItem>22050</ComboBoxItem>
+								<ComboBoxItem>11025</ComboBoxItem>
+								<ComboBoxItem>8000</ComboBoxItem>
+								<ComboBoxItem>4000</ComboBoxItem>
+							</ComboBox>
+						</Grid>
+						<Grid Name="AudioCodecPanel" Margin="2" ColumnDefinitions="2*, 1*">
+							<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
+							<ComboBox Name="AudioCodec" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
+								<ComboBoxItem>.wav (IEEE, lossless)</ComboBoxItem>
+								<ComboBoxItem>.flac (FLAC, lossless)</ComboBoxItem>
+								<ComboBoxItem>.mp3 (LAME, lossy)</ComboBoxItem>
+								<ComboBoxItem>.ogg (Vorbis, lossy)</ComboBoxItem>
+							</ComboBox>
+						</Grid>
+						<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
+							<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
+							<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="999999" FormatString="0" IsEnabled="False"/>
+							</StackPanel>
+						</Grid>
+						<CheckBox Name="SincInter" Content="Enable sinc interpolation" Margin="2" />
+						<CheckBox Name="DisableFX" Content="Disable sound effects (Reverb, Chorus etc.)" Margin="2" />
+						<CheckBox Name="NoteOff1" Content="Only release the oldest instance of a note upon note-off event" Margin="2" />
+						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent clipping above 0dB" Margin="2" />
+						<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 10, 0, 0" >
+							<Grid ColumnDefinitions="1*, 1*" >
+								<CheckBox Name="RTSMode" Grid.Column="0" Content="Enable real time playback simulation" IsCheckedChanged="RTSModeCheck" />
+								<StackPanel Name="RTSPanel" Grid.Column="1" Orientation="Vertical">
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
+										<Label Grid.Column="0" Content="FPS" VerticalAlignment="Center"/>
+										<NumericUpDown Name="RTSFPS" HorizontalAlignment="Right" Grid.Column="2" Width="160" Minimum="0" Maximum="9999" FormatString="0.00" />
+									</StackPanel>
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
+										<Label Content="Instability (%)" VerticalAlignment="Center"/>
+										<NumericUpDown Name="RTSFluct" HorizontalAlignment="Right" Width="160" Minimum="0" Maximum="100" FormatString="0.00" />
+									</StackPanel>
+								</StackPanel>
+							</Grid>
+						</ctrl:GroupBox>
+					</StackPanel>
+				</ScrollViewer>
 			</TabItem>
-		 	<TabItem Header="Filtering">
+			<TabItem Header="Events processing">
 				<StackPanel Margin="4">
-					<CheckBox Name="FilterVelocity" Content="Ignore notes between this velocity range" IsCheckedChanged="FilterVelocityCheck"/>
-					<StackPanel Orientation="Horizontal">
-						<Grid Name="VelocityLowPanel" Grid.Column="0" ColumnDefinitions="1*, 1*" Margin="2">
-							<Label Grid.Column="0" Content="Low" VerticalAlignment="Center"/>
-							<NumericUpDown Name="VelocityLowValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="1" />
-						</Grid>
-						<Grid Name="VelocityHighPanel" Grid.Column="1" ColumnDefinitions="1*, 1*" Margin="24, 2, 2, 2">
-							<Label Grid.Column="0" Content="High" VerticalAlignment="Center"/>
-							<NumericUpDown Name="VelocityHighValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="1" />
-						</Grid>
-					</StackPanel>
-					<CheckBox Name="FilterKey" Content="Only allow notes between these keys" IsCheckedChanged="FilterKeyCheck"/>
-					<StackPanel Orientation="Horizontal">
-						<Grid Name="KeyLowPanel" Grid.Column="0" ColumnDefinitions="1*, 1*" Margin="2">
-							<Label Grid.Column="0" Content="Low" VerticalAlignment="Center"/>
-							<NumericUpDown Name="KeyLowValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" Value="0" />
-						</Grid>
-						<Grid Name="KeyHighPanel" Grid.Column="1" ColumnDefinitions="1*, 1*" Margin="24, 2, 2, 2">
-							<Label Grid.Column="0" Content="High" VerticalAlignment="Center"/>
-							<NumericUpDown Name="KeyHighValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" Value="127" />
-						</Grid>
-					</StackPanel>
-					<CheckBox Name="OverrideEffects" Content="Override reverb and chorus events" IsCheckedChanged="OverrideEffectsCheck"/>
-					<StackPanel Orientation="Horizontal">
-						<Grid Name="ReverbValPanel" Grid.Column="0" ColumnDefinitions="1*, 1*" Margin="2">
-							<Label Grid.Column="0" Content="Reverb" VerticalAlignment="Center"/>
-							<NumericUpDown Name="ReverbValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" />
-						</Grid>
-						<Grid Name="ChorusValPanel" Grid.Column="1" ColumnDefinitions="1*, 1*" Margin="24, 2, 2, 2">
-							<Label Grid.Column="0" Content="Chorus" VerticalAlignment="Center"/>
-							<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" />
-						</Grid>
-					</StackPanel>
-					<CheckBox Name="IgnoreProgramChanges" Content="Ignore program change events (force piano)" />
+					<Grid ColumnDefinitions="1*, 1.2*" Margin="2">
+						<CheckBox Name="FilterVelocity" Content="Ignore notes between this velocity range" IsCheckedChanged="FilterVelocityCheck" Grid.Column="0"/>
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+							<Label Content="Low" VerticalAlignment="Center"/>
+							<NumericUpDown Name="VelocityLowValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="1" Margin="0, 0, 8, 0"/>
+							<Label Content="High" VerticalAlignment="Center"/>
+							<NumericUpDown Name="VelocityHighValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="1" />
+						</StackPanel>
+					</Grid>
+					<Grid ColumnDefinitions="1*, 1.2*" Margin="2, 16, 0, 0">
+						<CheckBox Name="FilterKey" Content="Only allow notes between these keys" IsCheckedChanged="FilterKeyCheck"/>
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+							<Label Content="Low" VerticalAlignment="Center"/>
+							<NumericUpDown Name="KeyLowValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="0" Margin="0, 0, 8, 0"/>
+							<Label Content="High" VerticalAlignment="Center"/>
+							<NumericUpDown Name="KeyHighValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="1" />
+						</StackPanel>
+					</Grid>
+					<Grid ColumnDefinitions="1*, 1.2*" Margin="2, 16, 0, 0">
+						<CheckBox Name="OverrideEffects" Content="Override reverb and chorus events" IsCheckedChanged="OverrideEffectsCheck"/>
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+							<Label Content="Reverb" VerticalAlignment="Center"/>
+							<NumericUpDown Name="ReverbValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="64" Margin="0, 0, 8, 0"/>
+							<Label Content="Chorus" VerticalAlignment="Center"/>
+							<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="64" />
+						</StackPanel>
+					</Grid>
+					<CheckBox Name="IgnoreProgramChanges" Content="Ignore program change events (force piano)" Margin="2, 16, 0, 0"/>
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Export">
