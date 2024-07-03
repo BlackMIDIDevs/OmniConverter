@@ -15,6 +15,8 @@ Avalonia UI: https://github.com/AvaloniaUI/Avalonia
 <br />
 CSCore: https://github.com/filoe/cscore
 <br />
+FFMpegCore: https://github.com/rosenbjerg/FFMpegCore
+<br />
 ManagedBass: https://github.com/ManagedBass/ManagedBass
 <br />
 MIDIModificationFramework: https://github.com/arduano/MIDIModificationFramework
