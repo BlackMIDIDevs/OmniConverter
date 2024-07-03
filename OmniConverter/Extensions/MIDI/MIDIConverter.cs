@@ -138,11 +138,11 @@ namespace OmniConverter
             ulong _nonvalid = _validator.GetInvalidMIDIs();
             ulong _total = _validator.GetTotalMIDIs();
 
-            int _midiEvents = _validator.GetProcessedMIDIEvents();
-            int _totalMidiEvents = _validator.GetTotalMIDIEvents();
+            ulong _midiEvents = _validator.GetProcessedMIDIEvents();
+            ulong _totalMidiEvents = _validator.GetTotalMIDIEvents();
 
-            int _processed = _validator.GetProcessedEvents();
-            int _all = _validator.GetTotalEvents();
+            ulong _processed = _validator.GetProcessedEvents();
+            ulong _all = _validator.GetTotalEvents();
 
             switch (intStatus)
             {
@@ -245,9 +245,9 @@ namespace OmniConverter
 
         private void GetTotalEventsCount()
         {
-            List<int> totalEvents = new();
+            List<ulong> totalEvents = new();
             foreach (MIDI midi in _midis)
-                totalEvents.Add(midi.GetFullMIDITimeBased().Count());
+                totalEvents.Add(midi.TotalEventCount);
 
             _validator.SetTotalEventsCount(totalEvents);
         }
@@ -398,12 +398,8 @@ namespace OmniConverter
                 string folder = _outputPath;
 
                 var midiData = midi.GetIterateTracksTimeBased();
-                var temp = 0;
 
-                for (int i = 0; i < midiData.Count(); i++)
-                    temp += midiData.ElementAt(i).Count();
-
-                _validator.SetTotalMIDIEvents(temp);
+                _validator.SetTotalMIDIEvents(midi.TotalEventCount);
                 _validator.SetTotalTracks(midiData.Count());
 
                 using (MultiStreamMerger msm = new(_waveFormat))
@@ -657,7 +653,7 @@ namespace OmniConverter
             _disposed = true;
         }
 
-        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<int, int>? f = null)
+        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<ulong, ulong>? f = null)
         {
             Random r = new Random();
 

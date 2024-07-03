@@ -123,7 +123,7 @@ public partial class MIDIWindow : Window
         if (TrackProgress.IsVisible)
             TrackProgress.Value = ((MIDIConverter?)_worker).GetTracksProgress();
         
-        Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.Normal, (ulong)TrackProgress.Value, 100);
+        Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.Normal, (ulong)Progress.Value, 100);
     }
 
     private void CancelBtnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

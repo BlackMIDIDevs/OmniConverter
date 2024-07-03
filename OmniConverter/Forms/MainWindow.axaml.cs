@@ -75,7 +75,7 @@ namespace OmniConverter
         {
 #if !WINDOWS
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                MessageBox.Show("We're running on Windows, but OmniConverter was compiled for a generic target. Please compile with net8.0-windows instead!", owner: this);
+                MessageBox.Show(this, "We're running on Windows, but OmniConverter was compiled for a generic target. Please compile with net8.0-windows instead!");
 #endif
         }
 
