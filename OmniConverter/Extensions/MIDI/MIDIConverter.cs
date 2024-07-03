@@ -5,6 +5,7 @@ using CSCore.Codecs.WAV;
 using CSCore.MediaFoundation;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
+using OmniConverter.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -138,11 +139,11 @@ namespace OmniConverter
             ulong _nonvalid = _validator.GetInvalidMIDIs();
             ulong _total = _validator.GetTotalMIDIs();
 
-            int _midiEvents = _validator.GetProcessedMIDIEvents();
-            int _totalMidiEvents = _validator.GetTotalMIDIEvents();
+            ulong _midiEvents = _validator.GetProcessedMIDIEvents();
+            ulong _totalMidiEvents = _validator.GetTotalMIDIEvents();
 
-            int _processed = _validator.GetProcessedEvents();
-            int _all = _validator.GetTotalEvents();
+            ulong _processed = _validator.GetProcessedEvents();
+            ulong _all = _validator.GetTotalEvents();
 
             switch (intStatus)
             {
@@ -245,9 +246,9 @@ namespace OmniConverter
 
         private void GetTotalEventsCount()
         {
-            List<int> totalEvents = new();
+            List<ulong> totalEvents = new();
             foreach (MIDI midi in _midis)
-                totalEvents.Add(midi.GetFullMIDITimeBased().Count());
+                totalEvents.Add(midi.TotalEventCount);
 
             _validator.SetTotalEventsCount(totalEvents);
         }
@@ -370,7 +371,11 @@ namespace OmniConverter
             });
 
             if (!_cancToken.IsCancellationRequested)
+            {
+                if (Program.Settings.AudioEvents)
+                    Platform.PlaySound("convfin.wav");
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
+            }
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -398,12 +403,8 @@ namespace OmniConverter
                 string folder = _outputPath;
 
                 var midiData = midi.GetIterateTracksTimeBased();
-                var temp = 0;
 
-                for (int i = 0; i < midiData.Count(); i++)
-                    temp += midiData.ElementAt(i).Count();
-
-                _validator.SetTotalMIDIEvents(temp);
+                _validator.SetTotalMIDIEvents(midi.TotalEventCount);
                 _validator.SetTotalTracks(midiData.Count());
 
                 using (MultiStreamMerger msm = new(_waveFormat))
@@ -596,7 +597,11 @@ namespace OmniConverter
             }
 
             if (!_cancToken.IsCancellationRequested)
+            {
+                if (Program.Settings.AudioEvents)
+                    Platform.PlaySound("convfin.wav");
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
+            }
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -657,7 +662,7 @@ namespace OmniConverter
             _disposed = true;
         }
 
-        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<int, int>? f = null)
+        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<ulong, ulong>? f = null)
         {
             Random r = new Random();
 
@@ -749,6 +754,11 @@ namespace OmniConverter
 
                                     break;
 
+                                case ProgramChangeEvent:
+                                    if (!Program.Settings.IgnoreProgramChanges)
+                                        midiRenderer.SendEvent(eb);
+                                    break;
+
                                 case NoteOnEvent:
                                     playedNotes++;
                                     midiRenderer.SendEvent(eb);
@@ -757,7 +767,6 @@ namespace OmniConverter
                                 case NoteOffEvent:                     
                                 case PitchWheelChangeEvent:
                                 case ChannelPressureEvent:
-                                case ProgramChangeEvent:
                                 case ChannelModeMessageEvent:
                                     midiRenderer.SendEvent(eb);
                                     break;

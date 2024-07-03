@@ -67,6 +67,16 @@ namespace OmniConverter
         public ulong Size { get => _fileSize; }
         public string HumanReadableSize { get => MiscFunctions.BytesToHumanReadableSize(_fileSize); }
         public MidiFile LoadedFile { get => _loadedFile; }
+        public ulong[] EventCounts { get => _eventCounts; }
+        public ulong TotalEventCount {
+            get
+            {
+                ulong sum = 0;
+                for (int i = 0; i <  _eventCounts.Length; i++)
+                    sum += _eventCounts[i];
+                return sum;
+            }
+        }
 
         public string HumanReadableTime { get => MiscFunctions.TimeSpanToHumanReadableTime(_timeLength); }
 
@@ -80,8 +90,9 @@ namespace OmniConverter
         private int _tracks;
         private long _noteCount;
         private ulong _fileSize;
+        private ulong[] _eventCounts;
 
-        public MIDI(MidiFile? loadedFile, IEnumerable<MIDIEvent> metaEvent, string name, long id, string path, TimeSpan timeLength, int tracks, long noteCount, ulong fileSize)
+        public MIDI(MidiFile? loadedFile, IEnumerable<MIDIEvent> metaEvent, string name, long id, string path, TimeSpan timeLength, int tracks, long noteCount, ulong fileSize, ulong[] eventCounts)
         {
             _loadedFile = loadedFile;
             _metaEvent = metaEvent;
@@ -92,6 +103,7 @@ namespace OmniConverter
             _tracks = tracks;
             _noteCount = noteCount;
             _fileSize = fileSize;
+            _eventCounts = eventCounts;
         }
 
         public MIDI(string test)
@@ -108,14 +120,16 @@ namespace OmniConverter
         public IEnumerable<IEnumerable<MIDIEvent>> GetIterateTracksTimeBased() =>
             _loadedFile.IterateTracks().Select(track => track.MergeWith(_metaEvent).MakeTimeBased(_loadedFile.PPQ));
 
-        public static List<IEnumerable<MIDIEvent>> GetMetaEvents(IEnumerable<IEnumerable<MIDIEvent>> tracks, ParallelOptions parallelOptions, ref double maxTicks, ref long noteCount, Action<int, int> progressCallback)
+        public static List<IEnumerable<MIDIEvent>> GetMetaEvents(IEnumerable<IEnumerable<MIDIEvent>> tracks, ParallelOptions parallelOptions, ref double maxTicks, ref long noteCount, out ulong[] eventCounts, Action<int, int> progressCallback)
         {
             object l = new object();
 
             var midiMetaEvents = new List<IEnumerable<MIDIEvent>>();
             int tracksParsed = 0;
+            var metaEventCounts = new ulong[tracks.Count()];
             long tNoteCount = 0;
             double tMaxTicks = 0;
+            var tEventCounts = new ulong[tracks.Count()];
 
             // loop over all tracks in parallel
             Parallel.For(0, tracks.Count(), parallelOptions, T =>
@@ -124,6 +138,8 @@ namespace OmniConverter
                 int nc = 0;
                 double delta = 0.0;
                 var trackMetaEvents = new List<MIDIEvent>();
+                ulong eventCount = 0;
+                ulong metaEventCount = 0;
 
                 try
                 {
@@ -144,7 +160,7 @@ namespace OmniConverter
                             case NoteOnEvent fev:
                                 nc++;
                                 delta += e.DeltaTime;
-
+                                eventCount++;
                                 break;
 
                             case TempoEvent tev:
@@ -155,11 +171,12 @@ namespace OmniConverter
                                 e.DeltaTime += delta;
                                 delta = 0;
                                 trackMetaEvents.Add(e);
-
+                                metaEventCount++;
                                 break;
 
                             default:
                                 delta += e.DeltaTime;
+                                eventCount++;
                                 break;
                         }
                     }
@@ -175,12 +192,21 @@ namespace OmniConverter
                     tNoteCount += nc;
                     if (tMaxTicks < time) tMaxTicks = time;
                     midiMetaEvents.Add(trackMetaEvents);
+                    tEventCounts[T] = eventCount;
+                    metaEventCounts[T] = metaEventCount;
                     progressCallback(tracksParsed, tracks.Count());
                 }
             });
 
+            ulong totalMeta = 0;
+            for (int i = 0; i < tracks.Count(); i++)
+                totalMeta += metaEventCounts[i];
+            for (int i = 0; i < tracks.Count(); i++)
+                tEventCounts[i] += totalMeta;
+
             noteCount = tNoteCount;
             maxTicks = tMaxTicks;
+            eventCounts = tEventCounts;
 
             return midiMetaEvents;
         }
@@ -196,7 +222,7 @@ namespace OmniConverter
                 long noteCount = 0;
 
                 var Tracks = file.IterateTracks();
-                var midiMetaEvents = GetMetaEvents(Tracks, parallelOptions, ref maxTicks, ref noteCount, progressCallback);
+                var midiMetaEvents = GetMetaEvents(Tracks, parallelOptions, ref maxTicks, ref noteCount, out ulong[] eventCounts, progressCallback);
                 var mergedMetaEvents = midiMetaEvents.MergeAll().ToArray();
 
                 // get midi length in seconds
@@ -207,7 +233,7 @@ namespace OmniConverter
                     seconds += e.DeltaTime;
                 }
 
-                return new MIDI(file, mergedMetaEvents, name, id, filepath, TimeSpan.FromSeconds(seconds), file.TrackCount, noteCount, fileSize);
+                return new MIDI(file, mergedMetaEvents, name, id, filepath, TimeSpan.FromSeconds(seconds), file.TrackCount, noteCount, fileSize, eventCounts);
             }
             catch (OperationCanceledException) { }
             catch (Exception) { }
@@ -262,11 +288,11 @@ namespace OmniConverter
         private ulong _notvalid;
         private ulong _total;
 
-        private int _midiEvents;
-        private int _curMidiEvents;
+        private ulong _midiEvents;
+        private ulong _curMidiEvents;
 
-        private List<int> _events;
-        private int _processedEvents;
+        private List<ulong> _events;
+        private ulong _processedEvents;
 
         private int _tracks;
         private int _curTrack;
@@ -293,17 +319,23 @@ namespace OmniConverter
         public ulong GetInvalidMIDIs() { return _notvalid; }
         public ulong GetTotalMIDIs() { return _total; }
 
-        public void SetTotalEventsCount(List<int> events) { _events = events; }
-        public int AddEvent() { return _processedEvents++; }
-        public int AddEvents(int events) { return _processedEvents += events; }
-        public int GetTotalEvents() { return _events.Sum(); }
-        public int GetProcessedEvents() { return _processedEvents; }
+        public void SetTotalEventsCount(List<ulong> events) { _events = events; }
+        public ulong AddEvent() { return _processedEvents++; }
+        public ulong AddEvents(ulong events) { return _processedEvents += events; }
+        public ulong GetTotalEvents() {
+            // No LINQ sum for ulong[]...
+            ulong sum = 0;
+            for (int i = 0; i < _events.Count; i++)
+                sum += _events[i];
+            return sum;
+        }
+        public ulong GetProcessedEvents() { return _processedEvents; }
 
-        public void SetTotalMIDIEvents(int events) { _midiEvents = events; _curMidiEvents = 0; }
-        public int AddMIDIEvent() { return _curMidiEvents++; }
-        public int AddMIDIEvents(int events) { return _curMidiEvents += events; }
-        public int GetTotalMIDIEvents() { return _midiEvents; }
-        public int GetProcessedMIDIEvents() { return _curMidiEvents; }
+        public void SetTotalMIDIEvents(ulong events) { _midiEvents = events; _curMidiEvents = 0; }
+        public ulong AddMIDIEvent() { return _curMidiEvents++; }
+        public ulong AddMIDIEvents(ulong events) { return _curMidiEvents += events; }
+        public ulong GetTotalMIDIEvents() { return _midiEvents; }
+        public ulong GetProcessedMIDIEvents() { return _curMidiEvents; }
 
         public void SetTotalTracks(int tracks) { _tracks = tracks; _curTrack = 0; }
         public void AddTrack() { _curTrack++; }

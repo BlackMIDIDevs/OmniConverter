@@ -52,6 +52,8 @@ public partial class SettingsWindow : Window
         ChorusValue.Value = Program.Settings.ChorusVal;
         OverrideEffectsCheck(sender, e);
 
+        IgnoreProgramChanges.IsChecked = Program.Settings.IgnoreProgramChanges;
+
         RTSMode.IsChecked = Program.Settings.RTSMode;
         RTSFPS.Value = (decimal)Program.Settings.RTSFPS;
         RTSFluct.Value = (decimal)Program.Settings.RTSFluct;
@@ -75,6 +77,8 @@ public partial class SettingsWindow : Window
         AfterRenderAction.IsChecked = Program.Settings.AfterRenderAction >= 0;
         AfterRenderSelectedAction.SelectedIndex = Program.Settings.AfterRenderAction.LimitToRange(0, AfterRenderSelectedAction.Items.Count);
         AfterRenderActionCheck(sender, e);
+
+        AudioEvents.IsChecked = Program.Settings.AudioEvents;
     }
 
     private async void AutoExportFolderSelection(object? sender, RoutedEventArgs e)
@@ -120,7 +124,7 @@ public partial class SettingsWindow : Window
         if (OverrideEffects.IsChecked != null)
         {
             ReverbValPanel.IsEnabled = (bool)OverrideEffects.IsChecked;
-            ChorusValPanel.IsEnabled= (bool)OverrideEffects.IsChecked;
+            ChorusValPanel.IsEnabled = (bool)OverrideEffects.IsChecked;
         }
     }
 
@@ -204,6 +208,9 @@ public partial class SettingsWindow : Window
         if (ChorusValue.Value != null)
             Program.Settings.ChorusVal = (short)ChorusValue.Value;
 
+        if (IgnoreProgramChanges != null)
+            Program.Settings.IgnoreProgramChanges = (bool)IgnoreProgramChanges.IsChecked;
+
         if (RTSMode.IsChecked != null)
             Program.Settings.RTSMode = (bool)RTSMode.IsChecked;
         if (RTSFPS.Value != null)
@@ -233,6 +240,9 @@ public partial class SettingsWindow : Window
         if (AfterRenderAction.IsChecked != null && (bool)AfterRenderAction.IsChecked)
             Program.Settings.AfterRenderAction = AfterRenderSelectedAction.SelectedIndex;
         else Program.Settings.AfterRenderAction = -1;
+
+        if (AudioEvents.IsChecked != null)
+            Program.Settings.AudioEvents = (bool)AudioEvents.IsChecked;
 
         var newExportPath = AutoExportFolderPath.Text;
         if (newExportPath != null && !newExportPath.Equals(Program.Settings.AutoExportFolderPath))

@@ -28,6 +28,8 @@ namespace OmniConverter
         [JsonProperty]
         public bool OverrideEffects = false;
         [JsonProperty]
+        public bool IgnoreProgramChanges = false;
+        [JsonProperty]
         public bool AudioLimiter = false;
 
         // Threads count is set to ProcessorCount - 1,
@@ -72,6 +74,8 @@ namespace OmniConverter
         public string AutoExportFolderPath = string.Empty;
         [JsonProperty]
         public int AfterRenderAction = -1;
+        [JsonProperty]
+        public bool AudioEvents = true;
 
         [JsonProperty]
         public string LastMIDIFolder = string.Empty;

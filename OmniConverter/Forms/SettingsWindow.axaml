@@ -58,6 +58,7 @@
 									<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" Grid.Column="1" Width="128" Minimum="0" Maximum="127" FormatString="0" />
 								</Grid>
 							</StackPanel>
+                            <CheckBox Name="IgnoreProgramChanges" Content="Ignore program change events (force piano)" />
 						</StackPanel>
 					</ctrl:GroupBox>
 					<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 10, 0, 0" >
@@ -104,6 +105,7 @@
                         <ComboBoxItem>Close the application</ComboBoxItem>
                         <ComboBoxItem>Show completion time</ComboBoxItem>
 					</ComboBox>
+                    <CheckBox Name="AudioEvents" Content="Enable sound notifications for the conversion status" Margin="2, 16, 0, 0" />
 				</StackPanel>
 			</TabItem>
 			<TabItem>

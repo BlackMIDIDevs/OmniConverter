@@ -18,6 +18,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniConverter.Extensions;
 
 namespace OmniConverter;
 
@@ -31,15 +32,10 @@ public partial class MIDIWindow : Window
 
     private MainWindow _winRef;
 
-    public MIDIWindow()
-    {
-        InitializeComponent();
-        Closing += MIDIWindow_OnClosing;
-    }
-
     public MIDIWindow(MainWindow winRef, string[]? files, bool silent = false, bool import = true)
     {
         InitializeComponent();
+        Closing += MIDIWindow_OnClosing;
 
         _import = import;
         _silent = silent;
@@ -126,6 +122,8 @@ public partial class MIDIWindow : Window
 
         if (TrackProgress.IsVisible)
             TrackProgress.Value = ((MIDIConverter?)_worker).GetTracksProgress();
+        
+        Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.Normal, (ulong)Progress.Value, 100);
     }
 
     private void CancelBtnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -166,6 +164,10 @@ public partial class MIDIWindow : Window
 
         if (_winRef != null)
             _winRef.NullMIDIWindow(this);
+        
+        _feeder.Tick -= FeederTick;
+        _feeder.Stop();
+        Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.NoProgress);
 
         Closing -= MIDIWindow_OnClosing;
         Close();
