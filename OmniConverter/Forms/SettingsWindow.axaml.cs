@@ -52,6 +52,8 @@ public partial class SettingsWindow : Window
         ChorusValue.Value = Program.Settings.ChorusVal;
         OverrideEffectsCheck(sender, e);
 
+        IgnoreProgramChanges.IsChecked = Program.Settings.IgnoreProgramChanges;
+
         RTSMode.IsChecked = Program.Settings.RTSMode;
         RTSFPS.Value = (decimal)Program.Settings.RTSFPS;
         RTSFluct.Value = (decimal)Program.Settings.RTSFluct;
@@ -122,7 +124,7 @@ public partial class SettingsWindow : Window
         if (OverrideEffects.IsChecked != null)
         {
             ReverbValPanel.IsEnabled = (bool)OverrideEffects.IsChecked;
-            ChorusValPanel.IsEnabled= (bool)OverrideEffects.IsChecked;
+            ChorusValPanel.IsEnabled = (bool)OverrideEffects.IsChecked;
         }
     }
 
@@ -205,6 +207,9 @@ public partial class SettingsWindow : Window
             Program.Settings.ReverbVal = (short)ReverbValue.Value;
         if (ChorusValue.Value != null)
             Program.Settings.ChorusVal = (short)ChorusValue.Value;
+
+        if (IgnoreProgramChanges != null)
+            Program.Settings.IgnoreProgramChanges = (bool)IgnoreProgramChanges.IsChecked;
 
         if (RTSMode.IsChecked != null)
             Program.Settings.RTSMode = (bool)RTSMode.IsChecked;

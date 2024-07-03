@@ -28,6 +28,8 @@ namespace OmniConverter
         [JsonProperty]
         public bool OverrideEffects = false;
         [JsonProperty]
+        public bool IgnoreProgramChanges = false;
+        [JsonProperty]
         public bool AudioLimiter = false;
 
         // Threads count is set to ProcessorCount - 1,

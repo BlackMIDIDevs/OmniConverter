@@ -754,6 +754,11 @@ namespace OmniConverter
 
                                     break;
 
+                                case ProgramChangeEvent:
+                                    if (!Program.Settings.IgnoreProgramChanges)
+                                        midiRenderer.SendEvent(eb);
+                                    break;
+
                                 case NoteOnEvent:
                                     playedNotes++;
                                     midiRenderer.SendEvent(eb);
@@ -762,7 +767,6 @@ namespace OmniConverter
                                 case NoteOffEvent:                     
                                 case PitchWheelChangeEvent:
                                 case ChannelPressureEvent:
-                                case ProgramChangeEvent:
                                 case ChannelModeMessageEvent:
                                     midiRenderer.SendEvent(eb);
                                     break;
