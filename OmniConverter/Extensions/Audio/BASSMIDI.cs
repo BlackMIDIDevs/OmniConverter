@@ -326,10 +326,16 @@ namespace OmniConverter
             switch ((MIDIEventType)(status & 0xF0))
             {
                 case MIDIEventType.NoteOn:
+                    if (Program.Settings.FilterVelocity && param2 >= Program.Settings.VelocityLow && param2 <= Program.Settings.VelocityHigh)
+                        return;
+                    if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
+                        return;
                     eventParams = param2 << 8 | param1;
                     break;
 
                 case MIDIEventType.NoteOff:
+                    if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
+                        return;
                     eventParams = param1;
                     break;
 
