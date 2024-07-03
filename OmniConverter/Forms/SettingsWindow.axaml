@@ -104,6 +104,7 @@
                         <ComboBoxItem>Close the application</ComboBoxItem>
                         <ComboBoxItem>Show completion time</ComboBoxItem>
 					</ComboBox>
+                    <CheckBox Name="AudioEvents" Content="Enable sound notifications for the conversion status" Margin="2, 16, 0, 0" />
 				</StackPanel>
 			</TabItem>
 			<TabItem>

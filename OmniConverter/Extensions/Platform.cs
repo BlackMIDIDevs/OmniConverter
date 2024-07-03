@@ -1,6 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Platform;
+using ManagedBass;
 
 namespace OmniConverter.Extensions
 {
@@ -67,5 +71,34 @@ namespace OmniConverter.Extensions
         public static void SetTaskbarProgress(Window window, TaskbarState state, ulong cur = 0, ulong total = 0)
         { }
 #endif
+
+        // TODO: Maybe this should use actual platform-specific code instead of BASS
+        // BASS devices are per-thread, so this should be fine
+        public static void PlaySound(string filename)
+        {
+            // TODO: Hardcoding this to the first device is probably a bad idea
+            // It doesn't seem to be possible to check what device *would* get chosen if the default device is given to BASS_Init
+            if (Bass.Init(1) || Bass.LastError == Errors.Already)
+            {
+                Bass.CurrentDevice = 1;
+
+                var programDir = AppContext.BaseDirectory;
+                int stream = Bass.CreateStream($"{programDir}/CustomSounds/{filename}", Flags: BassFlags.AutoFree);
+                if (stream == 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        var res = AssetLoader.Open(new Uri($"avares://OmniConverter/Assets/{filename}"));
+                        res.CopyTo(ms);
+
+                        var arr = ms.ToArray();
+                        stream = Bass.CreateStream(arr, 0, arr.LongLength, BassFlags.AutoFree);
+                    }
+                }
+                Bass.ChannelPlay(stream);
+
+                Bass.CurrentDevice = 0;
+            }
+        }
     }
 }

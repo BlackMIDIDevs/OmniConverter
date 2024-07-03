@@ -75,6 +75,8 @@ public partial class SettingsWindow : Window
         AfterRenderAction.IsChecked = Program.Settings.AfterRenderAction >= 0;
         AfterRenderSelectedAction.SelectedIndex = Program.Settings.AfterRenderAction.LimitToRange(0, AfterRenderSelectedAction.Items.Count);
         AfterRenderActionCheck(sender, e);
+
+        AudioEvents.IsChecked = Program.Settings.AudioEvents;
     }
 
     private async void AutoExportFolderSelection(object? sender, RoutedEventArgs e)
@@ -233,6 +235,9 @@ public partial class SettingsWindow : Window
         if (AfterRenderAction.IsChecked != null && (bool)AfterRenderAction.IsChecked)
             Program.Settings.AfterRenderAction = AfterRenderSelectedAction.SelectedIndex;
         else Program.Settings.AfterRenderAction = -1;
+
+        if (AudioEvents.IsChecked != null)
+            Program.Settings.AudioEvents = (bool)AudioEvents.IsChecked;
 
         var newExportPath = AutoExportFolderPath.Text;
         if (newExportPath != null && !newExportPath.Equals(Program.Settings.AutoExportFolderPath))

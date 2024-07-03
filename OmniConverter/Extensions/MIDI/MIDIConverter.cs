@@ -5,6 +5,7 @@ using CSCore.Codecs.WAV;
 using CSCore.MediaFoundation;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
+using OmniConverter.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -370,7 +371,11 @@ namespace OmniConverter
             });
 
             if (!_cancToken.IsCancellationRequested)
+            {
+                if (Program.Settings.AudioEvents)
+                    Platform.PlaySound("convfin.wav");
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
+            }
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -592,7 +597,11 @@ namespace OmniConverter
             }
 
             if (!_cancToken.IsCancellationRequested)
+            {
+                if (Program.Settings.AudioEvents)
+                    Platform.PlaySound("convfin.wav");
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
+            }
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
