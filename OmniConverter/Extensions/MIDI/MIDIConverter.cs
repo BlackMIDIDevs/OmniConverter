@@ -198,7 +198,7 @@ namespace OmniConverter
                 {
                     case EngineID.BASS:
                     default:
-                        _audioRenderer = new BASS(_waveFormat, Program.Settings.MaxVoices, Program.Settings.SoundFontsList);
+                        _audioRenderer = new BASS(_waveFormat, Program.Settings.MaxVoices, null);
 
                         // do this hacky crap to get the voice change to work
                         _audioRenderer.Dispose();
@@ -583,9 +583,8 @@ namespace OmniConverter
                             targetFile.Dispose();
                         }
 
-                        if (!_cancToken.IsCancellationRequested)
+                        if (_cancToken.IsCancellationRequested)
                             break;
-
                         else _validator.AddValidMIDI();
                     }
                     catch (Exception ex)
