@@ -3,8 +3,10 @@ using Avalonia.Threading;
 using CSCore;
 using CSCore.Codecs.WAV;
 using CSCore.MediaFoundation;
+using FFMpegCore;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
+using OmniConverter.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,7 +51,7 @@ namespace OmniConverter
         private double _tracksProgress = 0;
         private string _outputPath = string.Empty;
 
-        public MIDIConverter(string outputPath, int threads, Window winRef, StackPanel panel, ObservableCollection<MIDI> midis)
+        public MIDIConverter(string outputPath, AudioCodecType codec, int threads, Window winRef, StackPanel panel, ObservableCollection<MIDI> midis)
         {
             _winRef = winRef;
             _panelRef = panel;
@@ -138,11 +140,11 @@ namespace OmniConverter
             ulong _nonvalid = _validator.GetInvalidMIDIs();
             ulong _total = _validator.GetTotalMIDIs();
 
-            int _midiEvents = _validator.GetProcessedMIDIEvents();
-            int _totalMidiEvents = _validator.GetTotalMIDIEvents();
+            ulong _midiEvents = _validator.GetProcessedMIDIEvents();
+            ulong _totalMidiEvents = _validator.GetTotalMIDIEvents();
 
-            int _processed = _validator.GetProcessedEvents();
-            int _all = _validator.GetTotalEvents();
+            ulong _processed = _validator.GetProcessedEvents();
+            ulong _all = _validator.GetTotalEvents();
 
             switch (intStatus)
             {
@@ -231,23 +233,26 @@ namespace OmniConverter
             }
         }
 
-        private string GetOutputFilename(string midi, string codec = ".wav")
+        private string GetOutputFilename(string midi, AudioCodecType codec, bool add_swp = true)
         {
             var filename = Path.GetFileNameWithoutExtension(midi);
-            var outputFile = $"{_outputPath}/{filename}{codec}";
+            var outputFile = $"{_outputPath}/{filename}{codec.ToExtension()}";
 
             // Check if file already exists
             if (File.Exists(outputFile))
-                outputFile = $"{_outputPath}/{filename} - {DateTime.Now:yyyy-MM-dd HHmmss}{codec}";
+                outputFile = $"{_outputPath}/{filename} - {DateTime.Now:yyyy-MM-dd HHmmss}{codec.ToExtension()}";
+
+            if (codec != AudioCodecType.PCM && add_swp)
+                outputFile += ".swp";
 
             return outputFile;
         }
 
         private void GetTotalEventsCount()
         {
-            List<int> totalEvents = new();
+            List<ulong> totalEvents = new();
             foreach (MIDI midi in _midis)
-                totalEvents.Add(midi.GetFullMIDITimeBased().Count());
+                totalEvents.Add(midi.TotalEventCount);
 
             _validator.SetTotalEventsCount(totalEvents);
         }
@@ -256,7 +261,7 @@ namespace OmniConverter
         {
             // Cache settings
             var audioLimiter = Program.Settings.AudioLimiter;
-            var codec = Program.Settings.SelectedCodec;
+            var codec = Program.Settings.AudioCodec;
 
             AutoFillInfo(ConvStatus.Prep);
             GetTotalEventsCount();
@@ -279,9 +284,10 @@ namespace OmniConverter
                     _validator.SetCurrentMIDI(midi.Path);
 
                     // Prepare the filename
-                    string outputFile = GetOutputFilename(midi.Name, codec);
+                    string outputFile1 = GetOutputFilename(midi.Name, codec, true);
+                    string outputFile2 = GetOutputFilename(midi.Name, codec, false);
 
-                    Debug.PrintToConsole(Debug.LogType.Message, $"Output file: {outputFile}");
+                    Debug.PrintToConsole(Debug.LogType.Message, $"Output file: {outputFile1}");
 
                     TaskStatus? midiPanel = null;
 
@@ -325,8 +331,8 @@ namespace OmniConverter
                         }
 
                         eventsProcesser.Dispose();
-
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Thread for MIDI \"{midi.Name}\" is done rendering data.");
+                        
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Thread for MIDI {outputFile1} is done rendering data.");
 
                         Dispatcher.UIThread.Post(() => midiPanel?.Dispose());
 
@@ -345,17 +351,31 @@ namespace OmniConverter
                         }
                         else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);
 
-                        FileStream FOpen = File.Open(outputFile, FileMode.Create);
+                        FileStream FOpen = File.Open(outputFile1, FileMode.Create);
                         WaveWriter FDestination = new WaveWriter(FOpen, _waveFormat);
                         Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
 
                         int FRead = 0;
                         byte[] FBuffer = new byte[1024 * 16];
 
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile} to disk...");
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
                         while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
                             FDestination.Write(FBuffer, 0, FRead);
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile}.");
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                        if (codec != AudioCodecType.PCM)
+                        {
+                            FFMpegArguments
+                                .FromFileInput(outputFile1)
+                                .OutputToFile(outputFile2, true, options => options
+                                    .WithAudioCodec(codec.ToFFMpegCodec())
+                                    .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                .ProcessSynchronously();
+
+                            File.Delete(outputFile1);
+                        }
+                        Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
 
                         msm.Dispose();
                         FDestination.Dispose();
@@ -370,7 +390,11 @@ namespace OmniConverter
             });
 
             if (!_cancToken.IsCancellationRequested)
+            {
+                if (Program.Settings.AudioEvents)
+                    Platform.PlaySound("convfin.wav");
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
+            }
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -380,7 +404,7 @@ namespace OmniConverter
             // Cache settings
             var perTrackFile = Program.Settings.PerTrackFile;
             var audioLimiter = Program.Settings.AudioLimiter;
-            var codec = Program.Settings.SelectedCodec;
+            var codec = Program.Settings.AudioCodec;
 
             GetTotalEventsCount();
             _convElapsedTime.Reset();
@@ -398,12 +422,8 @@ namespace OmniConverter
                 string folder = _outputPath;
 
                 var midiData = midi.GetIterateTracksTimeBased();
-                var temp = 0;
 
-                for (int i = 0; i < midiData.Count(); i++)
-                    temp += midiData.ElementAt(i).Count();
-
-                _validator.SetTotalMIDIEvents(temp);
+                _validator.SetTotalMIDIEvents(midi.TotalEventCount);
                 _validator.SetTotalTracks(midiData.Count());
 
                 using (MultiStreamMerger msm = new(_waveFormat))
@@ -431,7 +451,8 @@ namespace OmniConverter
                                 throw new OperationCanceledException();
 
                             Task cvThread;
-                            string fOutputDir = string.Empty;
+                            string outputFile1 = string.Empty;
+                            string outputFile2 = string.Empty;
 
                             TimeSpan TrackETA = TimeSpan.Zero;
                             TaskStatus? trackPanel = null;
@@ -449,13 +470,19 @@ namespace OmniConverter
                                 if (perTrackFile)
                                 {
                                     // Prepare the filename
-                                    fOutputDir = string.Format("{0}Track {1}.{2}",
-                                        folder, track, codec);
+                                    outputFile1 = string.Format("{0}Track {1}{2}{3}",
+                                        folder, track, codec.ToExtension(), codec != AudioCodecType.PCM ? ".swp" : "");
+                                    outputFile2 = string.Format("{0}Track {1}{2}",
+                                        folder, track, codec.ToExtension());
 
                                     // Check if file already exists
-                                    if (File.Exists(fOutputDir))
-                                        fOutputDir = string.Format("{0}Track {1} - {2}.{3}",
-                                            folder, track, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), codec);
+                                    if (File.Exists(outputFile1))
+                                    {
+                                        outputFile1 = string.Format("{0}Track {1} - {2}{3}{4}",
+                                            folder, track, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), codec.ToExtension(), codec != AudioCodecType.PCM ? ".swp" : "");
+                                        outputFile2 = string.Format("{0}Track {1} - {2}{3}",
+                                            folder, track, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), codec.ToExtension());
+                                    }
 
                                     sampleWriter = trackMsm.GetWriter();
                                 }
@@ -514,18 +541,32 @@ namespace OmniConverter
                                     }
                                     else exportSource = trackMsm.ToWaveSource(_waveFormat.BitsPerSample);
 
-                                    FileStream targetFile = File.Open(fOutputDir, FileMode.Create, FileAccess.Write);
+                                    FileStream targetFile = File.Open(outputFile1, FileMode.Create, FileAccess.Write);
                                     WaveWriter fileWriter = new WaveWriter(targetFile, _waveFormat);
                                     Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
 
                                     int bufRead = 0;
                                     byte[] buf = new byte[1024 * 16];
 
-                                    Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {fOutputDir} to disk...");
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
 
                                     while ((bufRead = exportSource.Read(buf, 0, buf.Length)) != 0)
                                         fileWriter.Write(buf, 0, bufRead);
-                                    Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {fOutputDir}.");
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+
+                                    Debug.PrintToConsole(Debug.LogType.Message, String.Format("Converting to final user selected codec... (track {0})", track));
+                                    if (codec != AudioCodecType.PCM)
+                                    {
+                                        FFMpegArguments
+                                            .FromFileInput(outputFile1)
+                                            .OutputToFile(outputFile2, true, options => options
+                                                .WithAudioCodec(codec.ToFFMpegCodec())
+                                                .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                            .ProcessSynchronously();
+
+                                        File.Delete(outputFile1);
+                                    }
+                                    Debug.PrintToConsole(Debug.LogType.Message, String.Format("Done. ({0}) (track {1})", outputFile2, track));
 
                                     fileWriter.Dispose();
                                     targetFile.Dispose();
@@ -550,9 +591,10 @@ namespace OmniConverter
                             msm.Position = 0;
 
                             // Time to save the file
-                            var OutputDir = GetOutputFilename(midi.Name, codec);
+                            var outputFile1 = GetOutputFilename(midi.Name, codec, true);
+                            var outputFile2 = GetOutputFilename(midi.Name, codec, false);
 
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Output file: {OutputDir}");
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Output file: {outputFile1}");
 
                             // Prepare wave source
                             IWaveSource? MStream = null;
@@ -564,19 +606,35 @@ namespace OmniConverter
                             }
                             else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);
 
-                            FileStream targetFile = File.Open(OutputDir, FileMode.Create, FileAccess.Write);
+                            FileStream targetFile = File.Open(outputFile1, FileMode.Create, FileAccess.Write);
                             WaveWriter fileWriter = new WaveWriter(targetFile, _waveFormat);
                             Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
 
                             int FRead = 0;
                             byte[] FBuffer = new byte[1024 * 16];
 
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {OutputDir} to disk...");
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
+                            
                             AutoFillInfo(ConvStatus.AudioOut);
 
                             while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
                                 fileWriter.Write(FBuffer, 0, FRead);
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {OutputDir}.");
+
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                            if (codec != AudioCodecType.PCM)
+                            {
+                                FFMpegArguments
+                                    .FromFileInput(outputFile1)
+                                    .OutputToFile(outputFile2, true, options => options
+                                        .WithAudioCodec(codec.ToFFMpegCodec())
+                                        .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                    .ProcessSynchronously();
+
+                                File.Delete(outputFile1);
+                            }
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
 
                             MStream.Dispose();
                             fileWriter.Dispose();
@@ -595,7 +653,11 @@ namespace OmniConverter
             }
 
             if (!_cancToken.IsCancellationRequested)
+            {
+                if (Program.Settings.AudioEvents)
+                    Platform.PlaySound("convfin.wav");
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
+            }
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -656,7 +718,7 @@ namespace OmniConverter
             _disposed = true;
         }
 
-        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<int, int>? f = null)
+        public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<ulong, ulong>? f = null)
         {
             Random r = new Random();
 
@@ -748,6 +810,11 @@ namespace OmniConverter
 
                                     break;
 
+                                case ProgramChangeEvent:
+                                    if (!Program.Settings.IgnoreProgramChanges)
+                                        midiRenderer.SendEvent(eb);
+                                    break;
+
                                 case NoteOnEvent:
                                     playedNotes++;
                                     midiRenderer.SendEvent(eb);
@@ -756,7 +823,6 @@ namespace OmniConverter
                                 case NoteOffEvent:                     
                                 case PitchWheelChangeEvent:
                                 case ChannelPressureEvent:
-                                case ProgramChangeEvent:
                                 case ChannelModeMessageEvent:
                                     midiRenderer.SendEvent(eb);
                                     break;

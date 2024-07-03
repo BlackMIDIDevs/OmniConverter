@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace OmniConverter
@@ -42,6 +43,7 @@ namespace OmniConverter
             if (Program.Settings.AutoUpdateCheck)
                 UpdateSystem.CheckForUpdates(false, true);
 
+            Loaded += CheckBuildTarget;
             Loaded += CheckBranch;
 
             CheckWatermark();
@@ -67,6 +69,14 @@ namespace OmniConverter
         {
             if (Program.Settings.UpdateBranch == UpdateSystem.Branch.None)
                 new ChangeBranch().ShowDialog(this);
+        }
+
+        private void CheckBuildTarget(object? sender, RoutedEventArgs e)
+        {
+#if !WINDOWS
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                MessageBox.Show(this, "We're running on Windows, but OmniConverter was compiled for a generic target. Please compile with net8.0-windows instead!");
+#endif
         }
 
         private async Task AddMIDICheck(IEnumerable<IStorageItem>? files, bool dragndrop = false)
