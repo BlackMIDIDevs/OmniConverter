@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Tmds.DBus.Protocol;
 
 namespace OmniConverter
 {
@@ -105,6 +106,24 @@ namespace OmniConverter
             {
                 MessageBox.Show(_winRef, "You need to add SoundFonts to the SoundFonts list to start the conversion process.", "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                 return false;
+            }
+
+            if (Program.Settings.AudioCodec != AudioCodecType.PCM && !AudioCodecTypeExtensions.CheckFfmpeg())
+            {
+                var re = MessageBox.Show(_winRef,
+                    $"You selected {Program.Settings.AudioCodec.ToExtension()} as your export format, but ffmpeg is not present!\n\n" +
+                    $"Pres Yes if you want to fall back to {AudioCodecType.PCM.ToExtension()}.",
+                    "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Error);
+                switch (re)
+                {
+                    case MessageBox.MsgBoxResult.No:
+                        return false;
+
+                    default:
+                        Program.Settings.AudioCodec = AudioCodecType.PCM;
+                        Program.SaveConfig();
+                        break;
+                }
             }
 
             _converterThread = new Thread(ConversionFunc);
@@ -284,6 +303,7 @@ namespace OmniConverter
                     _validator.SetCurrentMIDI(midi.Path);
 
                     // Prepare the filename
+                    string fallbackFile = GetOutputFilename(midi.Name, AudioCodecType.PCM, false);
                     string outputFile1 = GetOutputFilename(midi.Name, codec, true);
                     string outputFile2 = GetOutputFilename(midi.Name, codec, false);
 
@@ -363,23 +383,31 @@ namespace OmniConverter
                             FDestination.Write(FBuffer, 0, FRead);
                         Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
 
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
-                        if (codec != AudioCodecType.PCM)
-                        {
-                            FFMpegArguments
-                                .FromFileInput(outputFile1)
-                                .OutputToFile(outputFile2, true, options => options
-                                    .WithAudioCodec(codec.ToFFMpegCodec())
-                                    .WithAudioBitrate(Program.Settings.AudioBitrate))
-                                .ProcessSynchronously();
-
-                            File.Delete(outputFile1);
-                        }
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
-
                         msm.Dispose();
                         FDestination.Dispose();
                         FOpen.Dispose();
+
+                        if (codec != AudioCodecType.PCM)
+                        {
+                            try
+                            {
+                                Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                                FFMpegArguments
+                                .FromFileInput(outputFile1)
+                                .OutputToFile(outputFile2, true, 
+                                    options => options.WithAudioCodec(codec.ToFFMpegCodec())
+                                    .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                .ProcessSynchronously();
+
+                                File.Delete(outputFile1);
+                                Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
+                            }
+                            catch
+                            {
+                                Debug.PrintToConsole(Debug.LogType.Message, $"ffmpeg errored out or wasn't found! Falling back to WAV output. ({fallbackFile})");
+                                File.Move(outputFile1, fallbackFile);
+                            }
+                        }
                     }
                 }
                 catch (OperationCanceledException) { }
@@ -392,7 +420,8 @@ namespace OmniConverter
             if (!_cancToken.IsCancellationRequested)
             {
                 if (Program.Settings.AudioEvents)
-                    Platform.PlaySound("convfin.wav");
+                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish);
+
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
             }
 
@@ -451,6 +480,7 @@ namespace OmniConverter
                                 throw new OperationCanceledException();
 
                             Task cvThread;
+                            string fallbackFile = string.Empty;
                             string outputFile1 = string.Empty;
                             string outputFile2 = string.Empty;
 
@@ -470,6 +500,8 @@ namespace OmniConverter
                                 if (perTrackFile)
                                 {
                                     // Prepare the filename
+                                    fallbackFile = outputFile2 = string.Format("{0}Track {1}{2}",
+                                        folder, track, AudioCodecType.PCM.ToExtension());
                                     outputFile1 = string.Format("{0}Track {1}{2}{3}",
                                         folder, track, codec.ToExtension(), codec != AudioCodecType.PCM ? ".swp" : "");
                                     outputFile2 = string.Format("{0}Track {1}{2}",
@@ -478,10 +510,14 @@ namespace OmniConverter
                                     // Check if file already exists
                                     if (File.Exists(outputFile1))
                                     {
+                                        var date = DateTime.Now.ToString("dd-MM-yyyy HHmmsstt");
+
+                                        fallbackFile = outputFile2 = string.Format("{0}Track {1} - {2}{3}",
+                                            folder, track, date, AudioCodecType.PCM.ToExtension());
                                         outputFile1 = string.Format("{0}Track {1} - {2}{3}{4}",
-                                            folder, track, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), codec.ToExtension(), codec != AudioCodecType.PCM ? ".swp" : "");
+                                            folder, track, date, codec.ToExtension(), codec != AudioCodecType.PCM ? ".swp" : "");
                                         outputFile2 = string.Format("{0}Track {1} - {2}{3}",
-                                            folder, track, DateTime.Now.ToString("dd-MM-yyyy HHmmsstt"), codec.ToExtension());
+                                            folder, track, date, codec.ToExtension());
                                     }
 
                                     sampleWriter = trackMsm.GetWriter();
@@ -541,35 +577,45 @@ namespace OmniConverter
                                     }
                                     else exportSource = trackMsm.ToWaveSource(_waveFormat.BitsPerSample);
 
-                                    FileStream targetFile = File.Open(outputFile1, FileMode.Create, FileAccess.Write);
-                                    WaveWriter fileWriter = new WaveWriter(targetFile, _waveFormat);
-                                    Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
+                                    using (var targetFile = File.Open(outputFile1, FileMode.Create, FileAccess.Write))
+                                    {
+                                        WaveWriter fileWriter = new WaveWriter(targetFile, _waveFormat);
+                                        Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
 
-                                    int bufRead = 0;
-                                    byte[] buf = new byte[1024 * 16];
+                                        int bufRead = 0;
+                                        byte[] buf = new byte[1024 * 16];
 
-                                    Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
+                                        Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
 
-                                    while ((bufRead = exportSource.Read(buf, 0, buf.Length)) != 0)
-                                        fileWriter.Write(buf, 0, bufRead);
-                                    Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+                                        while ((bufRead = exportSource.Read(buf, 0, buf.Length)) != 0)
+                                            fileWriter.Write(buf, 0, bufRead);
+                                        Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
 
-                                    Debug.PrintToConsole(Debug.LogType.Message, String.Format("Converting to final user selected codec... (track {0})", track));
+                                        exportSource.Dispose();
+                                        fileWriter.Dispose();
+                                    }
+
                                     if (codec != AudioCodecType.PCM)
                                     {
-                                        FFMpegArguments
+                                        try
+                                        {
+                                            Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                                            FFMpegArguments
                                             .FromFileInput(outputFile1)
-                                            .OutputToFile(outputFile2, true, options => options
-                                                .WithAudioCodec(codec.ToFFMpegCodec())
+                                            .OutputToFile(outputFile2, true,
+                                                options => options.WithAudioCodec(codec.ToFFMpegCodec())
                                                 .WithAudioBitrate(Program.Settings.AudioBitrate))
                                             .ProcessSynchronously();
 
-                                        File.Delete(outputFile1);
+                                            File.Delete(outputFile1);
+                                            Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
+                                        }
+                                        catch
+                                        {
+                                            Debug.PrintToConsole(Debug.LogType.Message, $"ffmpeg errored out or wasn't found! Falling back to WAV output. ({fallbackFile})");
+                                            File.Move(outputFile1, fallbackFile);
+                                        }
                                     }
-                                    Debug.PrintToConsole(Debug.LogType.Message, String.Format("Done. ({0}) (track {1})", outputFile2, track));
-
-                                    fileWriter.Dispose();
-                                    targetFile.Dispose();
                                 }
 
                                 if (!_cancToken.IsCancellationRequested)
@@ -579,7 +625,7 @@ namespace OmniConverter
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
-                            Debug.PrintToConsole(Debug.LogType.Error, $"{ex.InnerException} - {ex.Message}");
+                            Debug.PrintToConsole(Debug.LogType.Error, $"{ex}");
                         }                 
                     });
 
@@ -591,6 +637,7 @@ namespace OmniConverter
                             msm.Position = 0;
 
                             // Time to save the file
+                            string fallbackFile = GetOutputFilename(midi.Name, AudioCodecType.PCM, false);
                             var outputFile1 = GetOutputFilename(midi.Name, codec, true);
                             var outputFile2 = GetOutputFilename(midi.Name, codec, false);
 
@@ -606,39 +653,48 @@ namespace OmniConverter
                             }
                             else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);
 
-                            FileStream targetFile = File.Open(outputFile1, FileMode.Create, FileAccess.Write);
-                            WaveWriter fileWriter = new WaveWriter(targetFile, _waveFormat);
-                            Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
+                            using (var targetFile = File.Open(outputFile1, FileMode.Create, FileAccess.Write))
+                            {
+                                WaveWriter fileWriter = new WaveWriter(targetFile, _waveFormat);
+                                Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
 
-                            int FRead = 0;
-                            byte[] FBuffer = new byte[1024 * 16];
+                                int FRead = 0;
+                                byte[] FBuffer = new byte[1024 * 16];
 
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
-                            
-                            AutoFillInfo(ConvStatus.AudioOut);
+                                Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
 
-                            while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
-                                fileWriter.Write(FBuffer, 0, FRead);
+                                AutoFillInfo(ConvStatus.AudioOut);
 
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+                                while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
+                                    fileWriter.Write(FBuffer, 0, FRead);
 
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                                Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+
+                                MStream.Dispose();
+                                fileWriter.Dispose();
+                            }
+
                             if (codec != AudioCodecType.PCM)
                             {
-                                FFMpegArguments
+                                try
+                                {
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                                    FFMpegArguments
                                     .FromFileInput(outputFile1)
-                                    .OutputToFile(outputFile2, true, options => options
-                                        .WithAudioCodec(codec.ToFFMpegCodec())
+                                    .OutputToFile(outputFile2, true,
+                                        options => options.WithAudioCodec(codec.ToFFMpegCodec())
                                         .WithAudioBitrate(Program.Settings.AudioBitrate))
                                     .ProcessSynchronously();
 
-                                File.Delete(outputFile1);
+                                    File.Delete(outputFile1);
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
+                                }
+                                catch
+                                {
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"ffmpeg errored out or wasn't found! Falling back to WAV output. ({fallbackFile})");
+                                    File.Move(outputFile1, fallbackFile);
+                                }
                             }
-                            Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
-
-                            MStream.Dispose();
-                            fileWriter.Dispose();
-                            targetFile.Dispose();
                         }
 
                         if (_cancToken.IsCancellationRequested)
@@ -647,7 +703,7 @@ namespace OmniConverter
                     }
                     catch (Exception ex)
                     {
-                        Debug.PrintToConsole(Debug.LogType.Error, $"{ex.InnerException} - {ex.Message}");
+                        Debug.PrintToConsole(Debug.LogType.Error, $"{ex}");
                     }
                 }
             }
@@ -655,7 +711,8 @@ namespace OmniConverter
             if (!_cancToken.IsCancellationRequested)
             {
                 if (Program.Settings.AudioEvents)
-                    Platform.PlaySound("convfin.wav");
+                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish);
+
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
             }
 
@@ -675,7 +732,6 @@ namespace OmniConverter
 
         double length = 0;
 
-        ulong noteCount = 0;
         ulong playedNotes = 0;
         bool rtsMode = false;
         double curFrametime = 0.0;

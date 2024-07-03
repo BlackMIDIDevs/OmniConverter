@@ -17,8 +17,13 @@ public partial class InfoWindow : Window
         InitializeComponent();
 
         var cv = Assembly.GetExecutingAssembly().GetName().Version;
-        var bassVer = Bass.Version;
-        var bmidiVer = BassMidi.Version;
+
+        var dummy = new Version(0, 0, 0, 0);
+        Version? bassVer = dummy;
+        Version? bmidiVer = dummy;
+
+        try { bassVer = Bass.Version; } catch { }
+        try { bmidiVer = BassMidi.Version; } catch { }
 
         ConvBrand.Content = MiscFunctions.ReturnAssemblyVersion("OmniConverter", "CR", [cv.Major, cv.Minor, cv.Build, cv.Revision]);
         BASSVersion.Content = MiscFunctions.ReturnAssemblyVersion(string.Empty, "Rev. ", [bassVer.Major, bassVer.Minor, bassVer.Build, bassVer.Revision]);

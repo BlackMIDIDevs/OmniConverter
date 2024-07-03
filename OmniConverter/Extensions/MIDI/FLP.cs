@@ -149,28 +149,34 @@ namespace OmniConverter
                     if (item is PatternPlaylistItem && item.Muted == false)
                     {
                         var pi = item as PatternPlaylistItem;
-                        var pattern = notesDict[pi.Pattern.Id];
-                        var merged = pattern.Select(c =>
+
+                        if (pi != null)
                         {
-                            var shifted = c.Value
-                                          .TrimStart(Math.Max(0, item.StartOffset))
-                                          .TrimEnd(Math.Max(0, item.EndOffset == -1 ? item.Length : item.EndOffset))
-                                          //.Where(n => n.Length > 0)
-                                          .OffsetTime(item.Position - item.StartOffset);
-
-                            var channel = c.Key;
-                            switch (channel.Data)
+                            var pattern = notesDict[pi.Pattern.Id];
+                            var merged = pattern.Select(c =>
                             {
-                                case GeneratorData data:
-                                    if (data.EchoFeed > 0 && !DisableEcho)
-                                        shifted = EchoNotes(shifted, data.Echo, data.EchoFeed, data.EchoTime, proj.Ppq);
-                                    break;
-                            }
-   
-                            return shifted;
-                        }).MergeAll();
+                                var shifted = c.Value
+                                              .TrimStart(Math.Max(0, item.StartOffset))
+                                              .TrimEnd(Math.Max(0, item.EndOffset == -1 ? item.Length : item.EndOffset))
+                                              //.Where(n => n.Length > 0)
+                                              .OffsetTime(item.Position - item.StartOffset);
 
-                        return merged;
+                                var channel = c.Key;
+                                switch (channel.Data)
+                                {
+                                    case GeneratorData data:
+                                        if (data.EchoFeed > 0 && !DisableEcho)
+                                            shifted = EchoNotes(shifted, data.Echo, data.EchoFeed, data.EchoTime, proj.Ppq);
+                                        break;
+                                }
+
+                                return shifted;
+                            }).MergeAll();
+
+                            return merged;
+                        }
+
+                        return new Note[0];
                     }
 
                     return new Note[0];

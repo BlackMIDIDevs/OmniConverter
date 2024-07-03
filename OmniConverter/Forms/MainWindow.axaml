@@ -33,7 +33,7 @@
 					</MenuItem.Icon>
 				</MenuItem>
 				<Separator />
-				<MenuItem Header="_Exit">
+				<MenuItem Header="_Exit" Click="CloseConverter">
 					<MenuItem.Icon>
 						<Image Width="16" Height="16" Source="/Assets/Sleep.png"/>
 					</MenuItem.Icon>

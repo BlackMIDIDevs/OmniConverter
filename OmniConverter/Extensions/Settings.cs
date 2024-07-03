@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace OmniConverter
@@ -41,6 +42,12 @@ namespace OmniConverter
                 AudioCodecType.Vorbis => FFMpeg.GetCodec("libvorbis"),
                 _ => null
             };
+        }
+
+        public static bool CheckFfmpeg()
+        {
+            string ffmpeg = $"{AppContext.BaseDirectory}/ffmpeg{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
+            return File.Exists(ffmpeg);
         }
     }
 

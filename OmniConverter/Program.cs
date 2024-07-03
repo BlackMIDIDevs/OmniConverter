@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using FFMpegCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,8 @@ namespace OmniConverter
 #if DEBUG
                 Debug.EnableConsole();
 #endif
+
+                GlobalFFOptions.Configure(options => options.BinaryFolder = $"{AppContext.BaseDirectory}");
 
                 LoadConfig(true);
                 // RichPresence.SetPresence("Idle", "Idling");

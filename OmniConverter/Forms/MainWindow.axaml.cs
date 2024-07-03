@@ -214,6 +214,11 @@ namespace OmniConverter
             CheckWatermark();
         }
 
+        private void CloseConverter(object? sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
         private void FileDropEnter(object? sender, DragEventArgs e)
         {
             e.DragEffects = e.Data.GetDataFormats().Contains(DataFormats.Files) ? DragDropEffects.Copy : DragDropEffects.None;
