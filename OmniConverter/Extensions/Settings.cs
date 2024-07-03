@@ -68,17 +68,30 @@ namespace OmniConverter
         [JsonProperty]
         public int MaxVoices = 1000;
         [JsonProperty]
+        public bool DisableEffects = true;
+        [JsonProperty]
+        public bool AudioLimiter = false;
+
+        [JsonProperty]
+        public bool FilterVelocity = false;
+        [JsonProperty]
+        public int VelocityLow = 1;
+        [JsonProperty]
+        public int VelocityHigh = 1;
+        [JsonProperty]
+        public bool FilterKey = false;
+        [JsonProperty]
+        public int KeyLow = 0;
+        [JsonProperty]
+        public int KeyHigh = 127;
+        [JsonProperty]
+        public bool OverrideEffects = false;
+        [JsonProperty]
         public short ReverbVal = 64;
         [JsonProperty]
         public short ChorusVal = 64;
         [JsonProperty]
-        public bool DisableEffects = true;
-        [JsonProperty]
-        public bool OverrideEffects = false;
-        [JsonProperty]
         public bool IgnoreProgramChanges = false;
-        [JsonProperty]
-        public bool AudioLimiter = false;
 
         // Threads count is set to ProcessorCount - 1,
         // to avoid having the converter hog up all the resources

@@ -49,17 +49,27 @@ public partial class SettingsWindow : Window
         NoteOff1.IsChecked = Program.Settings.NoteOff1;
         AudioLimiter.IsChecked = Program.Settings.AudioLimiter;
 
+        RTSMode.IsChecked = Program.Settings.RTSMode;
+        RTSFPS.Value = (decimal)Program.Settings.RTSFPS;
+        RTSFluct.Value = (decimal)Program.Settings.RTSFluct;
+        RTSModeCheck(sender, e);
+
+        FilterVelocity.IsChecked = Program.Settings.FilterVelocity;
+        VelocityLowValue.Value = Program.Settings.VelocityLow;
+        VelocityHighValue.Value = Program.Settings.VelocityHigh;
+        FilterVelocityCheck(sender, e);
+
+        FilterKey.IsChecked = Program.Settings.FilterKey;
+        KeyLowValue.Value = Program.Settings.KeyLow;
+        KeyHighValue.Value = Program.Settings.KeyHigh;
+        FilterKeyCheck(sender, e);
+
         OverrideEffects.IsChecked = Program.Settings.OverrideEffects;
         ReverbValue.Value = Program.Settings.ReverbVal;
         ChorusValue.Value = Program.Settings.ChorusVal;
         OverrideEffectsCheck(sender, e);
 
         IgnoreProgramChanges.IsChecked = Program.Settings.IgnoreProgramChanges;
-
-        RTSMode.IsChecked = Program.Settings.RTSMode;
-        RTSFPS.Value = (decimal)Program.Settings.RTSFPS;
-        RTSFluct.Value = (decimal)Program.Settings.RTSFluct;
-        RTSModeCheck(sender, e);
 
         MTMode.IsChecked = Program.Settings.MultiThreadedMode;
         PerTrackMode.IsChecked = Program.Settings.PerTrackMode;
@@ -136,6 +146,12 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void MTModeCheck(object? sender, RoutedEventArgs e)
+    {
+        if (MTMode.IsChecked != null)
+            LimitThreadsPanel.IsEnabled = (bool)MTMode.IsChecked;
+    }
+
     private void OverrideEffectsCheck(object? sender, RoutedEventArgs e)
     {
         if (OverrideEffects.IsChecked != null)
@@ -145,10 +161,22 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private void MTModeCheck(object? sender, RoutedEventArgs e)
+    private void FilterVelocityCheck(object? sender, RoutedEventArgs e)
     {
-        if (MTMode.IsChecked != null)
-            LimitThreadsPanel.IsEnabled = (bool)MTMode.IsChecked;
+        if (FilterVelocity.IsChecked != null)
+        {
+            VelocityLowValue.IsEnabled = (bool)FilterVelocity.IsChecked;
+            VelocityHighValue.IsEnabled = (bool)FilterVelocity.IsChecked;
+        }
+    }
+
+    private void FilterKeyCheck(object? sender, RoutedEventArgs e)
+    {
+        if (FilterKey.IsChecked != null)
+        {
+            KeyLowValue.IsEnabled = (bool)FilterKey.IsChecked;
+            KeyHighValue.IsEnabled = (bool)FilterKey.IsChecked;
+        }
     }
 
     private void PerTrackModeCheck(object? sender, RoutedEventArgs e)
@@ -221,6 +249,27 @@ public partial class SettingsWindow : Window
         if (AudioLimiter.IsChecked != null)
             Program.Settings.AudioLimiter = (bool)AudioLimiter.IsChecked;
 
+        if (RTSMode.IsChecked != null)
+            Program.Settings.RTSMode = (bool)RTSMode.IsChecked;
+        if (RTSFPS.Value != null)
+            Program.Settings.RTSFPS = (double)RTSFPS.Value;
+        if (RTSFluct.Value != null)
+            Program.Settings.RTSFluct = (double)RTSFluct.Value;
+
+        if (FilterVelocity.IsChecked != null)
+            Program.Settings.FilterVelocity = (bool)FilterVelocity.IsChecked;
+        if (VelocityLowValue.Value != null)
+            Program.Settings.VelocityLow = (int)VelocityLowValue.Value;
+        if (VelocityHighValue.Value != null)
+            Program.Settings.VelocityHigh = (int)VelocityHighValue.Value;
+        
+        if (FilterKey.IsChecked != null)
+            Program.Settings.FilterKey = (bool)FilterKey.IsChecked;
+        if (KeyLowValue.Value != null)
+            Program.Settings.KeyLow = (int)KeyLowValue.Value;
+        if (KeyHighValue.Value != null)
+            Program.Settings.KeyHigh = (int)KeyHighValue.Value;
+
         if (OverrideEffects.IsChecked != null)
             Program.Settings.OverrideEffects = (bool)OverrideEffects.IsChecked;
         if (ReverbValue.Value != null)
@@ -228,15 +277,8 @@ public partial class SettingsWindow : Window
         if (ChorusValue.Value != null)
             Program.Settings.ChorusVal = (short)ChorusValue.Value;
 
-        if (IgnoreProgramChanges != null)
+        if (IgnoreProgramChanges.IsChecked != null)
             Program.Settings.IgnoreProgramChanges = (bool)IgnoreProgramChanges.IsChecked;
-
-        if (RTSMode.IsChecked != null)
-            Program.Settings.RTSMode = (bool)RTSMode.IsChecked;
-        if (RTSFPS.Value != null)
-            Program.Settings.RTSFPS = (double)RTSFPS.Value;
-        if (RTSFluct.Value != null)
-            Program.Settings.RTSFluct = (double)RTSFluct.Value;
 
         if (MTMode.IsChecked != null)
             Program.Settings.MultiThreadedMode = (bool)MTMode.IsChecked;
