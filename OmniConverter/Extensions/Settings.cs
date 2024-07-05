@@ -1,24 +1,9 @@
-﻿using FFMpegCore;
-using FFMpegCore.Enums;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 
 namespace OmniConverter
 {
-    public enum AudioCodecType
-    {
-        PCM,
-        FLAC,
-        LAME,
-        Vorbis,
-        Max = Vorbis
-    }
-
     public enum SincInterType
     {
         Linear = 0,
@@ -27,39 +12,6 @@ namespace OmniConverter
         Point32,
         Point64,
         Max = Point64
-    }
-
-    public static class AudioCodecTypeExtensions
-    {
-        public static string ToExtension(this AudioCodecType codec)
-        {
-            return codec switch
-            {
-                AudioCodecType.PCM => ".wav",
-                AudioCodecType.FLAC => ".flac",
-                AudioCodecType.LAME => ".mp3",
-                AudioCodecType.Vorbis => ".ogg",
-                _ => ""
-            };
-        }
-
-        public static Codec? ToFFMpegCodec(this AudioCodecType codec)
-        {
-            return codec switch
-            {
-                AudioCodecType.PCM => null, // We don't need to convert PCM
-                AudioCodecType.FLAC => FFMpeg.GetCodec("flac"),
-                AudioCodecType.LAME => FFMpeg.GetCodec("libmp3lame"),
-                AudioCodecType.Vorbis => FFMpeg.GetCodec("libvorbis"),
-                _ => null
-            };
-        }
-
-        public static bool CheckFfmpeg()
-        {
-            string ffmpeg = $"{AppContext.BaseDirectory}/ffmpeg{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
-            return File.Exists(ffmpeg);
-        }
     }
 
     public class Settings

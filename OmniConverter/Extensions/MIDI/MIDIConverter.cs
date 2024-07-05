@@ -111,11 +111,11 @@ namespace OmniConverter
 
             if (Program.Settings.AudioCodec != AudioCodecType.PCM)
             {
-                if (!AudioCodecTypeExtensions.CheckFfmpeg())
+                if (!Program.FFmpegAvailable)
                 {
                     var re = MessageBox.Show(_winRef,
-                        $"You selected {Program.Settings.AudioCodec.ToExtension()} as your export format, but ffmpeg is not present!\n\n" +
-                        $"Pres Yes if you want to fall back to {AudioCodecType.PCM.ToExtension()}.",
+                        $"You selected {Program.Settings.AudioCodec.ToExtension()} as your export format, but FFMpeg is not available!\n\n" +
+                        $"Press Yes if you want to fall back to {AudioCodecType.PCM.ToExtension()}.",
                         "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Error);
                     switch (re)
                     {

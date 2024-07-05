@@ -44,10 +44,8 @@ public partial class SettingsWindow : Window
             }
         }
 
-        bool ffmpeg = AudioCodecTypeExtensions.CheckFfmpeg();
-        var maxCodec = ffmpeg ? AudioCodecType.Max : AudioCodecType.PCM;
-
-        if (!ffmpeg)
+        var maxCodec = Program.FFmpegAvailable ? AudioCodecType.Max : AudioCodecType.PCM;
+        if (maxCodec == AudioCodecType.PCM)
         {
             var items = AudioCodec.Items.Where(item => !((ComboBoxItem)item).Name.Contains("WAV"));
 

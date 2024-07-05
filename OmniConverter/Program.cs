@@ -3,7 +3,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using FFMpegCore;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,9 +13,10 @@ namespace OmniConverter
     internal class Program
     {
         private static readonly string settingsPath = AppContext.BaseDirectory + "/settings.json";
-        public static Settings Settings { get; set; } = new();
-        public static SoundFonts SoundFontsManager { get; set; } = new();
-        public static DiscordRPC? RichPresence { get; set; }
+        public static Settings Settings { get; private set; } = new();
+        public static SoundFonts SoundFontsManager { get; private set; } = new();
+        public static DiscordRPC? RichPresence { get; private set; }
+        public static bool FFmpegAvailable { get; private set; } = false;
 
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
@@ -45,7 +45,12 @@ namespace OmniConverter
                 Debug.EnableConsole();
 #endif
 
-                GlobalFFOptions.Configure(options => options.BinaryFolder = $"{AppContext.BaseDirectory}");
+                var ffmpeg = AudioCodecTypeExtensions.CheckFFMpegDirectory();
+                if (ffmpeg != null)
+                {
+                    GlobalFFOptions.Configure(options => options.BinaryFolder = ffmpeg);
+                    FFmpegAvailable = true;
+                }
 
                 LoadConfig(true);
                 // RichPresence.SetPresence("Idle", "Idling");
