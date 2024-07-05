@@ -31,6 +31,7 @@ namespace OmniConverter
             SingleConv,
             MultiConv,
             AudioOut,
+            EncodingAudio,
             Crash
         }
 
@@ -131,13 +132,13 @@ namespace OmniConverter
                 switch (Program.Settings.AudioCodec)
                 {
                     case AudioCodecType.LAME:
-                        if (IsInvalidFormat(AudioCodecType.LAME, 48000))
+                        if (IsInvalidFormat(AudioCodecType.LAME, 48000, 320))
                             return false;
 
                         break;
 
                     case AudioCodecType.Vorbis:
-                        if (IsInvalidFormat(AudioCodecType.Vorbis, 192000))
+                        if (IsInvalidFormat(AudioCodecType.Vorbis, 48000, 480))
                             return false;
 
                         break;
@@ -219,7 +220,13 @@ namespace OmniConverter
                     break;
 
                 case ConvStatus.AudioOut:
-                    _curStatus = "Writing final audio file to disk.\n\nPlease do not turn off the computer...";
+                    _curStatus = "Writing audio file to disk.\n\nPlease do not turn off the computer...";
+                    _progress = Math.Round(_processed * 100.0 / _all);
+                    _tracksProgress = Math.Round(_midiEvents * 100.0 / _totalMidiEvents);
+                    break;
+
+                case ConvStatus.EncodingAudio:
+                    _curStatus = $"Encoding audio to {Program.Settings.AudioCodec.ToExtension()}.\n\nPlease do not turn off the computer...";
                     _progress = Math.Round(_processed * 100.0 / _all);
                     _tracksProgress = Math.Round(_midiEvents * 100.0 / _totalMidiEvents);
                     break;
@@ -297,16 +304,23 @@ namespace OmniConverter
             _validator.SetTotalEventsCount(totalEvents);
         }
 
-        private bool IsInvalidFormat(AudioCodecType codec, int maxSampleRate)
+        private bool IsInvalidFormat(AudioCodecType codec, int maxSampleRate, int maxBitrate)
         {
-            if (Program.Settings.SampleRate > maxSampleRate)
+            string error = string.Empty;
+
+            if (Program.Settings.SampleRate > maxSampleRate || Program.Settings.AudioBitrate > maxBitrate)
             {
                 if (Program.Settings.AudioEvents)
                     MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Error, true);
 
-                MessageBox.Show(_winRef,
-                    $"{codec.ToExtension()} does not support sample rates above {maxSampleRate / 1000}kHz.",
-                    "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+                if (Program.Settings.SampleRate > maxSampleRate)
+                    error += $"{codec.ToExtension()} does not support sample rates above {maxSampleRate / 1000}kHz.";
+
+                if (Program.Settings.AudioBitrate > maxBitrate)
+                    error += $"{(string.IsNullOrEmpty(error) ? "" : "\n\n")}{codec.ToExtension()} does not support bitrates above {maxBitrate}kbps.";
+
+
+                MessageBox.Show(_winRef, error, "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
 
                 return true;
             }
@@ -444,6 +458,8 @@ namespace OmniConverter
                         {
                             try
                             {
+                                AutoFillInfo(ConvStatus.EncodingAudio);
+
                                 Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
                                 FFMpegArguments
                                 .FromFileInput(outputFile1)
@@ -735,6 +751,8 @@ namespace OmniConverter
                             {
                                 try
                                 {
+                                    AutoFillInfo(ConvStatus.EncodingAudio);
+
                                     Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
                                     FFMpegArguments
                                     .FromFileInput(outputFile1)

@@ -57,7 +57,7 @@
 						<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
 							<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
 							<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="999999" FormatString="0" IsEnabled="False"/>
+								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="1000" FormatString="0" IsEnabled="False"/>
 							</StackPanel>
 						</Grid>
 						<Grid Name="SincInterPanel" Margin="2, 16, 0, 0" ColumnDefinitions="2*, 1*">
@@ -115,9 +115,9 @@
 						<CheckBox Name="OverrideEffects" Content="Override reverb and chorus events" IsCheckedChanged="OverrideEffectsCheck"/>
 						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
 							<Label Content="Reverb" VerticalAlignment="Center"/>
-							<NumericUpDown Name="ReverbValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="64" Margin="0, 0, 8, 0"/>
+							<NumericUpDown Name="ReverbValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="0" Maximum="127" FormatString="0" Value="64" Margin="0, 0, 8, 0"/>
 							<Label Content="Chorus" VerticalAlignment="Center"/>
-							<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="64" />
+							<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="0" Maximum="127" FormatString="0" Value="64" />
 						</StackPanel>
 					</Grid>
 					<CheckBox Name="IgnoreProgramChanges" Content="Ignore program change events (force piano)" Margin="2, 16, 0, 0"/>

@@ -61,7 +61,7 @@ public partial class SettingsWindow : Window
         KhangMod.IsChecked = Program.Settings.MaxVoices > 100000;
         MaxVoices.Value = Program.Settings.MaxVoices;
         AudioCodec.SelectedIndex = ((int)Program.Settings.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
-        AudioBitrate.Value = Program.Settings.AudioBitrate;
+        AudioBitrate.Value = Program.Settings.AudioBitrate.LimitToRange(1, (int)AudioBitrate.Maximum);
 
         SincInter.IsChecked = Program.Settings.SincInter > SincInterType.Linear;
         SincInterSelection.SelectedIndex = ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max);
@@ -281,7 +281,8 @@ public partial class SettingsWindow : Window
         if (MaxVoices.Value != null) 
             Program.Settings.MaxVoices = (int)MaxVoices.Value;
 
-        Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;
+        if (SincInter.IsChecked != null)
+            Program.Settings.SincInter = (bool)SincInter.IsChecked ? (SincInterType)SincInterSelection.SelectedIndex : SincInterType.Linear;
 
         Program.Settings.AudioCodec = (AudioCodecType)AudioCodec.SelectedIndex;
         if (AudioBitrate.Value != null)
