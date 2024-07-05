@@ -3,6 +3,7 @@ using FFMpegCore.Enums;
 using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -57,8 +58,32 @@ namespace OmniConverter
 
         public static bool CheckFfmpeg()
         {
-            string ffmpeg = $"{AppContext.BaseDirectory}/ffmpeg{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
-            return File.Exists(ffmpeg);
+            string ffmpeg_local = $"{AppContext.BaseDirectory}/ffmpeg{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
+            if (File.Exists(ffmpeg_local))
+            {
+                return true;
+            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                var which_proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "which",
+                        Arguments = "ffmpeg",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                which_proc.Start();
+                string ffmpeg_distro = which_proc.StandardOutput.ReadToEnd().Trim();
+                if (File.Exists(ffmpeg_distro))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
