@@ -229,7 +229,7 @@ namespace OmniConverter
 
             Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - VoiceLimit = {Program.Settings.MaxVoices}");
 
-            Flags |= Program.Settings.SincInter ? BassFlags.SincInterpolation : BassFlags.Default;
+            Flags |= (Program.Settings.SincInter > SincInterType.Linear) ? BassFlags.SincInterpolation : BassFlags.Default;
             Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - SincInter = {Program.Settings.SincInter}");
 
             Flags |= Program.Settings.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
@@ -250,6 +250,9 @@ namespace OmniConverter
             VolHandle = Bass.ChannelSetFX(Handle, EffectType.Volume, 1);
             if (CheckError("Unable to set volume FX."))
                 return;
+
+            if (Program.Settings.SincInter > SincInterType.Linear)
+                Bass.ChannelSetAttribute(Handle, ChannelAttribute.SampleRateConversion, (float)Program.Settings.SincInter);
 
             SfArray = bass.GetSoundFontsArray();
             if (SfArray != null)

@@ -1,11 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Logging;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -13,6 +15,9 @@ namespace OmniConverter;
 
 public partial class SettingsWindow : Window
 {
+    private bool ForceLimitAudio = false;
+    private bool NoFFMPEGFound = false;
+
     public SettingsWindow()
     {
         InitializeComponent();
@@ -39,15 +44,33 @@ public partial class SettingsWindow : Window
             }
         }
 
+        bool ffmpeg = AudioCodecTypeExtensions.CheckFfmpeg();
+        var maxCodec = ffmpeg ? AudioCodecType.Max : AudioCodecType.PCM;
+
+        if (!ffmpeg)
+        {
+            var items = AudioCodec.Items.Where(item => !((ComboBoxItem)item).Name.Contains("WAV"));
+
+            foreach ( var item in items.ToList())
+                AudioCodec.Items.Remove(item);
+
+            NoFFMPEGFound = true;
+            AudioCodec.IsEnabled = false;
+        }
+
         KhangMod.IsChecked = Program.Settings.MaxVoices > 100000;
         MaxVoices.Value = Program.Settings.MaxVoices;
-        AudioCodec.SelectedIndex = (int)Program.Settings.AudioCodec;
+        AudioCodec.SelectedIndex = ((int)Program.Settings.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
         AudioBitrate.Value = Program.Settings.AudioBitrate;
 
-        SincInter.IsChecked = Program.Settings.SincInter;
+        SincInter.IsChecked = Program.Settings.SincInter > SincInterType.Linear;
+        SincInterSelection.SelectedIndex = ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max);
+        SincInterChanged(sender, e);
+
         DisableFX.IsChecked = Program.Settings.DisableEffects;
         NoteOff1.IsChecked = Program.Settings.NoteOff1;
         AudioLimiter.IsChecked = Program.Settings.AudioLimiter;
+        AudioCodecChanged(sender, new SelectionChangedEventArgs(e.RoutedEvent, null, null));
 
         RTSMode.IsChecked = Program.Settings.RTSMode;
         RTSFPS.Value = (decimal)Program.Settings.RTSFPS;
@@ -90,6 +113,7 @@ public partial class SettingsWindow : Window
         AfterRenderSelectedAction.SelectedIndex = Program.Settings.AfterRenderAction.LimitToRange(0, AfterRenderSelectedAction.Items.Count);
         AfterRenderActionCheck(sender, e);
 
+        NoFFMPEG.IsVisible = NoFFMPEGFound;
         AudioEvents.IsChecked = Program.Settings.AudioEvents;
     }
 
@@ -135,15 +159,36 @@ public partial class SettingsWindow : Window
     {   
         if (AudioCodec != null)
         {
-            if (AudioCodec.SelectedIndex <= 1)
+            AudioBitrate.IsEnabled = AudioCodec.SelectedIndex > 1;
+
+            switch ((AudioCodecType)AudioCodec.SelectedIndex)
             {
-                AudioBitrate.IsEnabled = false;
+                case AudioCodecType.LAME:
+                    ForceLimitAudio = true;
+                    AudioLimiter.IsChecked = ForceLimitAudio;
+                    break;
+
+                default:
+                    ForceLimitAudio = false;
+                    AudioLimiter.IsChecked = Program.Settings.AudioLimiter;
+                    break;
             }
-            else
-            {
-                AudioBitrate.IsEnabled = true;
-            }
+
+            AudioLimiter.IsEnabled = !ForceLimitAudio;
         }
+    }
+
+    private void NoFFMPEGWarning(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        MessageBox.Show(this, "To use additional formats, you need ffmpeg.\n\n" +
+            "Please install it on your system, or move the ffmpeg binary to the same folder as the converter.",
+            "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
+    }
+
+    private void SincInterChanged(object? sender, RoutedEventArgs e)
+    {
+        if (SincInter.IsChecked != null)
+            SincInterSelection.IsEnabled = (bool)SincInter.IsChecked;
     }
 
     private void MTModeCheck(object? sender, RoutedEventArgs e)
@@ -235,18 +280,19 @@ public partial class SettingsWindow : Window
             Program.Settings.SampleRate = Convert.ToInt32(((ComboBoxItem)item).Content);
         if (MaxVoices.Value != null) 
             Program.Settings.MaxVoices = (int)MaxVoices.Value;
+
+        Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;
+
         Program.Settings.AudioCodec = (AudioCodecType)AudioCodec.SelectedIndex;
         if (AudioBitrate.Value != null)
             Program.Settings.AudioBitrate = (int)AudioBitrate.Value;
 
-        if (SincInter.IsChecked != null) 
-            Program.Settings.SincInter = (bool)SincInter.IsChecked;
         if (DisableFX.IsChecked != null)
             Program.Settings.DisableEffects = (bool)DisableFX.IsChecked;
         if (NoteOff1.IsChecked != null)
             Program.Settings.NoteOff1 = (bool)NoteOff1.IsChecked;
 
-        if (AudioLimiter.IsChecked != null)
+        if (AudioLimiter.IsChecked != null && !ForceLimitAudio)
             Program.Settings.AudioLimiter = (bool)AudioLimiter.IsChecked;
 
         if (RTSMode.IsChecked != null)

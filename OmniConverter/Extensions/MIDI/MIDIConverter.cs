@@ -108,20 +108,41 @@ namespace OmniConverter
                 return false;
             }
 
-            if (Program.Settings.AudioCodec != AudioCodecType.PCM && !AudioCodecTypeExtensions.CheckFfmpeg())
+            if (Program.Settings.AudioCodec != AudioCodecType.PCM)
             {
-                var re = MessageBox.Show(_winRef,
-                    $"You selected {Program.Settings.AudioCodec.ToExtension()} as your export format, but ffmpeg is not present!\n\n" +
-                    $"Pres Yes if you want to fall back to {AudioCodecType.PCM.ToExtension()}.",
-                    "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Error);
-                switch (re)
+                if (!AudioCodecTypeExtensions.CheckFfmpeg())
                 {
-                    case MessageBox.MsgBoxResult.No:
-                        return false;
+                    var re = MessageBox.Show(_winRef,
+                        $"You selected {Program.Settings.AudioCodec.ToExtension()} as your export format, but ffmpeg is not present!\n\n" +
+                        $"Pres Yes if you want to fall back to {AudioCodecType.PCM.ToExtension()}.",
+                        "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Error);
+                    switch (re)
+                    {
+                        case MessageBox.MsgBoxResult.No:
+                            return false;
+
+                        default:
+                            Program.Settings.AudioCodec = AudioCodecType.PCM;
+                            Program.SaveConfig();
+                            break;
+                    }
+                }
+
+                switch (Program.Settings.AudioCodec)
+                {
+                    case AudioCodecType.LAME:
+                        if (IsInvalidFormat(AudioCodecType.LAME, 48000))
+                            return false;
+
+                        break;
+
+                    case AudioCodecType.Vorbis:
+                        if (IsInvalidFormat(AudioCodecType.Vorbis, 192000))
+                            return false;
+
+                        break;
 
                     default:
-                        Program.Settings.AudioCodec = AudioCodecType.PCM;
-                        Program.SaveConfig();
                         break;
                 }
             }
@@ -276,14 +297,46 @@ namespace OmniConverter
             _validator.SetTotalEventsCount(totalEvents);
         }
 
+        private bool IsInvalidFormat(AudioCodecType codec, int maxSampleRate)
+        {
+            if (Program.Settings.SampleRate > maxSampleRate)
+            {
+                if (Program.Settings.AudioEvents)
+                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Error, true);
+
+                MessageBox.Show(_winRef,
+                    $"{codec.ToExtension()} does not support sample rates above {maxSampleRate / 1000}kHz.",
+                    "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool CheckIfCodecCanFloat(AudioCodecType codec)
+        {
+            switch (codec)
+            {
+                case AudioCodecType.LAME:
+                    return false;
+
+                default:
+                    return true;
+            }
+        }
+
         private void PerMIDIConversion()
         {
             // Cache settings
-            var audioLimiter = Program.Settings.AudioLimiter;
             var codec = Program.Settings.AudioCodec;
+            var audioLimiter = CheckIfCodecCanFloat(codec) ? Program.Settings.AudioLimiter : true;
 
             AutoFillInfo(ConvStatus.Prep);
             GetTotalEventsCount();
+
+            if (Program.Settings.AudioEvents)
+                MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start);
 
             _convElapsedTime.Reset();
             _convElapsedTime.Start();
@@ -362,11 +415,11 @@ namespace OmniConverter
                         msm.Position = 0;
 
                         IWaveSource MStream;
-                        AudioLimiter BAC;
+                        Limiter BAC;
                         if (audioLimiter && _waveFormat.BitsPerSample == 32)
                         {
                             Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                            BAC = new AudioLimiter(msm, 0.1);
+                            BAC = new Limiter(msm, 0.1);
                             MStream = BAC.ToWaveSource(_waveFormat.BitsPerSample);
                         }
                         else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);
@@ -432,10 +485,14 @@ namespace OmniConverter
         {
             // Cache settings
             var perTrackFile = Program.Settings.PerTrackFile;
-            var audioLimiter = Program.Settings.AudioLimiter;
             var codec = Program.Settings.AudioCodec;
+            var audioLimiter = CheckIfCodecCanFloat(codec) ? Program.Settings.AudioLimiter : true;
+
+            if (Program.Settings.AudioEvents)
+                MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start);
 
             GetTotalEventsCount();
+
             _convElapsedTime.Reset();
             _convElapsedTime.Start();
 
@@ -572,7 +629,7 @@ namespace OmniConverter
                                     if (audioLimiter && _waveFormat.BitsPerSample == 32)
                                     {
                                         Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                                        var BAC = new AudioLimiter(trackMsm, 0.1);
+                                        var BAC = new Limiter(trackMsm, 0.1);
                                         exportSource = BAC.ToWaveSource(_waveFormat.BitsPerSample);
                                     }
                                     else exportSource = trackMsm.ToWaveSource(_waveFormat.BitsPerSample);
@@ -648,7 +705,7 @@ namespace OmniConverter
                             if (audioLimiter && _waveFormat.BitsPerSample == 32)
                             {
                                 Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                                var BAC = new AudioLimiter(msm, 0.1);
+                                var BAC = new Limiter(msm, 0.1);
                                 MStream = BAC.ToWaveSource(_waveFormat.BitsPerSample);
                             }
                             else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);

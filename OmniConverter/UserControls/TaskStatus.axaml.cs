@@ -114,7 +114,7 @@ public partial class TaskStatus : UserControl
             etaText = MiscFunctions.TimeSpanToHumanReadableTime(_eta);
         }
 
-        title += $", {playedNotes:n0} notes, ETA {etaText}";
+        title += $", {playedNotes:n0} notes, {(remaining > 0 ? $"ETA {etaText}" : "finishing up...")}";
 
         JobDescription.Content = GetFinalTitle(title);
         Progress.Value = progress > 100.0 ? 100.0 : progress;

@@ -52,6 +52,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Assets\convfail.wav" />
+    <None Remove="Assets\convfinold.wav" />
+    <None Remove="Assets\convstart.wav" />
     <None Remove="Assets\Khangaroo.png" />
     <None Remove="Assets\License.png" />
     <None Remove="Assets\Octocat.png" />

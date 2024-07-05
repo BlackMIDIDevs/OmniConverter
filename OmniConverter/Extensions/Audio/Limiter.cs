@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace OmniConverter
 {
-    public class AudioLimiter : ISampleSource
+    public class Limiter : ISampleSource
     {
-        public AudioLimiter(ISampleSource provider)
+        public Limiter(ISampleSource provider)
         {
             Provider = provider;
             WaveFormat = provider.WaveFormat;
             falloff = WaveFormat.SampleRate / 3;
         }
-        public AudioLimiter(ISampleSource provider, double frequencyReduce) : this(provider)
+        public Limiter(ISampleSource provider, double frequencyReduce) : this(provider)
         {
             reduceHighPitch = true;
             velocityThresh = 1 / frequencyReduce;

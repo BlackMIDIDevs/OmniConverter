@@ -19,7 +19,9 @@ namespace OmniConverter
         public enum ConvSounds
         {
             Unknown = -1,
+            Start,
             Finish,
+            Error
         }
 
         public static string BytesToHumanReadableSize(ulong length)
@@ -62,7 +64,7 @@ namespace OmniConverter
 
         // TODO: Maybe this should use actual platform-specific code instead of BASS
         // BASS devices are per-thread, so this should be fine
-        public static void PlaySound(ConvSounds selectedSound)
+        public static void PlaySound(ConvSounds selectedSound, bool auto = false)
         {
             string sound = string.Empty;
 
@@ -72,15 +74,23 @@ namespace OmniConverter
                     sound = "convfin.wav";
                     break;
 
+                case ConvSounds.Error:
+                    sound = "convfail.wav";
+                    break;
+
+                case ConvSounds.Start:
+                    sound = "convstart.wav";
+                    break;
+
                 default:
                     return;
             }
 
             // TODO: Hardcoding this to the first device is probably a bad idea
             // It doesn't seem to be possible to check what device *would* get chosen if the default device is given to BASS_Init
-            if (Bass.Init(1) || Bass.LastError == Errors.Already)
+            if (Bass.Init(auto ? -1 : 1) || Bass.LastError == Errors.Already)
             {
-                Bass.CurrentDevice = 1;
+                if (!auto) Bass.CurrentDevice = 1;
 
                 int stream = Bass.CreateStream($"{AppContext.BaseDirectory}/CustomSounds/{sound}", Flags: BassFlags.AutoFree);
                 if (stream == 0)
@@ -96,7 +106,7 @@ namespace OmniConverter
                 }
                 Bass.ChannelPlay(stream);
 
-                Bass.CurrentDevice = 0;
+                if (!auto) Bass.CurrentDevice = 0;
             }
         }
 

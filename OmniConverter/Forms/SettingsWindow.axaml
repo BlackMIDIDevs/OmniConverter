@@ -5,8 +5,8 @@
 		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
         xmlns:themes="using:GroupBox.Avalonia.Themes"
 		xmlns:oc="using:OmniConverter"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
-		Width="800" Height="550"
+        mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="565"
+		Width="800" Height="565"
         x:Class="OmniConverter.SettingsWindow"
         Title="Settings"
 		ShowInTaskbar="False"
@@ -42,14 +42,17 @@
 								<ComboBoxItem>4000</ComboBoxItem>
 							</ComboBox>
 						</Grid>
-						<Grid Name="AudioCodecPanel" Margin="2" ColumnDefinitions="2*, 1*">
+						<Grid Name="AudioCodecPanel" Margin="2, 16, 0, 0"  ColumnDefinitions="2*, 1*">
 							<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
-							<ComboBox Name="AudioCodec" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
-								<ComboBoxItem>.wav (IEEE, lossless)</ComboBoxItem>
-								<ComboBoxItem>.flac (FLAC, lossless)</ComboBoxItem>
-								<ComboBoxItem>.mp3 (LAME, lossy)</ComboBoxItem>
-								<ComboBoxItem>.ogg (Vorbis, lossy)</ComboBoxItem>
-							</ComboBox>
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
+								<Image Name="NoFFMPEG" Width="24" Source="/Assets/Warning.png" Margin="0, 0, 4, 0" IsVisible="False" PointerPressed="NoFFMPEGWarning" />
+								<ComboBox Name="AudioCodec" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
+									<ComboBoxItem Name="WAV">.wav (IEEE, lossless)</ComboBoxItem>
+									<ComboBoxItem Name="FLAC">.flac (FLAC, lossless)</ComboBoxItem>
+									<ComboBoxItem Name="MP3">.mp3 (LAME, lossy)</ComboBoxItem>
+									<ComboBoxItem Name="OGG">.ogg (Vorbis, lossy)</ComboBoxItem>
+								</ComboBox>
+							</StackPanel>
 						</Grid>
 						<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
 							<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
@@ -57,11 +60,20 @@
 								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="999999" FormatString="0" IsEnabled="False"/>
 							</StackPanel>
 						</Grid>
-						<CheckBox Name="SincInter" Content="Enable sinc interpolation" Margin="2" />
+						<Grid Name="SincInterPanel" Margin="2, 16, 0, 0" ColumnDefinitions="2*, 1*">
+							<CheckBox Name="SincInter" Content="Enable sinc interpolation" IsCheckedChanged="SincInterChanged"/>
+							<ComboBox Name="SincInterSelection" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" >
+								<ComboBoxItem>Linear interpolation</ComboBoxItem>
+								<ComboBoxItem>8 point sinc inter.</ComboBoxItem>
+								<ComboBoxItem>16 point sinc inter.</ComboBoxItem>
+								<ComboBoxItem>32 point sinc inter.</ComboBoxItem>
+								<ComboBoxItem>64 point sinc inter.</ComboBoxItem>
+							</ComboBox>
+						</Grid>
 						<CheckBox Name="DisableFX" Content="Disable sound effects (Reverb, Chorus etc.)" Margin="2" />
 						<CheckBox Name="NoteOff1" Content="Only release the oldest instance of a note upon note-off event" Margin="2" />
 						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent clipping above 0dB" Margin="2" />
-						<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 10, 0, 0" >
+						<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
 							<Grid ColumnDefinitions="1*, 1*" >
 								<CheckBox Name="RTSMode" Grid.Column="0" Content="Enable real time playback simulation" IsCheckedChanged="RTSModeCheck" />
 								<StackPanel Name="RTSPanel" Grid.Column="1" Orientation="Vertical">

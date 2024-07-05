@@ -15,7 +15,18 @@ namespace OmniConverter
         PCM,
         FLAC,
         LAME,
-        Vorbis
+        Vorbis,
+        Max = Vorbis
+    }
+
+    public enum SincInterType
+    {
+        Linear = 0,
+        Point8,
+        Point16,
+        Point32,
+        Point64,
+        Max = Point64
     }
 
     public static class AudioCodecTypeExtensions
@@ -109,7 +120,7 @@ namespace OmniConverter
         [JsonProperty]
         public bool NoteOff1 = false;
         [JsonProperty]
-        public bool SincInter = true;
+        public SincInterType SincInter = SincInterType.Point16;
 
         [JsonProperty]
         public bool RichPresence = true;
