@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -41,9 +42,25 @@ namespace OmniConverter
         }
 
         public static bool IsInternetAvailable()
-        {
-            int Desc;
-            return InternetGetConnectedState(out Desc, 0);
+        {   
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                int Desc;
+                return InternetGetConnectedState(out Desc, 0);
+            }
+            else
+            {
+                Ping ping = new Ping();
+                try
+                {
+                    PingReply reply = ping.Send("http://www.github.com");
+                    return reply.Status == IPStatus.Success;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
         }
 
         public static void CheckThenUpdate(String ReturnVal, Int32 InstallMode)
