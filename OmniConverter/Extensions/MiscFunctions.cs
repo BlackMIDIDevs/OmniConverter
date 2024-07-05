@@ -71,15 +71,15 @@ namespace OmniConverter
             switch (selectedSound)
             {
                 case ConvSounds.Finish:
-                    sound = "convfin.wav";
+                    sound = Program.Settings.OldKMCScheme ? "convfinold.wav" : "convfin.wav";
                     break;
 
                 case ConvSounds.Error:
-                    sound = "convfail.wav";
+                    sound = Program.Settings.OldKMCScheme ? "convfailold.wav" : "convfail.wav";
                     break;
 
                 case ConvSounds.Start:
-                    sound = "convstart.wav";
+                    sound = Program.Settings.OldKMCScheme ? "convstartold.wav" : "convstart.wav";
                     break;
 
                 default:

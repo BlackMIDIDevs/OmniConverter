@@ -1,15 +1,9 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Logging;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace OmniConverter;
 
@@ -61,9 +55,7 @@ public partial class SettingsWindow : Window
         AudioCodec.SelectedIndex = ((int)Program.Settings.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
         AudioBitrate.Value = Program.Settings.AudioBitrate.LimitToRange(1, (int)AudioBitrate.Maximum);
 
-        SincInter.IsChecked = Program.Settings.SincInter > SincInterType.Linear;
         SincInterSelection.SelectedIndex = ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max);
-        SincInterChanged(sender, e);
 
         DisableFX.IsChecked = Program.Settings.DisableEffects;
         NoteOff1.IsChecked = Program.Settings.NoteOff1;
@@ -113,6 +105,8 @@ public partial class SettingsWindow : Window
 
         NoFFMPEG.IsVisible = NoFFMPEGFound;
         AudioEvents.IsChecked = Program.Settings.AudioEvents;
+        OldKMCScheme.IsChecked = Program.Settings.OldKMCScheme;
+        AudioEventsCheck(sender, e);
     }
 
     private async void AutoExportFolderSelection(object? sender, RoutedEventArgs e)
@@ -145,6 +139,12 @@ public partial class SettingsWindow : Window
             MaxVoices.Maximum = (bool)KhangMod.IsChecked ? int.MaxValue : 100000;
             MaxVoicesChanged(null, new NumericUpDownValueChangedEventArgs(e.RoutedEvent, null, null));
         }
+    }
+
+    private void AudioEventsCheck(object? sender, RoutedEventArgs e)
+    {
+        if (AudioEvents.IsChecked != null)
+            OldKMCScheme.IsEnabled = (bool)AudioEvents.IsChecked;
     }
 
     private void MaxVoicesChanged(object? sender, NumericUpDownValueChangedEventArgs e)
@@ -181,12 +181,6 @@ public partial class SettingsWindow : Window
         MessageBox.Show(this, "To use additional formats, you need ffmpeg.\n\n" +
             "Please install it on your system, or move the ffmpeg binary to the same folder as the converter.",
             "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
-    }
-
-    private void SincInterChanged(object? sender, RoutedEventArgs e)
-    {
-        if (SincInter.IsChecked != null)
-            SincInterSelection.IsEnabled = (bool)SincInter.IsChecked;
     }
 
     private void MTModeCheck(object? sender, RoutedEventArgs e)
@@ -279,8 +273,7 @@ public partial class SettingsWindow : Window
         if (MaxVoices.Value != null) 
             Program.Settings.MaxVoices = (int)MaxVoices.Value;
 
-        if (SincInter.IsChecked != null)
-            Program.Settings.SincInter = (bool)SincInter.IsChecked ? (SincInterType)SincInterSelection.SelectedIndex : SincInterType.Linear;
+        Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;
 
         Program.Settings.AudioCodec = (AudioCodecType)AudioCodec.SelectedIndex;
         if (AudioBitrate.Value != null)
@@ -350,6 +343,9 @@ public partial class SettingsWindow : Window
 
         if (AudioEvents.IsChecked != null)
             Program.Settings.AudioEvents = (bool)AudioEvents.IsChecked;
+
+        if (OldKMCScheme.IsChecked != null)
+            Program.Settings.OldKMCScheme = (bool)OldKMCScheme.IsChecked;
 
         var newExportPath = AutoExportFolderPath.Text;
         if (newExportPath != null && !newExportPath.Equals(Program.Settings.AutoExportFolderPath))

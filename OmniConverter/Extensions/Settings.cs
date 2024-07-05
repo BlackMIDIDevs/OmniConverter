@@ -56,12 +56,12 @@ namespace OmniConverter
         [JsonProperty]
         public bool IgnoreProgramChanges = false;
 
-        // Threads count is set to ProcessorCount - 1,
+        // Threads count is set to ProcessorCount / 2 ,
         // to avoid having the converter hog up all the resources
         [JsonProperty]
         public bool MultiThreadedMode = true;
         [JsonProperty]
-        public int ThreadsCount = Environment.ProcessorCount - 1;
+        public int ThreadsCount = Environment.ProcessorCount / 2;
         [JsonProperty]
         public bool PerTrackMode = false;
         [JsonProperty]
@@ -97,6 +97,8 @@ namespace OmniConverter
         public int AfterRenderAction = -1;
         [JsonProperty]
         public bool AudioEvents = true;
+        [JsonProperty]
+        public bool OldKMCScheme = false;
 
         [JsonProperty]
         public string LastMIDIFolder = string.Empty;

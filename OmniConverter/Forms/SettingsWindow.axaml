@@ -5,8 +5,8 @@
 		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
         xmlns:themes="using:GroupBox.Avalonia.Themes"
 		xmlns:oc="using:OmniConverter"
-        mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="565"
-		Width="800" Height="565"
+        mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="570"
+		Width="800" Height="570"
         x:Class="OmniConverter.SettingsWindow"
         Title="Settings"
 		ShowInTaskbar="False"
@@ -42,6 +42,16 @@
 								<ComboBoxItem>4000</ComboBoxItem>
 							</ComboBox>
 						</Grid>
+						<Grid Name="SincInterPanel" Margin="2" ColumnDefinitions="2*, 1*">
+							<Label Content="Sinc interpolation mode" VerticalAlignment="Center"/>
+							<ComboBox Name="SincInterSelection" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" >
+								<ComboBoxItem>Linear inter. (OFF)</ComboBoxItem>
+								<ComboBoxItem>8 point sinc inter.</ComboBoxItem>
+								<ComboBoxItem>16 point sinc inter.</ComboBoxItem>
+								<ComboBoxItem>32 point sinc inter.</ComboBoxItem>
+								<ComboBoxItem>64 point sinc inter.</ComboBoxItem>
+							</ComboBox>
+						</Grid>
 						<Grid Name="AudioCodecPanel" Margin="2, 16, 0, 0"  ColumnDefinitions="2*, 1*">
 							<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
 							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
@@ -60,19 +70,9 @@
 								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="1000" FormatString="0" IsEnabled="False"/>
 							</StackPanel>
 						</Grid>
-						<Grid Name="SincInterPanel" Margin="2, 16, 0, 0" ColumnDefinitions="2*, 1*">
-							<CheckBox Name="SincInter" Content="Enable sinc interpolation" IsCheckedChanged="SincInterChanged"/>
-							<ComboBox Name="SincInterSelection" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" >
-								<ComboBoxItem>Linear interpolation</ComboBoxItem>
-								<ComboBoxItem>8 point sinc inter.</ComboBoxItem>
-								<ComboBoxItem>16 point sinc inter.</ComboBoxItem>
-								<ComboBoxItem>32 point sinc inter.</ComboBoxItem>
-								<ComboBoxItem>64 point sinc inter.</ComboBoxItem>
-							</ComboBox>
-						</Grid>
-						<CheckBox Name="DisableFX" Content="Disable sound effects (Reverb, Chorus etc.)" Margin="2" />
-						<CheckBox Name="NoteOff1" Content="Only release the oldest instance of a note upon note-off event" Margin="2" />
-						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent clipping above 0dB" Margin="2" />
+						<CheckBox Name="DisableFX" Content="Disable sound FXs (Reverb, Chorus etc.)" Margin="2, 16, 0, 0" />
+						<CheckBox Name="NoteOff1" Content="Follow overlaps when processing note off events" Margin="2" />
+						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent distortion" Margin="2" />
 						<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
 							<Grid ColumnDefinitions="1*, 1*" >
 								<CheckBox Name="RTSMode" Grid.Column="0" Content="Enable real time playback simulation" IsCheckedChanged="RTSModeCheck" />
@@ -94,7 +94,7 @@
 			<TabItem Header="Events processing">
 				<StackPanel Margin="4">
 					<Grid ColumnDefinitions="1*, 1.2*" Margin="2">
-						<CheckBox Name="FilterVelocity" Content="Ignore notes between this velocity range" IsCheckedChanged="FilterVelocityCheck" Grid.Column="0"/>
+						<CheckBox Name="FilterVelocity" Content="Ignore notes with velocity in this range" IsCheckedChanged="FilterVelocityCheck" Grid.Column="0"/>
 						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
 							<Label Content="Low" VerticalAlignment="Center"/>
 							<NumericUpDown Name="VelocityLowValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="1" Margin="0, 0, 8, 0"/>
@@ -103,7 +103,7 @@
 						</StackPanel>
 					</Grid>
 					<Grid ColumnDefinitions="1*, 1.2*" Margin="2, 16, 0, 0">
-						<CheckBox Name="FilterKey" Content="Only allow notes between these keys" IsCheckedChanged="FilterKeyCheck"/>
+						<CheckBox Name="FilterKey" Content="Only allow notes that match this key range" IsCheckedChanged="FilterKeyCheck"/>
 						<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
 							<Label Content="Low" VerticalAlignment="Center"/>
 							<NumericUpDown Name="KeyLowValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="1" Maximum="127" FormatString="0" Value="0" Margin="0, 0, 8, 0"/>
@@ -120,7 +120,7 @@
 							<NumericUpDown Name="ChorusValue" HorizontalAlignment="Right" VerticalAlignment="Center" Width="128" Minimum="0" Maximum="127" FormatString="0" Value="64" />
 						</StackPanel>
 					</Grid>
-					<CheckBox Name="IgnoreProgramChanges" Content="Ignore program change events (force piano)" Margin="2, 16, 0, 0"/>
+					<CheckBox Name="IgnoreProgramChanges" Content="Ignore program change events (force Acoustic Grand Piano)" Margin="2, 16, 0, 0"/>
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Export">
@@ -150,7 +150,8 @@
                         <ComboBoxItem>Close the application</ComboBoxItem>
                         <ComboBoxItem>Show completion time</ComboBoxItem>
 					</ComboBox>
-                    <CheckBox Name="AudioEvents" Content="Enable sound notifications for the conversion status" Margin="2, 16, 0, 0" />
+					<CheckBox Name="AudioEvents" Content="Enable sound notifications for the conversion status" Margin="2, 16, 0, 0" IsCheckedChanged="AudioEventsCheck" />
+					<CheckBox Name="OldKMCScheme" Content="Use old KMC sound scheme" Margin="2" />
 				</StackPanel>
 			</TabItem>
 			<TabItem>

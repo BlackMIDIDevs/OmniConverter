@@ -38,6 +38,9 @@ namespace OmniConverter
                             Debug.EnableConsole();
                             break;
 #endif
+
+                        default:
+                            break;
                     }
                 }
 
@@ -163,7 +166,7 @@ namespace OmniConverter
             if (CV != null)
             {
                 Console.WriteLine($"OmniConverter v{CV.Major}.{CV.Minor}.{CV.Build}");
-                Console.WriteLine($"Copyright (C) 2019-{DateTime.Today.Year} Keppy's Software and Arduano\nYou're not supposed to be here!\n");
+                Console.WriteLine($"Copyright (C) 2019-{DateTime.Today.Year} Keppy's Software\nYou're not supposed to be here!\n");
             }     
         }
 
@@ -176,7 +179,7 @@ namespace OmniConverter
             lock (Lock)
             {
                 Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($"[{(func == ".ctor" ? "Thread" : func)} -> {Path.GetFileName(file)}, L{line}] - ");
+                Console.Write($"[{(func.Equals(".ctor") ? "Thread" : func)} -> {Path.GetFileName(file)}, L{line}] - ");
 
                 switch (Type)
                 {
