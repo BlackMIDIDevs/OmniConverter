@@ -44,6 +44,8 @@ namespace OmniConverter
         public CSCore.WaveFormat WaveFormat { get; protected set; } = new(48000, 32, 2);
         public bool Initialized { get; protected set; } = false;
         public bool Disposed { get; protected set; } = false;
+        public int ActiveVoices { get; protected set; } = 0;
+        public float RenderingTime { get; protected set; } = 0.0f;
 
         public MIDIRenderer(WaveFormat waveFormat, bool defaultInt = true) { WaveFormat = waveFormat; Initialized = defaultInt; }
 
@@ -52,10 +54,9 @@ namespace OmniConverter
         public abstract void SendEvent(byte[] data);
         public abstract unsafe int Read(float[] buffer, int offset, int count);
         public abstract bool SendEndEvent();
+        public abstract void RefreshInfo();
         public abstract long Position { get; set; }
         public abstract long Length { get; }
-        public abstract int ActiveVoices { get; }
-        public abstract float RenderingTime { get; }
 
         public void Dispose()
         {

@@ -17,23 +17,23 @@
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="_File">
-				<MenuItem Icon="" Header="_Add MIDIs to queue" Click="AddMIDI">
+				<MenuItem Icon="" Header="_Add MIDIs to queue" Click="AddMIDI" InputGesture="Ctrl+O" HotKey="Ctrl+O">
 					<MenuItem.Icon>
 						<Image Width="16" Height="16" Source="/Assets/Add.png"/>
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="_Remove MIDIs from queue" Click="RemoveMIDI">
+				<MenuItem Header="_Remove MIDIs from queue" Click="RemoveMIDI" InputGesture="Delete" HotKey="Delete">
 					<MenuItem.Icon>
 						<Image Width="16" Height="16" Source="/Assets/Remove.png"/>
 					</MenuItem.Icon>
 				</MenuItem>
-				<MenuItem Header="_Clear MIDI queue" Click="ClearList">
+				<MenuItem Header="_Clear MIDI queue" Click="ClearList" InputGesture="Ctrl+Delete" HotKey="Ctrl+Delete">
 					<MenuItem.Icon>
 						<Image Width="16" Height="16" Source="/Assets/Clear.png"/>
 					</MenuItem.Icon>
 				</MenuItem>
 				<Separator />
-				<MenuItem Header="_Exit" Click="CloseConverter">
+				<MenuItem Header="_Exit" Click="CloseConverter" InputGesture="Alt+F4" HotKey="Alt+F4">
 					<MenuItem.Icon>
 						<Image Width="16" Height="16" Source="/Assets/Sleep.png"/>
 					</MenuItem.Icon>

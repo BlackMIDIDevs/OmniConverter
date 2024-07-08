@@ -5,8 +5,8 @@
 		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
         xmlns:themes="using:GroupBox.Avalonia.Themes"
 		xmlns:oc="using:OmniConverter"
-        mc:Ignorable="d" d:DesignWidth="750" d:DesignHeight="570"
-		Width="800" Height="570"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+		Width="800" Height="600"
         x:Class="OmniConverter.SettingsWindow"
         Title="Settings"
 		ShowInTaskbar="False"
@@ -72,6 +72,7 @@
 						</Grid>
 						<CheckBox Name="DisableFX" Content="Disable sound FXs (Reverb, Chorus etc.)" Margin="2, 16, 0, 0" />
 						<CheckBox Name="NoteOff1" Content="Follow overlaps when processing note off events" Margin="2" />
+						<CheckBox Name="KilledNoteFading" Content="Disable sample fade out when killing a note" Margin="2" />
 						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent distortion" Margin="2" />
 						<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
 							<Grid ColumnDefinitions="1*, 1*" >

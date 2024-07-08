@@ -34,6 +34,8 @@ namespace OmniConverter
         public bool DisableEffects = true;
         [JsonProperty]
         public bool AudioLimiter = false;
+        [JsonProperty]
+        public bool KilledNoteFading = false;
 
         [JsonProperty]
         public bool FilterVelocity = false;
