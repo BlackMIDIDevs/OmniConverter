@@ -80,7 +80,7 @@ namespace OmniConverter
     {
         private MidiFontEx[]? _bassArray;
 
-        public BASS(CSCore.WaveFormat waveFormat, int maxVoices, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
+        public BASS(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
         {
             /*                                                                                                                                                                            
                                 -+++------.                             
@@ -109,17 +109,17 @@ namespace OmniConverter
                                        -++.                             
             */
 
-            // spam it so it actually parses the value
-            Bass.Configure(Configuration.MidiVoices, maxVoices);
+            if (!Bass.Init(Bass.NoSoundDevice, waveFormat.SampleRate, DeviceInitFlags.Default))
+                throw new BassException(Bass.LastError);
 
-            if (Bass.Init(Bass.NoSoundDevice, waveFormat.SampleRate, DeviceInitFlags.Default))
-            {
-                if (initSFs != null)
-                    _bassArray = InitializeSoundFonts(initSFs);
+            if (initSFs != null)
+                _bassArray = InitializeSoundFonts(initSFs);
 
-                Initialized = true;
-            }
-            else throw new BassException(Bass.LastError);
+            Initialized = true;
+
+            Bass.Configure(Configuration.MidiVoices, Program.Settings.MaxVoices);
+            Bass.Configure(Configuration.SRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
+            Bass.Configure(Configuration.SampleSRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
         }
 
         protected override void Dispose(bool disposing)
@@ -207,7 +207,7 @@ namespace OmniConverter
     public class BASSMIDI : MIDIRenderer
     {
         private readonly object Lock = new object();
-        private BassFlags Flags;
+        private readonly BassFlags Flags;
         public int Handle { get; private set; } = 0;
 
         // Special RTS mode
@@ -227,44 +227,36 @@ namespace OmniConverter
             Flags = BassFlags.Decode | BassFlags.MidiDecayEnd;
             Debug.PrintToConsole(Debug.LogType.Message, $"Stream unique ID: {UniqueID}");
 
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - VoiceLimit = {Program.Settings.MaxVoices}");
-
             Flags |= (Program.Settings.SincInter > SincInterType.Linear) ? BassFlags.SincInterpolation : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - SincInter = {Program.Settings.SincInter}");
-
             Flags |= Program.Settings.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - DisableEffects = {Program.Settings.DisableEffects}");
-
             Flags |= Program.Settings.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - NoteOff1 = {Program.Settings.NoteOff1}");
-
             Flags |= isFloat ? BassFlags.Float : BassFlags.Default;
-            Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - isFloat = {isFloat}");
 
             Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
-            if (CheckError("Unable to open MIDI stream."))
+            if (IsError("Unable to open MIDI stream."))
                 return;
 
             Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Stream is open.");
 
             VolHandle = Bass.ChannelSetFX(Handle, EffectType.Volume, 1);
-            if (CheckError("Unable to set volume FX."))
+            if (IsError("Unable to set volume FX."))
                 return;
 
-            if (Program.Settings.SincInter > SincInterType.Linear)
-                Bass.ChannelSetAttribute(Handle, ChannelAttribute.SampleRateConversion, (float)Program.Settings.SincInter);
+            if (Program.Settings.KilledNoteFading)
+                Bass.ChannelSetAttribute(Handle, ChannelAttribute.MidiKill, Convert.ToDouble(Program.Settings.KilledNoteFading));
 
             SfArray = bass.GetSoundFontsArray();
             if (SfArray != null)
             {
                 BassMidi.StreamSetFonts(Handle, SfArray, SfArray.Length);
+                BassMidi.StreamLoadSamples(Handle);
                 Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Loaded {SfArray.Length} SoundFonts");
             }
 
             Initialized = true;
         }
 
-        private bool CheckError(string Error)
+        private bool IsError(string Error)
         {
             if (Bass.LastError != 0)
             {
@@ -381,26 +373,14 @@ namespace OmniConverter
             return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.Struct, ev) != -1 ? true : false;
         }
 
-        public override int ActiveVoices
+        public override void RefreshInfo()
         {
-            get
-            {
-                float voices;
-                Bass.ChannelGetAttribute(Handle, ChannelAttribute.MidiVoicesActive, out voices);
+            float output = 0.0f;
+            Bass.ChannelGetAttribute(Handle, ChannelAttribute.MidiVoicesActive, out output);
+            ActiveVoices = (int)output;
 
-                return (int)voices;
-            }
-        }
-
-        public override float RenderingTime
-        {
-            get
-            {
-                float cpuusage;
-                Bass.ChannelGetAttribute(Handle, ChannelAttribute.CPUUsage, out cpuusage);
-
-                return cpuusage;
-            }
+            Bass.ChannelGetAttribute(Handle, ChannelAttribute.CPUUsage, out output);
+            RenderingTime = (int)output;
         }
 
         public override long Position

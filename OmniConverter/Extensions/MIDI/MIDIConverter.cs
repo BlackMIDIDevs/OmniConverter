@@ -247,11 +247,11 @@ namespace OmniConverter
                 {
                     case EngineID.BASS:
                     default:
-                        _audioRenderer = new BASS(_waveFormat, Program.Settings.MaxVoices, null);
-
                         // do this hacky crap to get the voice change to work
+                        _audioRenderer = new BASS(_waveFormat);
                         _audioRenderer.Dispose();
-                        _audioRenderer = new BASS(_waveFormat, Program.Settings.MaxVoices, Program.Settings.SoundFontsList);
+
+                        _audioRenderer = new BASS(_waveFormat, Program.Settings.SoundFontsList);
                         break;
                 }
 
@@ -392,89 +392,90 @@ namespace OmniConverter
 
                     if (loaded)
                     {
-                        var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile);
-                        Dispatcher.UIThread.Post(() => midiPanel = new TaskStatus(midi.Name, _panelRef, eventsProcesser));
-
-                        // Initialize memory stream
-                        var msm = new MultiStreamMerger(_waveFormat);
-                        var sampleWriter = msm.GetWriter();
-
-                        var cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token, f => _validator.AddEvent()));
-
-                        while (!cvThread.IsCompleted)
+                        using (var msm = new MultiStreamMerger(_waveFormat))
                         {
-                            if (_cancToken.IsCancellationRequested)
-                                throw new OperationCanceledException();
-
-                            Thread.Sleep(100);
-                        }
-
-                        AutoFillInfo(ConvStatus.SingleConv);
-
-                        if (cvThread != null)
-                        {
-                            cvThread.Wait();
-                            cvThread.Dispose();
-                        }
-
-                        eventsProcesser.Dispose();
-                        
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Thread for MIDI {outputFile1} is done rendering data.");
-
-                        Dispatcher.UIThread.Post(() => midiPanel?.Dispose());
-
-                        if (!_cancToken.IsCancellationRequested) _validator.AddValidMIDI();
-
-                        // Reset MSM position
-                        msm.Position = 0;
-
-                        IWaveSource MStream;
-                        Limiter BAC;
-                        if (audioLimiter && _waveFormat.BitsPerSample == 32)
-                        {
-                            Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                            BAC = new Limiter(msm, 0.1);
-                            MStream = BAC.ToWaveSource(_waveFormat.BitsPerSample);
-                        }
-                        else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);
-
-                        FileStream FOpen = File.Open(outputFile1, FileMode.Create);
-                        WaveWriter FDestination = new WaveWriter(FOpen, _waveFormat);
-                        Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
-
-                        int FRead = 0;
-                        byte[] FBuffer = new byte[1024 * 16];
-
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
-                        while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
-                            FDestination.Write(FBuffer, 0, FRead);
-                        Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
-
-                        msm.Dispose();
-                        FDestination.Dispose();
-                        FOpen.Dispose();
-
-                        if (codec != AudioCodecType.PCM)
-                        {
-                            try
+                            using (var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile))
                             {
-                                AutoFillInfo(ConvStatus.EncodingAudio);
+                                Dispatcher.UIThread.Post(() => midiPanel = new TaskStatus(midi.Name, _panelRef, eventsProcesser));
 
-                                Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
-                                FFMpegArguments
-                                .FromFileInput(outputFile1)
-                                .OutputToFile(outputFile2, true, 
-                                    options => options.WithAudioCodec(codec.ToFFMpegCodec())
-                                    .WithAudioBitrate(Program.Settings.AudioBitrate))
-                                .ProcessSynchronously();
+                                var cvThread = Task.Run(() => eventsProcesser.Process(msm.GetWriter(), _waveFormat, _cancToken.Token, f => _validator.AddEvent()));
 
-                                File.Delete(outputFile1);
-                                Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
+                                while (!cvThread.IsCompleted)
+                                {
+                                    if (_cancToken.IsCancellationRequested)
+                                        throw new OperationCanceledException();
+
+                                    eventsProcesser.RefreshInfo();
+
+                                    Thread.Sleep(100);
+                                }
+
+                                AutoFillInfo(ConvStatus.SingleConv);
+
+                                if (cvThread != null)
+                                {
+                                    cvThread.Wait();
+                                    cvThread.Dispose();
+                                }
+
+                                Dispatcher.UIThread.Post(() => midiPanel?.Dispose());
                             }
-                            catch
+
+                            if (!_cancToken.IsCancellationRequested) 
+                                _validator.AddValidMIDI();
+
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Thread for MIDI {outputFile1} is done rendering data.");
+
+                            // Reset MSM position
+                            msm.Position = 0;
+
+                            IWaveSource MStream;
+                            Limiter BAC;
+                            if (audioLimiter && _waveFormat.BitsPerSample == 32)
                             {
-                                Debug.PrintToConsole(Debug.LogType.Message, $"ffmpeg errored out or wasn't found! Falling back to WAV output. ({fallbackFile})");
-                                File.Move(outputFile1, fallbackFile);
+                                Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
+                                BAC = new Limiter(msm, 0.1);
+                                MStream = BAC.ToWaveSource(_waveFormat.BitsPerSample);
+                            }
+                            else MStream = msm.ToWaveSource(_waveFormat.BitsPerSample);
+
+                            FileStream FOpen = File.Open(outputFile1, FileMode.Create);
+                            WaveWriter FDestination = new WaveWriter(FOpen, _waveFormat);
+                            Debug.PrintToConsole(Debug.LogType.Message, "Output file is open.");
+
+                            int FRead = 0;
+                            byte[] FBuffer = new byte[1024 * 16];
+
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Writing data for {outputFile1} to disk...");
+                            while ((FRead = MStream.Read(FBuffer, 0, FBuffer.Length)) != 0)
+                                FDestination.Write(FBuffer, 0, FRead);
+                            Debug.PrintToConsole(Debug.LogType.Message, $"Done writing {outputFile1}.");
+
+                            FDestination.Dispose();
+                            FOpen.Dispose();
+
+                            if (codec != AudioCodecType.PCM)
+                            {
+                                try
+                                {
+                                    AutoFillInfo(ConvStatus.EncodingAudio);
+
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+                                    FFMpegArguments
+                                    .FromFileInput(outputFile1)
+                                    .OutputToFile(outputFile2, true,
+                                        options => options.WithAudioCodec(codec.ToFFMpegCodec())
+                                        .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                    .ProcessSynchronously();
+
+                                    File.Delete(outputFile1);
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"Done converting {outputFile2}.");
+                                }
+                                catch
+                                {
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"ffmpeg errored out or wasn't found! Falling back to WAV output. ({fallbackFile})");
+                                    File.Move(outputFile1, fallbackFile);
+                                }
                             }
                         }
                     }
@@ -564,9 +565,6 @@ namespace OmniConverter
 
                             using (MultiStreamMerger trackMsm = new(_waveFormat))
                             {
-                                if (_cancToken.IsCancellationRequested)
-                                    return;
-
                                 Debug.PrintToConsole(Debug.LogType.Message, $"ConvertWorker => T{track}, {midi.Length.TotalSeconds}");
 
                                 // Per track!
@@ -597,44 +595,40 @@ namespace OmniConverter
                                 }
                                 else sampleWriter = msm.GetWriter();
 
-                                var trackData = midiData.ElementAt(track);
-
-                                var eventsProcesser = new EventsProcesser(_audioRenderer, trackData, midi.Length.TotalSeconds, midi.LoadedFile);
-                                Dispatcher.UIThread.Post(() => trackPanel = new TaskStatus($"Track {track}", _panelRef, eventsProcesser));
-
-                                cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token, f =>
+                                using (var eventsProcesser = new EventsProcesser(_audioRenderer, midiData.ElementAt(track), midi.Length.TotalSeconds, midi.LoadedFile))
                                 {
-                                    try
+                                    Dispatcher.UIThread.Post(() => trackPanel = new TaskStatus($"Track {track}", _panelRef, eventsProcesser));
+
+                                    cvThread = Task.Run(() => eventsProcesser.Process(sampleWriter, _waveFormat, _cancToken.Token, f =>
                                     {
                                         _validator.AddEvent();
                                         return _validator.AddMIDIEvent();
+                                    }));
+                                    Debug.PrintToConsole(Debug.LogType.Message, $"ConvThread started for T{track}");
+
+                                    while (!cvThread.IsCompleted)
+                                    {
+                                        if (_cancToken.IsCancellationRequested)
+                                            throw new OperationCanceledException();
+
+                                        eventsProcesser.RefreshInfo();
+
+                                        AutoFillInfo(ConvStatus.MultiConv);
+
+                                        Thread.Sleep(100);
                                     }
-                                    catch (ObjectDisposedException) { return 0; }
-                                }));
-                                Debug.PrintToConsole(Debug.LogType.Message, $"ConvThread started for T{track}");
 
-                                while (!cvThread.IsCompleted)
-                                {
-                                    if (_cancToken.IsCancellationRequested)
-                                        throw new OperationCanceledException();
-
+                                    // Update panel to 100%
                                     AutoFillInfo(ConvStatus.MultiConv);
 
-                                    Thread.Sleep(100);
+                                    if (cvThread != null)
+                                    {
+                                        cvThread.Wait();
+                                        cvThread.Dispose();
+                                    }
+
+                                    Dispatcher.UIThread.Post(() => trackPanel?.Dispose());
                                 }
-
-                                // Update panel to 100%
-                                AutoFillInfo(ConvStatus.MultiConv);
-
-                                if (cvThread != null)
-                                {
-                                    cvThread.Wait();
-                                    cvThread.Dispose();                                
-                                }
-
-                                eventsProcesser.Dispose();
-
-                                Dispatcher.UIThread.Post(() => trackPanel?.Dispose());
 
                                 if (perTrackFile)
                                 {
@@ -815,10 +809,11 @@ namespace OmniConverter
         public override double Remaining => totalEvents - processedEvents;
         public override double Processed => processedEvents;
         public override double Length => length;
+        public override void RefreshInfo() => midiRenderer?.RefreshInfo();
 
         public int ActiveVoices => midiRenderer != null ? midiRenderer.ActiveVoices : 0;
-        public ulong PlayedNotes => playedNotes;
         public float RenderingTime => midiRenderer != null ? midiRenderer.RenderingTime : 0.0f;
+        public ulong PlayedNotes => playedNotes;
         public bool IsRTS => rtsMode;
         public double Framerate => 1 / curFrametime;
 
@@ -851,7 +846,7 @@ namespace OmniConverter
 
         public void Process(ISampleWriter output, WaveFormat waveFormat, CancellationToken cancToken, Func<ulong, ulong>? f = null)
         {
-            Random r = new Random();
+            var r = new Random();
 
             var volume = Program.Settings.Volume;
             rtsMode = Program.Settings.RTSMode;
@@ -864,36 +859,36 @@ namespace OmniConverter
             var minFps = rtsFr - percFps;
             var maxFps = rtsFr + percFps;
 
-            switch (audioRenderer)
+            try
             {
-                case BASS bass:
-                    midiRenderer = new BASSMIDI(bass);
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (midiRenderer != null)
-            {
-                midiRenderer.ChangeVolume(volume);
-
-                float[] buffer = new float[64 * waveFormat.BlockAlign];
-                long prevWriteTime = 0;
-                double deltaTime = 0;
-                byte[] scratch = new byte[16];
-
-                Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {midiRenderer.UniqueID}.");
-
-                // Prepare stream
-                if (Program.Settings.OverrideEffects)
+                switch (audioRenderer)
                 {
-                    for (int i = 0; i <= 15; i++)
-                        midiRenderer.SendCustomFXEvents(i, Program.Settings.ReverbVal, Program.Settings.ChorusVal);
+                    case BASS bass:
+                        midiRenderer = new BASSMIDI(bass);
+                        break;
+
+                    default:
+                        break;
                 }
 
-                try
+                if (midiRenderer != null)
                 {
+                    midiRenderer.ChangeVolume(volume);
+
+                    float[] buffer = new float[64 * waveFormat.BlockAlign];
+                    long prevWriteTime = 0;
+                    double deltaTime = 0;
+                    byte[] scratch = new byte[16];
+
+                    Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {midiRenderer.UniqueID}.");
+
+                    // Prepare stream
+                    if (Program.Settings.OverrideEffects)
+                    {
+                        for (int i = 0; i <= 15; i++)
+                            midiRenderer.SendCustomFXEvents(i, Program.Settings.ReverbVal, Program.Settings.ChorusVal);
+                    }
+
                     if (events != null)
                     {
                         foreach (MIDIEvent e in events)
@@ -951,7 +946,7 @@ namespace OmniConverter
                                     midiRenderer.SendEvent(eb);
                                     break;
 
-                                case NoteOffEvent:                     
+                                case NoteOffEvent:
                                 case PitchWheelChangeEvent:
                                 case ChannelPressureEvent:
                                 case ChannelModeMessageEvent:
@@ -969,25 +964,25 @@ namespace OmniConverter
                             file.Return(e);
                         }
                     }
-                }
-                catch (OperationCanceledException) { }
-                catch (Exception ex)
-                {
-                    Debug.PrintToConsole(Debug.LogType.Warning, $"{midiRenderer.UniqueID} - DataParsingError {ex.Message}");
+
+                    // MIDI renderer does support end event,
+                    // wait for the audio to reach a stop
+                    if (midiRenderer.SendEndEvent())
+                    {
+                        int read;
+
+                        while ((read = midiRenderer.Read(buffer, 0, buffer.Length)) != 0)
+                            output.Write(buffer, 0, read);
+                    }
                 }
 
-                // MIDI renderer does support end event,
-                // wait for the audio to reach a stop
-                if (midiRenderer.SendEndEvent())
-                {
-                    int read;
-
-                    while ((read = midiRenderer.Read(buffer, 0, buffer.Length)) != 0)
-                        output.Write(buffer, 0, read);
-                }              
+                output.Flush();
             }
-
-            output.Flush();
+            catch (OperationCanceledException) { }
+            catch (Exception ex)
+            {
+                Debug.PrintToConsole(Debug.LogType.Warning, $"{midiRenderer?.UniqueID} - DataParsingError {ex.Message}");
+            }
         }
     }
 }

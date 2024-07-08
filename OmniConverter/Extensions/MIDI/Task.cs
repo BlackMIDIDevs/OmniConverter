@@ -10,6 +10,7 @@ namespace OmniConverter
         public abstract double Remaining { get; }
         public abstract double Length { get; }
         public abstract double Processed { get; }
+        public abstract void RefreshInfo();
 
         public void Dispose()
         {

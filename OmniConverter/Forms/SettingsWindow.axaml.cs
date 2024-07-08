@@ -59,6 +59,7 @@ public partial class SettingsWindow : Window
 
         DisableFX.IsChecked = Program.Settings.DisableEffects;
         NoteOff1.IsChecked = Program.Settings.NoteOff1;
+        KilledNoteFading.IsChecked = Program.Settings.KilledNoteFading;
         AudioLimiter.IsChecked = Program.Settings.AudioLimiter;
         AudioCodecChanged(sender, new SelectionChangedEventArgs(e.RoutedEvent, null, null));
 
@@ -283,6 +284,8 @@ public partial class SettingsWindow : Window
             Program.Settings.DisableEffects = (bool)DisableFX.IsChecked;
         if (NoteOff1.IsChecked != null)
             Program.Settings.NoteOff1 = (bool)NoteOff1.IsChecked;
+        if (KilledNoteFading.IsChecked != null)
+            Program.Settings.KilledNoteFading = (bool)KilledNoteFading.IsChecked;
 
         if (AudioLimiter.IsChecked != null && !ForceLimitAudio)
             Program.Settings.AudioLimiter = (bool)AudioLimiter.IsChecked;
