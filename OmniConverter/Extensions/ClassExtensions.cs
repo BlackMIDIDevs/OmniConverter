@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -116,9 +114,9 @@ namespace OmniConverter
 
     public class CustomSynchronizationContext : SynchronizationContext
     {
-        public override void Post(SendOrPostCallback action, object state)
+        public override void Post(SendOrPostCallback action, object? state)
         {
-            SendOrPostCallback actionWrap = (object state2) =>
+            SendOrPostCallback actionWrap = (object? state2) =>
             {
                 SynchronizationContext.SetSynchronizationContext(new CustomSynchronizationContext());
                 action.Invoke(state2);
@@ -130,7 +128,7 @@ namespace OmniConverter
         {
             return new CustomSynchronizationContext();
         }
-        public override void Send(SendOrPostCallback d, object state)
+        public override void Send(SendOrPostCallback d, object? state)
         {
             base.Send(d, state);
         }
@@ -145,7 +143,7 @@ namespace OmniConverter
 
         public static TaskScheduler GetSynchronizationContext()
         {
-            TaskScheduler taskScheduler = null;
+            TaskScheduler? taskScheduler = null;
 
             try
             {
@@ -173,7 +171,7 @@ namespace OmniConverter
                 catch { }
             }
 
-            return taskScheduler;
+            return taskScheduler ?? throw new InvalidOperationException();
         }
     }
 }

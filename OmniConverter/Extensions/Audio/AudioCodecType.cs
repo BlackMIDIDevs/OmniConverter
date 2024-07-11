@@ -45,14 +45,14 @@ namespace OmniConverter
         // Hacky shit
         public static string? CheckFFMpegDirectory()
         {
-            string? query = string.Empty;
-            string? result = string.Empty;
+            string? query = null;
+            string? result = null;
             var ffmpegbin = $"ffmpeg{(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : "")}";
             var ffmpegoc = $"{AppContext.BaseDirectory}/{ffmpegbin}";
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                query = Environment.GetEnvironmentVariable("PATH")
+                query = Environment.GetEnvironmentVariable("PATH")?
                     .Split(';')
                     .Where(s => File.Exists(Path.Combine(s, ffmpegbin)))
                     .FirstOrDefault();
@@ -74,7 +74,7 @@ namespace OmniConverter
 
                 Debug.PrintToConsole(Debug.LogType.Message, $"Filepath for ffmpeg is: \"{query}\"");
 
-                if (File.Exists($"{query}"))
+                if (!ffmpegoc.Equals(query) && File.Exists($"{query}"))
                 {
                     result = Path.GetDirectoryName(query);
                     Debug.PrintToConsole(Debug.LogType.Message, $"Final directory for ffmpeg is \"{result}\"");

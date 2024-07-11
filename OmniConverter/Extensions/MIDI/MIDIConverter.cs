@@ -2,21 +2,17 @@
 using Avalonia.Threading;
 using CSCore;
 using CSCore.Codecs.WAV;
-using CSCore.MediaFoundation;
 using FFMpegCore;
 using MIDIModificationFramework;
 using MIDIModificationFramework.MIDIEvents;
-using OmniConverter.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Tmds.DBus.Protocol;
 
 namespace OmniConverter
 {

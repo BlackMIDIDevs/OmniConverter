@@ -1,29 +1,21 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Media;
+using Octokit;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
 using Color = Avalonia.Media.Color;
 
 namespace OmniConverter
 {
     public class UpdateSystem
     {
-        [DllImport("wininet.dll")]
-        public extern static bool InternetGetConnectedState(out int connDescription, int ReservedValue);
+        public static GitHubClient UpdateClient = new GitHubClient(new ProductHeaderValue(ProductName));
 
-        public static string ProductName = "OmniConverter";
-        public static Octokit.GitHubClient UpdateClient = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(ProductName));
-
-        public static string SetupFile = "https://github.com/KaleidonKep99/OmniConverter/releases/download/{0}/OmniConverterSetup.exe";
-        public static string UpdatePage = "https://github.com/KaleidonKep99/OmniConverter/releases/tag/{0}";
+        public const string ProductName = "OmniConverter";
+        public const string GitHubPage = $"https://github.com/KaleidonKep99/{ProductName}";
+        public const string SetupFile = $"{GitHubPage}/releases/download/{{0}}/OmniConverterSetup.exe";
+        public const string UpdatePage = $"{GitHubPage}/releases/tag/{{0}}";
 
         public const int NORMAL = 0x0;
         public const int USERFOLDER_PATH = 0x1;
@@ -42,8 +34,18 @@ namespace OmniConverter
 
         public static bool IsInternetAvailable()
         {
-            int Desc;
-            return InternetGetConnectedState(out Desc, 0);
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var response = client.GetAsync(GitHubPage).Result;
+                    response.EnsureSuccessStatusCode();
+                    return true;
+                }
+            }
+            catch { }
+
+            return false;
         }
 
         public static void CheckThenUpdate(String ReturnVal, Int32 InstallMode)
@@ -62,8 +64,8 @@ namespace OmniConverter
 
         public static void TriggerUpdateWindow(Version CurVer, Version OLVer, String newestversion, bool forced, bool startup)
         {
-            string UTitle = null;
-            string UText = null;
+            string UTitle = string.Empty;
+            string UText = string.Empty;
             string RVal = "0.0.0.0";
 
             if (forced && startup) CheckThenUpdate(newestversion, UpdateSystem.NORMAL);
@@ -110,7 +112,7 @@ namespace OmniConverter
             {
                 try
                 {
-                    Octokit.Release Release = UpdateClient.Repository.Release.GetLatest("KeppySoftware", "OmniConverter").Result;
+                    Octokit.Release Release = UpdateClient.Repository.Release.GetLatest("KaleidonKep99", "OmniConverter").Result;
                     Process.Start(String.Format(UpdatePage, Release.TagName));
                 }
                 catch (Exception ex)
@@ -122,59 +124,35 @@ namespace OmniConverter
 
         public static string GetCurrentBranch()
         {
-            switch (Program.Settings.UpdateBranch)
+            return Program.Settings.UpdateBranch switch
             {
-                case Branch.Canary:
-                    return "Canary branch";
-
-                case Branch.Release:
-                    return "Release branch";
-
-                case Branch.Delay:
-                    return "Delayed branch";
-
-                case Branch.None:
-                default:
-                    return "No branch selected";
-            }
+                Branch.Canary => "Canary branch",
+                Branch.Release => "Release branch",
+                Branch.Delay => "Delayed branch",
+                _ => "No branch selected",
+            };
         }
 
         public static Color GetCurrentBranchColor()
         {
-            switch (Program.Settings.UpdateBranch)
+            return Program.Settings.UpdateBranch switch
             {
-                case Branch.Canary:
-                    return Color.FromRgb(221, 172, 5);
-
-                case Branch.Release:
-                    return Color.FromRgb(158, 14, 204);
-
-                case Branch.Delay:
-                    return Color.FromRgb(84, 110, 122);
-
-                case Branch.None:
-                default:
-                    return Color.FromRgb(182, 0, 0);
-            }
+                Branch.Canary => Color.FromRgb(221, 172, 5),
+                Branch.Release => Color.FromRgb(158, 14, 204),
+                Branch.Delay => Color.FromRgb(84, 110, 122),
+                _ => Color.FromRgb(182, 0, 0),
+            };
         }
 
         public static string GetCurrentBranchToolTip()
         {
-            switch (Program.Settings.UpdateBranch)
+            return Program.Settings.UpdateBranch switch
             {
-                case Branch.Canary:
-                    return "Receive all updates.\nYou may get broken updates that haven't been fully tested.\nDesigned for testers and early adopters.";
-
-                case Branch.Release:
-                    return "Receive occasional updates and urgent bugfixes (Eg. from version x.0.x.x to x.1.x.x).\nRecommended.";
-
-                case Branch.Delay:
-                    return "You will only get major releases (Eg. from version 0.x.x.x to 1.x.x.x).\nFor those who do not wish to update often.\nNot recommended.";
-
-                case Branch.None:
-                default:
-                    return "No information, since you didn't chose a branch.";
-            }
+                Branch.Canary => "Receive all updates.\nYou may get broken updates that haven't been fully tested.\nDesigned for testers and early adopters.",
+                Branch.Release => "Receive occasional updates and urgent bugfixes (Eg. from version x.0.x.x to x.1.x.x).\nRecommended.",
+                Branch.Delay => "You will only get major releases (Eg. from version 0.x.x.x to 1.x.x.x).\nFor those who do not wish to update often.\nNot recommended.",
+                _ => "No branch selected.",
+            };
         }
 
         public static void CheckForUpdates(bool forced, bool startup, Window? owner = null)
@@ -188,7 +166,7 @@ namespace OmniConverter
             {
                 try
                 {
-                    Octokit.Release Release = UpdateClient.Repository.Release.GetAll("KaleidonKep99", "OmniConverter").Result[0];
+                    Release Release = UpdateClient.Repository.Release.GetAll("KaleidonKep99", "OmniConverter").Result[0];
 
                     Version? convOnline = null;
                     Version.TryParse(Release.TagName, out convOnline);

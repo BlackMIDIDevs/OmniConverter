@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using Avalonia.Controls;
+using System;
 using System.Runtime.InteropServices;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Platform;
-using ManagedBass;
 
 namespace OmniConverter.Extensions
 {

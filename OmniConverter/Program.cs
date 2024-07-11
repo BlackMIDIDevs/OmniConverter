@@ -15,7 +15,6 @@ namespace OmniConverter
         private static readonly string settingsPath = AppContext.BaseDirectory + "/settings.json";
         public static Settings Settings { get; private set; } = new();
         public static SoundFonts SoundFontsManager { get; private set; } = new();
-        public static DiscordRPC? RichPresence { get; private set; }
         public static bool FFmpegAvailable { get; private set; } = false;
 
         // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -56,7 +55,6 @@ namespace OmniConverter
                 }
 
                 LoadConfig(true);
-                // RichPresence.SetPresence("Idle", "Idling");
 
                 aval.StartWithClassicDesktopLifetime(args);
             }

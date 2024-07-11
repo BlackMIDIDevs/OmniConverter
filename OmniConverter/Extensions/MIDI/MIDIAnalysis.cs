@@ -1,17 +1,12 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Threading;
-using Octokit;
-using Monad.FLParser;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Project = Monad.FLParser.Project;
 
 namespace OmniConverter
 {

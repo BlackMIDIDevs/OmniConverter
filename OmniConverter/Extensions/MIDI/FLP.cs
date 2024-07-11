@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Monad.FLParser;
+﻿using Avalonia.Platform.Storage;
 using MIDIModificationFramework;
 using MIDIModificationFramework.Generator;
 using MIDIModificationFramework.MIDIEvents;
-using Avalonia.Platform.Storage;
+using Monad.FLParser;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 using Note = MIDIModificationFramework.Note;
 

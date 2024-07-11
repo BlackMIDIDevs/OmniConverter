@@ -1,23 +1,10 @@
 ﻿using CSCore;
+using ManagedBass;
+using ManagedBass.Fx;
+using ManagedBass.Midi;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using ManagedBass;
-using ManagedBass.Midi;
-using ManagedBass.Fx;
-using System.Threading.Channels;
-using MIDIModificationFramework;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-using System.Threading;
-using System.Reflection.Metadata;
-using System.Diagnostics;
-using Avalonia.Threading;
 using System.Collections.ObjectModel;
-using Avalonia.Media;
 
 // Written with help from Arduano
 
@@ -110,16 +97,27 @@ namespace OmniConverter
             */
 
             if (!Bass.Init(Bass.NoSoundDevice, waveFormat.SampleRate, DeviceInitFlags.Default))
-                throw new BassException(Bass.LastError);
+            {
+                if (initSFs != null)
+                    _bassArray = InitializeSoundFonts(initSFs);
 
-            if (initSFs != null)
-                _bassArray = InitializeSoundFonts(initSFs);
+                var tmp = BassMidi.CreateStream(2, BassFlags.Default, 0);
 
-            Initialized = true;
+                if (tmp != 0)
+                {
+                    Bass.Configure(Configuration.MidiVoices, Program.Settings.MaxVoices);
+                    Bass.Configure(Configuration.SRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
+                    Bass.Configure(Configuration.SampleSRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
 
-            Bass.Configure(Configuration.MidiVoices, Program.Settings.MaxVoices);
-            Bass.Configure(Configuration.SRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
-            Bass.Configure(Configuration.SampleSRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
+                    Bass.StreamFree(tmp);
+
+                    Initialized = true;
+
+                    return;
+                }
+            }
+
+            throw new BassException(Bass.LastError);
         }
 
         protected override void Dispose(bool disposing)
