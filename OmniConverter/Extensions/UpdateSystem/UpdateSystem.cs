@@ -115,21 +115,13 @@ namespace OmniConverter
 
         public static string GetCurrentBranch()
         {
-            switch (Program.Settings.UpdateBranch)
+            return Program.Settings.UpdateBranch switch
             {
-                case Branch.Canary:
-                    return "Canary branch";
-
-                case Branch.Release:
-                    return "Release branch";
-
-                case Branch.Delay:
-                    return "Delayed branch";
-
-                case Branch.None:
-                default:
-                    return "No branch selected";
-            }
+                Branch.Canary => "Canary branch",
+                Branch.Release => "Release branch",
+                Branch.Delay => "Delayed branch",
+                _ => "No branch selected",
+            };
         }
 
         public static Color GetCurrentBranchColor()
@@ -153,21 +145,13 @@ namespace OmniConverter
 
         public static string GetCurrentBranchToolTip()
         {
-            switch (Program.Settings.UpdateBranch)
+            return Program.Settings.UpdateBranch switch
             {
-                case Branch.Canary:
-                    return "Receive all updates.\nYou may get broken updates that haven't been fully tested.\nDesigned for testers and early adopters.";
-
-                case Branch.Release:
-                    return "Receive occasional updates and urgent bugfixes (Eg. from version x.0.x.x to x.1.x.x).\nRecommended.";
-
-                case Branch.Delay:
-                    return "You will only get major releases (Eg. from version 0.x.x.x to 1.x.x.x).\nFor those who do not wish to update often.\nNot recommended.";
-
-                case Branch.None:
-                default:
-                    return "No information, since you didn't chose a branch.";
-            }
+                Branch.Canary => "Receive all updates.\nYou may get broken updates that haven't been fully tested.\nDesigned for testers and early adopters.",
+                Branch.Release => "Receive occasional updates and urgent bugfixes (Eg. from version x.0.x.x to x.1.x.x).\nRecommended.",
+                Branch.Delay => "You will only get major releases (Eg. from version 0.x.x.x to 1.x.x.x).\nFor those who do not wish to update often.\nNot recommended.",
+                _ => "No information, since you didn't chose a branch.",
+            };
         }
 
         public static void CheckForUpdates(bool forced, bool startup, Window? owner = null)
