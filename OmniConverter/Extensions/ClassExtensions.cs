@@ -143,7 +143,7 @@ namespace OmniConverter
 
         public static TaskScheduler GetSynchronizationContext()
         {
-            TaskScheduler taskScheduler = null;
+            TaskScheduler? taskScheduler = null;
 
             try
             {
@@ -171,7 +171,7 @@ namespace OmniConverter
                 catch { }
             }
 
-            return taskScheduler;
+            return taskScheduler ?? throw new InvalidOperationException();
         }
     }
 }
