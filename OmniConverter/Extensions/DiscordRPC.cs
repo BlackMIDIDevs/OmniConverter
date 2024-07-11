@@ -1,11 +1,12 @@
-﻿using DiscordRPC;
+﻿using System;
+using DiscordRPC;
 
 namespace OmniConverter
 {
     public class DiscordRPC
     {
-        private readonly string _clientId = "1254865981549969449";
-        private DiscordRpcClient _client;
+        private const string _clientId = "1254865981549969449";
+        private readonly DiscordRpcClient _client;
         private bool _cleared = true;
 
         public DiscordRPC()
@@ -17,7 +18,7 @@ namespace OmniConverter
                 if (e.Presence != null)
                 {
                     string? pres = e.Presence.ToString();
-                    Debug.PrintToConsole(Debug.LogType.Message, pres != null ? pres : string.Empty);
+                    Debug.PrintToConsole(Debug.LogType.Message, pres ?? string.Empty);
                 }
             };
         }
