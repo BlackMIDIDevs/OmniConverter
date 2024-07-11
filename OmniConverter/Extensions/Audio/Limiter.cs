@@ -1,9 +1,5 @@
-﻿using CSCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using CSCore;
 
 // Code from Kiva Realtime MIDI Player, written by Arduano
 // https://github.com/arduano

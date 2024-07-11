@@ -1,9 +1,9 @@
-﻿using FFMpegCore;
-using FFMpegCore.Enums;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using FFMpegCore;
+using FFMpegCore.Enums;
 
 namespace OmniConverter
 {

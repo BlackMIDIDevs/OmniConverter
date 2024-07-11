@@ -1,13 +1,13 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace OmniConverter
 {
@@ -97,12 +97,13 @@ namespace OmniConverter
 
                 string temp = string.Empty;
 
-                Dispatcher.UIThread.Post(() => {
+                Dispatcher.UIThread.Post(() =>
+                {
                     var _ = iShow(owner, text, title, buttons, icon, hlparams).ContinueWith(answer =>
                     {
                         temp = answer.Result;
                         source.Cancel();
-                    });         
+                    });
                 });
 
                 if (isMainThread) Dispatcher.UIThread.MainLoop(source.Token);

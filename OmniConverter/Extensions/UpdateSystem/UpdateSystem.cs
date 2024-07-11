@@ -1,15 +1,8 @@
-﻿using Avalonia.Controls;
-using Avalonia.Media;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
+using Avalonia.Controls;
 using Color = Avalonia.Media.Color;
 
 namespace OmniConverter

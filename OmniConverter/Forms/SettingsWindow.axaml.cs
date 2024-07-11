@@ -1,9 +1,9 @@
-using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Platform.Storage;
 using System;
 using System.IO;
 using System.Linq;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 
 namespace OmniConverter;
 
@@ -43,7 +43,7 @@ public partial class SettingsWindow : Window
         {
             var items = AudioCodec.Items.Where(item => !((ComboBoxItem)item).Name.Contains("WAV"));
 
-            foreach ( var item in items.ToList())
+            foreach (var item in items.ToList())
                 AudioCodec.Items.Remove(item);
 
             NoFFMPEGFound = true;
@@ -155,7 +155,7 @@ public partial class SettingsWindow : Window
     }
 
     private void AudioCodecChanged(object? sender, SelectionChangedEventArgs e)
-    {   
+    {
         if (AudioCodec != null)
         {
             AudioBitrate.IsEnabled = AudioCodec.SelectedIndex > 1;
@@ -271,7 +271,7 @@ public partial class SettingsWindow : Window
         object? item = SampleRate.Items[SampleRate.SelectedIndex];
         if (item != null)
             Program.Settings.SampleRate = Convert.ToInt32(((ComboBoxItem)item).Content);
-        if (MaxVoices.Value != null) 
+        if (MaxVoices.Value != null)
             Program.Settings.MaxVoices = (int)MaxVoices.Value;
 
         Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;
@@ -303,7 +303,7 @@ public partial class SettingsWindow : Window
             Program.Settings.VelocityLow = (int)VelocityLowValue.Value;
         if (VelocityHighValue.Value != null)
             Program.Settings.VelocityHigh = (int)VelocityHighValue.Value;
-        
+
         if (FilterKey.IsChecked != null)
             Program.Settings.FilterKey = (bool)FilterKey.IsChecked;
         if (KeyLowValue.Value != null)

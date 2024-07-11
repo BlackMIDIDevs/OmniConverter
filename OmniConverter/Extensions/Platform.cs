@@ -1,10 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Platform;
-using ManagedBass;
 
 namespace OmniConverter.Extensions
 {
@@ -13,11 +9,11 @@ namespace OmniConverter.Extensions
         // https://stackoverflow.com/questions/1295890/windows-7-progress-bar-in-taskbar-in-c
         public enum TaskbarState
         {
-            NoProgress    = 0,
+            NoProgress = 0,
             Indeterminate = 1,
-            Normal        = 2,
-            Error         = 4,
-            Paused        = 8
+            Normal = 2,
+            Error = 4,
+            Paused = 8
         }
 
 #if WINDOWS
@@ -48,8 +44,8 @@ namespace OmniConverter.Extensions
             [PreserveSig]
             void SetProgressState(IntPtr hwnd, TaskbarState state);
         }
-        
-        [ComImport()]    
+
+        [ComImport()]
         [Guid("56fdf344-fd6d-11d0-958a-006097c9a090")]
         [ClassInterface(ClassInterfaceType.None)]
         private class TaskbarInstance
@@ -58,7 +54,7 @@ namespace OmniConverter.Extensions
 
         private static ITaskbarList3 _taskbarInstance = (ITaskbarList3)new TaskbarInstance();
         private static TaskbarState _lastState = TaskbarState.NoProgress;
-        
+
         public static void SetTaskbarProgress(Window window, TaskbarState state, ulong cur = 0, ulong total = 0)
         {
             var handle = window.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;

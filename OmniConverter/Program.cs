@@ -1,12 +1,12 @@
-﻿using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using FFMpegCore;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using FFMpegCore;
+using Newtonsoft.Json;
 
 namespace OmniConverter
 {
@@ -167,7 +167,7 @@ namespace OmniConverter
             {
                 Console.WriteLine($"OmniConverter v{CV.Major}.{CV.Minor}.{CV.Build}");
                 Console.WriteLine($"Copyright (C) 2019-{DateTime.Today.Year} Keppy's Software\nYou're not supposed to be here!\n");
-            }     
+            }
         }
 
         public static void PrintToConsole(
@@ -189,13 +189,14 @@ namespace OmniConverter
                     case LogType.Error:
                         Console.ForegroundColor = ConsoleColor.Red;
                         break;
-                    default:
+                    case LogType.Unknown:
                     case LogType.Message:
+                    default:
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
                 }
 
-                Console.Write($"{Message}\n");
+                Console.Write(Message + "\n");
             }
         }
     }

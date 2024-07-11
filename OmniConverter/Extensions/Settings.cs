@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 
 namespace OmniConverter
 {

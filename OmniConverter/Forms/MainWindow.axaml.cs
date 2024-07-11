@@ -1,21 +1,16 @@
-using Avalonia;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Media;
-using Avalonia.Platform.Storage;
-using Avalonia.Threading;
-using ManagedBass.Midi;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 
 namespace OmniConverter
 {
@@ -131,7 +126,7 @@ namespace OmniConverter
 
                 double v = OutputVolumeSlider.Value / 100.0f;
                 OutputVolumeLab.Content = $"({20 * Math.Log10(v):0.00}dB) {OutputVolumeSlider.Value:000.00}%";
-            }             
+            }
         }
 
         public void SelectedMIDIChanged(object? sender, SelectionChangedEventArgs e)
@@ -193,13 +188,13 @@ namespace OmniConverter
                     MIDIs.Remove(midi);
 
                 CheckWatermark();
-            }   
+            }
         }
 
         private void ClearList(object? sender, RoutedEventArgs e)
         {
             var dr = MessageBox.Show(this, "Are you sure you want to clear the list?", "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
-            
+
             switch (dr)
             {
                 case MessageBox.MsgBoxResult.Yes:

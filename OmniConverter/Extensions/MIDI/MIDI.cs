@@ -1,12 +1,12 @@
-﻿using Avalonia.Platform.Storage;
-using CommunityToolkit.Mvvm.ComponentModel;
-using MIDIModificationFramework;
-using MIDIModificationFramework.MIDIEvents;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using MIDIModificationFramework;
+using MIDIModificationFramework.MIDIEvents;
 
 namespace OmniConverter
 {
@@ -62,11 +62,12 @@ namespace OmniConverter
         public string HumanReadableSize { get => MiscFunctions.BytesToHumanReadableSize(_fileSize); }
         public MidiFile LoadedFile { get => _loadedFile; }
         public ulong[] EventCounts { get => _eventCounts; }
-        public ulong TotalEventCount {
+        public ulong TotalEventCount
+        {
             get
             {
                 ulong sum = 0;
-                for (int i = 0; i <  _eventCounts.Length; i++)
+                for (int i = 0; i < _eventCounts.Length; i++)
                     sum += _eventCounts[i];
                 return sum;
             }
@@ -316,7 +317,8 @@ namespace OmniConverter
         public void SetTotalEventsCount(List<ulong> events) { _events = events; }
         public ulong AddEvent() { return _processedEvents++; }
         public ulong AddEvents(ulong events) { return _processedEvents += events; }
-        public ulong GetTotalEvents() {
+        public ulong GetTotalEvents()
+        {
             // No LINQ sum for ulong[]...
             ulong sum = 0;
             for (int i = 0; i < _events.Count; i++)

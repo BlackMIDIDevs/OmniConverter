@@ -1,5 +1,5 @@
-﻿using CSCore;
-using System;
+﻿using System;
+using CSCore;
 
 namespace OmniConverter
 {

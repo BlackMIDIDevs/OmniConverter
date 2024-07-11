@@ -1,5 +1,4 @@
 ﻿using DiscordRPC;
-using DiscordRPC.Logging;
 
 namespace OmniConverter
 {

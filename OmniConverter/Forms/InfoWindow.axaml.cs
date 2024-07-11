@@ -1,12 +1,12 @@
+using System;
+using System.Diagnostics;
+using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using ManagedBass;
 using ManagedBass.Midi;
-using System;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace OmniConverter;
 

@@ -1,23 +1,7 @@
-using Avalonia;
+using System;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using DynamicData.Alias;
-using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using System.Threading.Tasks;
 using OmniConverter.Extensions;
 
 namespace OmniConverter;
@@ -104,7 +88,7 @@ public partial class MIDIWindow : Window
             {
                 _feeder.Start();
                 return;
-            }   
+            }
         }
 
         Close();
@@ -121,8 +105,10 @@ public partial class MIDIWindow : Window
         Progress.Value = _worker?.GetProgress() ?? 0;
 
         if (TrackProgress.IsVisible)
-            TrackProgress.Value = ((MIDIConverter?)_worker).GetTracksProgress();
-        
+        {
+            TrackProgress.Value = ((MIDIConverter?)_worker)?.GetTracksProgress() ?? 0;
+        }
+
         Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.Normal, (ulong)Progress.Value, 100);
     }
 
@@ -164,7 +150,7 @@ public partial class MIDIWindow : Window
 
         if (_winRef != null)
             _winRef.NullMIDIWindow(this);
-        
+
         _feeder.Tick -= FeederTick;
         _feeder.Stop();
         Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.NoProgress);

@@ -1,11 +1,11 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using ManagedBass.Midi;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace OmniConverter;
 

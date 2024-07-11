@@ -76,7 +76,7 @@ namespace OmniConverter
                         Stream.Length = Length;
 
                         GC.Collect(2);
-                    }   
+                    }
                 }
             }
 

@@ -1,6 +1,6 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using System;
 
 namespace OmniConverter;
 
@@ -42,7 +42,7 @@ public partial class TaskStatus : UserControl
         _dtStart = DateTime.Now;
 
         _trackMode = title?.ToLower().Contains("track") ?? false;
-        _proc = proc;   
+        _proc = proc;
         switch (_proc)
         {
             case EventsProcesser:

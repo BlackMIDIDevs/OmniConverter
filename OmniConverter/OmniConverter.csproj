@@ -11,6 +11,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <PublishAot>False</PublishAot>
     <SignAssembly>False</SignAssembly>
+	<!--<Nullable>disable</Nullable> ???-->
     <Title>OmniConverter</Title>
     <PackageIcon>OmniConverter.png</PackageIcon>
     <ApplicationIcon>OCLogo.ico</ApplicationIcon>
