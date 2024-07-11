@@ -55,9 +55,9 @@ namespace OmniConverter
 
         public static void TriggerUpdateWindow(Version CurVer, Version OLVer, String newestversion, bool forced, bool startup)
         {
-            string UTitle = null;
-            string UText = null;
-            string RVal = "0.0.0.0";
+            string? UTitle = null;
+            string? UText = null;
+            string? RVal = "0.0.0.0";
 
             if (forced && startup) CheckThenUpdate(newestversion, UpdateSystem.NORMAL);
             else
@@ -106,7 +106,7 @@ namespace OmniConverter
                     Octokit.Release Release = UpdateClient.Repository.Release.GetLatest("KeppySoftware", "OmniConverter").Result;
                     Process.Start(String.Format(UpdatePage, Release.TagName));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     MessageBox.Show(_owner, "An error has occurred while trying to show you the latest changelog.\nPlease try again later.", $"{ProductName} - Unknown Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                 }
@@ -251,7 +251,7 @@ namespace OmniConverter
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     MessageBox.Show(_owner, "An error has occurred while checking for updates.\nPlease try again later.", $"{ProductName} - Unknown Error", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Error);
                     NoUpdates(startup, internetok);
