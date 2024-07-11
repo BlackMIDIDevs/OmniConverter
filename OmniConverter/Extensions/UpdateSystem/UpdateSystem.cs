@@ -126,21 +126,13 @@ namespace OmniConverter
 
         public static Color GetCurrentBranchColor()
         {
-            switch (Program.Settings.UpdateBranch)
+            return Program.Settings.UpdateBranch switch
             {
-                case Branch.Canary:
-                    return Color.FromRgb(221, 172, 5);
-
-                case Branch.Release:
-                    return Color.FromRgb(158, 14, 204);
-
-                case Branch.Delay:
-                    return Color.FromRgb(84, 110, 122);
-
-                case Branch.None:
-                default:
-                    return Color.FromRgb(182, 0, 0);
-            }
+                Branch.Canary => Color.FromRgb(221, 172, 5),
+                Branch.Release => Color.FromRgb(158, 14, 204),
+                Branch.Delay => Color.FromRgb(84, 110, 122),
+                _ => Color.FromRgb(182, 0, 0),
+            };
         }
 
         public static string GetCurrentBranchToolTip()
@@ -167,8 +159,7 @@ namespace OmniConverter
                 {
                     Octokit.Release Release = UpdateClient.Repository.Release.GetAll("KaleidonKep99", "OmniConverter").Result[0];
 
-                    Version? convOnline = null;
-                    Version.TryParse(Release.TagName, out convOnline);
+                    Version.TryParse(Release.TagName, out Version? convOnline);
                     Version? convCurrent = Assembly.GetExecutingAssembly().GetName().Version;
 
                     if (convCurrent != null && convOnline != null)
