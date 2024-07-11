@@ -52,8 +52,8 @@ namespace OmniConverter.Extensions
         {
         }
 
-        private static ITaskbarList3 _taskbarInstance = (ITaskbarList3)new TaskbarInstance();
-        private static TaskbarState _lastState = TaskbarState.NoProgress;
+        private readonly static ITaskbarList3 _taskbarInstance = (ITaskbarList3)new TaskbarInstance();
+        private readonly static TaskbarState _lastState = TaskbarState.NoProgress;
 
         public static void SetTaskbarProgress(Window window, TaskbarState state, ulong cur = 0, ulong total = 0)
         {
