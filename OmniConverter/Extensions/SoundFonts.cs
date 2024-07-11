@@ -67,9 +67,9 @@ namespace OmniConverter
 
         public static FilePickerFileType SoundFontAll { get; } = new("SoundFonts")
         {
-            Patterns = new[] { "*.sf2", "*.sf3", "*.sfz" },
-            AppleUniformTypeIdentifiers = new[] { "soundfont" },
-            MimeTypes = new[] { "audio/x-soundfont" }
+            Patterns = ["*.sf2", "*.sf3", "*.sfz"],
+            AppleUniformTypeIdentifiers = ["soundfont"],
+            MimeTypes = ["audio/x-soundfont"]
         };
     }
 
