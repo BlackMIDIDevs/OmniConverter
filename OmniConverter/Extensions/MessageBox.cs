@@ -93,7 +93,11 @@ namespace OmniConverter
 
             try
             {
-                if (isMainThread) Dispatcher.UIThread.Post(() => owner.IsEnabled = false);
+                if (isMainThread) Dispatcher.UIThread.Post(() =>
+                {
+                    if (owner != null)
+                        owner.IsEnabled = false;
+                });
 
                 string temp = string.Empty;
 
