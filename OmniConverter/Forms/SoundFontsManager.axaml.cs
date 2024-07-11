@@ -9,6 +9,7 @@ using ManagedBass.Midi;
 
 namespace OmniConverter;
 
+#pragma warning disable CA1822 // Mark members as static
 public partial class SoundFontsManager : Window
 {
     public SoundFontsManager()

@@ -6,6 +6,7 @@ using OmniConverter.Extensions;
 
 namespace OmniConverter;
 
+#pragma warning disable CA1822 // Mark members as static
 public partial class MIDIWindow : Window
 {
     private MIDIWorker? _worker = null;

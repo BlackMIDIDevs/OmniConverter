@@ -12,6 +12,7 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 
+#pragma warning disable CA1822 // Mark members as static
 namespace OmniConverter
 {
     public partial class MainWindow : Window

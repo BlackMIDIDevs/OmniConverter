@@ -7,6 +7,7 @@ using Avalonia.Platform.Storage;
 
 namespace OmniConverter;
 
+#pragma warning disable CA1822 // Mark members as static
 public partial class SettingsWindow : Window
 {
     private bool ForceLimitAudio = false;
