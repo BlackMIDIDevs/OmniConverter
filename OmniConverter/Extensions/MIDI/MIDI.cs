@@ -60,7 +60,7 @@ namespace OmniConverter
         public long Notes { get => _noteCount; }
         public ulong Size { get => _fileSize; }
         public string HumanReadableSize { get => MiscFunctions.BytesToHumanReadableSize(_fileSize); }
-        public MidiFile LoadedFile { get => _loadedFile; }
+        public MidiFile? LoadedFile { get => _loadedFile; }
         public ulong[] EventCounts { get => _eventCounts; }
         public ulong TotalEventCount {
             get
@@ -126,7 +126,7 @@ namespace OmniConverter
             var tEventCounts = new ulong[tracks.Count()];
 
             // loop over all tracks in parallel
-            Parallel.For(0, tracks.Count(), parallelOptions, T =>
+            Parallel.For(tracks.Count(), parallelOptions, T =>
             {
                 double time = 0.0;
                 int nc = 0;
@@ -345,8 +345,10 @@ namespace OmniConverter
         public abstract double GetProgress();
 
         public abstract bool IsRunning();
+        public abstract void TogglePause(bool toggle);
 
         public abstract bool StartWork();
+        public abstract void RestoreWork();
         public abstract void CancelWork();
     }
 }

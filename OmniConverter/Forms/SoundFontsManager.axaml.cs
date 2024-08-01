@@ -117,8 +117,8 @@ public partial class SoundFontsManager : Window
             var item = (SoundFont)SoundFontListView.Items[index];
 
             item.SetNewValues(
-                     (int)SourceBank.Value, (int)SourceBank.Value,
-                     (int)DestinationPreset.Value, (int)DestinationBank.Value, (int)DestinationBankLSB.Value,
+                     (short)SourceBank.Value, (short)SourceBank.Value,
+                     (short)DestinationPreset.Value, (short)DestinationBank.Value, (short)DestinationBankLSB.Value,
                      (bool)Enabled.IsChecked, (bool)XGMode.IsChecked);
             return;
         }

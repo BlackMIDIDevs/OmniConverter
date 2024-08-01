@@ -14,7 +14,7 @@ namespace OmniConverter
         Max = Point64
     }
 
-    public class Settings
+    public class Settings : ICloneable
     {
         [JsonProperty]
         public EngineID Renderer = EngineID.BASS;
@@ -62,6 +62,8 @@ namespace OmniConverter
         // to avoid having the converter hog up all the resources
         [JsonProperty]
         public bool MultiThreadedMode = true;
+        [JsonProperty]
+        public bool AutoSaveState = false;
         [JsonProperty]
         public int ThreadsCount = Environment.ProcessorCount / 2;
         [JsonProperty]
@@ -111,5 +113,10 @@ namespace OmniConverter
 
         [JsonProperty("SoundFonts")]
         public ObservableCollection<SoundFont> SoundFontsList = new();
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }

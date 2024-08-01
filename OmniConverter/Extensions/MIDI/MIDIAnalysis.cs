@@ -74,12 +74,21 @@ namespace OmniConverter
             return true;
         }
 
+        public override void RestoreWork()
+        {
+            throw new NotImplementedException();
+        }
+
         public override void CancelWork() => _cancToken?.Cancel();
         public override string GetCustomTitle() => string.Empty;
         public override string GetStatus() => _curStatus;
         public override double GetProgress() => _progress;
 
         public override bool IsRunning() => _midiAnalysis != null ? _midiAnalysis.IsAlive : false;
+        public override void TogglePause(bool t)
+        {
+            throw new NotImplementedException();
+        }
 
         private void UpdateInfo(string status  = "Initializing...")
         {
@@ -104,7 +113,7 @@ namespace OmniConverter
                 // Clear
                 UpdateInfo();
 
-                Parallel.For(0, _files.Length, _parallelOptions, T =>
+                Parallel.For(_files.Length, _parallelOptions, T =>
                 {
                     try
                     {

@@ -12,6 +12,8 @@ namespace OmniConverter
 {
     internal class Program
     {
+        public static readonly string tempConvFile = "omniconv.temp";
+        public static readonly string tempConvFilePath = AppContext.BaseDirectory + $"/{tempConvFile}";
         private static readonly string settingsPath = AppContext.BaseDirectory + "/settings.json";
         public static Settings Settings { get; private set; } = new();
         public static SoundFonts SoundFontsManager { get; private set; } = new();
@@ -55,6 +57,10 @@ namespace OmniConverter
                 }
 
                 LoadConfig(true);
+
+                var a = XSynth.GenDefault_StreamParams();
+
+                Debug.PrintToConsole(Debug.LogType.Message, $"{a.sample_rate}");
 
                 aval.StartWithClassicDesktopLifetime(args);
             }

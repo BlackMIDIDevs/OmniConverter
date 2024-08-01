@@ -6,7 +6,8 @@ namespace OmniConverter
     public enum EngineID
     {
         Unknown = -1,
-        BASS = 0
+        BASS = 0,
+        XSynth = 1
     }
 
     public abstract class AudioEngine : IDisposable

@@ -10,15 +10,15 @@ namespace OmniConverter
         [JsonProperty("Path")]
         public string SoundFontPath { get; private set; }
         [JsonProperty]
-        public int SourcePreset { get; private set; }
+        public short SourcePreset { get; private set; }
         [JsonProperty]
-        public int SourceBank { get; private set; }
+        public short SourceBank { get; private set; }
         [JsonProperty]
-        public int DestinationPreset { get; private set; }
+        public short DestinationPreset { get; private set; }
         [JsonProperty]
-        public int DestinationBank { get; private set; }
+        public short DestinationBank { get; private set; }
         [JsonProperty]
-        public int DestinationBankLSB { get; private set; }
+        public short DestinationBankLSB { get; private set; }
         [JsonProperty]
         public bool Enabled { get; private set; }
         [JsonProperty]
@@ -36,7 +36,7 @@ namespace OmniConverter
             XGMode = false;
         }
 
-        public SoundFont(string SFP, int SP, int SB, int DP, int DB, int DBLSB, bool E, bool XGM)
+        public SoundFont(string SFP, short SP, short SB, short DP, short DB, short DBLSB, bool E, bool XGM)
         {
             SoundFontPath = SFP;
             SetNewValues(SP, SB, DP, DB, DBLSB, E, XGM);
@@ -48,11 +48,11 @@ namespace OmniConverter
             SetNewValues(SourcePreset, SourceBank, DestinationPreset, DestinationBank, DestinationBankLSB, Enabled, XGMode);
         }
 
-        public void SetNewValues(int SP, int SB, int DP, int DB, int DBLSB, bool E, bool XGM)
+        public void SetNewValues(short SP, short SB, short DP, short DB, short DBLSB, bool E, bool XGM)
         {
-            SourcePreset = IsSFZ() && SP < 0 ? 0 : SP;
-            SourceBank = IsSFZ() && SB < 0 ? 0 : SB;
-            DestinationPreset = IsSFZ() && DP < 0 ? 0 : DP;
+            SourcePreset = IsSFZ() && SP < 0 ? (short)0: SP;
+            SourceBank = IsSFZ() && SB < 0 ? (short)0 : SB;
+            DestinationPreset = IsSFZ() && DP < 0 ? (short)0 : DP;
             DestinationBank = DB;
             DestinationBankLSB = DBLSB;
             Enabled = E;

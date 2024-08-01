@@ -13,12 +13,21 @@ namespace OmniConverter
         Down = 1
     }
 
-    public static class DebugExtensions
+    public class ObjPtr<T> where T : struct
     {
-        public static string WhoThis([CallerMemberName] string func = "")
-        {
-            return func;
-        }
+        public T obj { get; set; }
+        public ObjPtr(T obj) { this.obj = obj; }
+    }
+    
+    internal static class IDGenerator
+    {
+        private static Random rnd = new Random();
+        public static string GetID() => rnd.Next(int.MinValue, int.MaxValue).ToString("X8");
+    }
+
+    internal static class DebugExtensions
+    {
+        public static string WhoThis([CallerMemberName] string func = "") { return func; }
     }
 
     internal static class ListExtensions
@@ -55,7 +64,7 @@ namespace OmniConverter
         }
     }
 
-    public static class InputExtensions
+    internal static class InputExtensions
     {
         public static int LimitToRange(
             this int value, int inclusiveMinimum, int inclusiveMaximum)
@@ -66,8 +75,30 @@ namespace OmniConverter
         }
     }
 
-    public static class Parallel
+    internal static class MarshalExt
     {
+        public static unsafe void CopyToManaged<T>(T[] source, IntPtr destination, int startIndex, int length)
+        {
+            if (source is null) throw new ArgumentNullException(nameof(destination));
+            if (destination == IntPtr.Zero) throw new ArgumentNullException(nameof(source));
+            if (startIndex < 0) throw new ArgumentOutOfRangeException(nameof(startIndex));
+            if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
+
+            void* destPtr = (void*)destination;
+            Span<T> srcSpan = new Span<T>(source, startIndex, length);
+            Span<T> destSpan = new Span<T>(destPtr, length);
+
+            srcSpan.CopyTo(destSpan);
+        }
+    }
+
+    internal static class Parallel
+    {
+        public static void For(int to, ParallelOptions parallelOptions, Action<int> func)
+        {
+            For(0, to, parallelOptions, func);
+        }
+
         public static void For(int from, int to, ParallelOptions parallelOptions, Action<int> func)
         {
             var cancel = parallelOptions.CancellationToken;
@@ -112,7 +143,7 @@ namespace OmniConverter
         }
     }
 
-    public class CustomSynchronizationContext : SynchronizationContext
+    internal class CustomSynchronizationContext : SynchronizationContext
     {
         public override void Post(SendOrPostCallback action, object? state)
         {

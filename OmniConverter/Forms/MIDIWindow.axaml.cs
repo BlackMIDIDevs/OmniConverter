@@ -1,8 +1,14 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using Newtonsoft.Json;
 using OmniConverter.Extensions;
 using System;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace OmniConverter;
 
@@ -13,8 +19,16 @@ public partial class MIDIWindow : Window
     private bool _import = true;
     private bool _silent = false;
     private DispatcherTimer _feeder = new DispatcherTimer();
+    private Stopwatch _convBackup = new Stopwatch();
 
     private MainWindow _winRef;
+
+#if DEBUG
+    public MIDIWindow()
+    {
+        InitializeComponent();
+    }
+#endif
 
     public MIDIWindow(MainWindow winRef, string[]? files, bool silent = false, bool import = true)
     {
@@ -31,6 +45,8 @@ public partial class MIDIWindow : Window
 
     private async void FireUpThread(object? sender, EventArgs e)
     {
+        bool restore = false;
+
         _feeder.Tick += FeederTick;
         _feeder.Interval = TimeSpan.FromMilliseconds(100);
 
@@ -41,6 +57,16 @@ public partial class MIDIWindow : Window
         }
         else
         {
+            if (_files != null && _files.Length > 0)
+            { 
+                if (_files[0].Equals(Program.tempConvFilePath))
+                {
+                    var content = File.ReadAllText(Program.tempConvFilePath);
+                    _worker = JsonConvert.DeserializeObject<MIDIWorker>(content);
+                    restore = true;
+                }
+            }
+
             if (_winRef.MIDIs.Count > 0)
             {
                 Title = "MIDI converter";
@@ -84,11 +110,20 @@ public partial class MIDIWindow : Window
 
         if (_worker != null)
         {
-            if (_worker.StartWork())
+            if (restore)
             {
+                _worker.RestoreWork();
                 _feeder.Start();
-                return;
-            }   
+            }      
+            else
+            {
+                if (!_worker.StartWork())
+                    Close();
+            }
+
+            _convBackup.Start();
+            _feeder.Start();
+            return;
         }
 
         Close();
@@ -108,9 +143,30 @@ public partial class MIDIWindow : Window
             TrackProgress.Value = ((MIDIConverter?)_worker).GetTracksProgress();
         
         Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.Normal, (ulong)Progress.Value, 100);
+
+        return;
+
+        // Not yet
+        if (Program.Settings.AutoSaveState && _convBackup.Elapsed.TotalSeconds >= 3 && _worker is MIDIConverter)
+        {
+            _convBackup.Restart();
+
+            using (Stream stream = File.Open(Program.tempConvFilePath, FileMode.Create))
+            {
+                XmlSerializer ser = new XmlSerializer(typeof(MIDIConverter));
+                ser.Serialize(stream, (MIDIConverter)_worker);
+                stream.Close();
+            }
+        }
     }
 
-    private void CancelBtnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void PauseConvBtnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_worker != null && TogglePause.IsChecked != null)
+            ((MIDIConverter)_worker).TogglePause((bool)TogglePause.IsChecked);
+    }
+
+    private void CancelBtnClick(object? sender, RoutedEventArgs e)
     {
         if (_worker != null)
         {

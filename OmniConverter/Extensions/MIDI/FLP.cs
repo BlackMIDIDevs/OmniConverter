@@ -82,7 +82,7 @@ namespace OmniConverter
             var notesDict = new Dictionary<int, Dictionary<Channel, Note[]>>();
             var patternDict = new Dictionary<int, Dictionary<Channel, TempoEvent[]>>();
 
-            Parallel.For(0, proj.Patterns.Count(), parallelOptions, i =>
+            Parallel.For(proj.Patterns.Count(), parallelOptions, i =>
             {
                 var pat = proj.Patterns[i];
 
@@ -136,7 +136,7 @@ namespace OmniConverter
             var trackID = 0;
             var tracks = proj.Tracks.Where(t => t.Items.Count != 0).ToArray();
 
-            Parallel.For(0, tracks.Length, parallelOptions, i =>
+            Parallel.For(tracks.Length, parallelOptions, i =>
             {
                 var stream = new BufferedStream(streams.GetStream(i), 1 << 24);
                 var trackWriter = new MidiWriter(stream);

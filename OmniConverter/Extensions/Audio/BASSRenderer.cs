@@ -10,64 +10,11 @@ using System.Collections.ObjectModel;
 
 namespace OmniConverter
 {
-    public class CMIDIEvent
-    {
-        private uint WholeEvent = 0;
-
-        private byte Status = 0;
-        private byte LRS = 0;
-
-        private byte EventType = 0;
-        private byte Channel = 0;
-
-        private byte Param1 = 0;
-        private byte Param2 = 0;
-
-        private byte Secret = 0;
-
-        public CMIDIEvent(uint DWORD)
-        {
-            SetNewEvent(DWORD);
-        }
-
-        public void SetNewEvent(uint DWORD)
-        {
-            WholeEvent = DWORD;
-
-            Status = (byte)(WholeEvent & 0xFF);
-            if ((Status & 0x80) != 0)
-                LRS = Status;
-            else
-                WholeEvent = WholeEvent << 8 | LRS;
-
-            EventType = (byte)(LRS & 0xF0);
-            Channel = (byte)(LRS & 0x0F);
-
-            Param1 = (byte)(WholeEvent >> 8);
-            Param2 = (byte)(WholeEvent >> 16);
-
-            Secret = (byte)(WholeEvent >> 24);
-        }
-
-        public uint GetWholeEvent() { return WholeEvent; }
-
-        public byte GetStatus() { return Status; }
-
-        public byte GetEventType() { return EventType; }
-        public byte GetChannel() { return Channel; }
-
-        public int GetParams() { return Param1 | Param2 << 8; }
-        public byte GetFirstParam() { return Param1; }
-        public byte GetSecondParam() { return Param2; }
-
-        public byte GetSecret() { return Secret; }
-    }
-
-    public class BASS : AudioEngine
+    public class BASSEngine : AudioEngine
     {
         private MidiFontEx[]? _bassArray;
 
-        public BASS(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
+        public BASSEngine(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
         {
             /*                                                                                                                                                                            
                                 -+++------.                             
@@ -96,12 +43,12 @@ namespace OmniConverter
                                        -++.                             
             */
 
-            if (!Bass.Init(Bass.NoSoundDevice, waveFormat.SampleRate, DeviceInitFlags.Default))
+            if (Bass.Init(Bass.NoSoundDevice, waveFormat.SampleRate, DeviceInitFlags.Default))
             {
                 if (initSFs != null)
                     _bassArray = InitializeSoundFonts(initSFs);
 
-                var tmp = BassMidi.CreateStream(2, BassFlags.Default, 0);
+                var tmp = BassMidi.CreateStream(16, BassFlags.Default, 0);
 
                 if (tmp != 0)
                 {
@@ -202,7 +149,7 @@ namespace OmniConverter
         public MidiFontEx[]? GetSoundFontsArray() => _bassArray;
     }
 
-    public class BASSMIDI : MIDIRenderer
+    public class BASSRenderer : MIDIRenderer
     {
         private readonly object Lock = new object();
         private readonly BassFlags Flags;
@@ -216,7 +163,7 @@ namespace OmniConverter
         private VolumeFxParameters? VolParam = null;
         private MidiFontEx[]? SfArray = [];
 
-        public BASSMIDI(BASS bass) : base(bass.WaveFormat, false)
+        public BASSRenderer(BASSEngine bass) : base(bass.WaveFormat, false)
         {
             if (UniqueID == string.Empty)
                 return;
@@ -272,9 +219,9 @@ namespace OmniConverter
                 fixed (float* buff = buffer)
                 {
                     var offsetBuff = buff + offset;
-                    var len = (count * 4) | (WaveFormat.BitsPerSample == 32 ? (int)DataFlags.Float : 0);
+                    var len = (count * sizeof(float)) | (WaveFormat.BitsPerSample == 32 ? (int)DataFlags.Float : 0);
 
-                    int ret = Bass.ChannelGetData(Handle, (IntPtr)offsetBuff, len);
+                    int ret = Bass.ChannelGetData(Handle, (nint)offsetBuff, len);
                     if (ret == 0)
                     {
                         var BE = Bass.LastError;
@@ -286,6 +233,11 @@ namespace OmniConverter
                     return ret / 4;
                 }
             }
+        }
+
+        public override unsafe int ReadSamples(float[] buffer, int offset, long delta, int count)
+        {
+            return NotSupportedVal;
         }
 
         public override void ChangeVolume(float volume)
@@ -375,7 +327,7 @@ namespace OmniConverter
         {
             float output = 0.0f;
             Bass.ChannelGetAttribute(Handle, ChannelAttribute.MidiVoicesActive, out output);
-            ActiveVoices = (int)output;
+            ActiveVoices = (ulong)output;
 
             Bass.ChannelGetAttribute(Handle, ChannelAttribute.CPUUsage, out output);
             RenderingTime = (int)output;

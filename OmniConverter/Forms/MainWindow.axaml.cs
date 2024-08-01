@@ -38,11 +38,13 @@ namespace OmniConverter
             if (Program.Settings.AutoUpdateCheck)
                 UpdateSystem.CheckForUpdates(false, true);
 
+#if !DEBUG
             Loaded += CheckBuildTarget;
+#endif
             Loaded += CheckBranch;
+            // Loaded += CheckUnfinishedWork;
 
             CheckWatermark();
-            // Program.SoundFonts.Add(new(@"/mnt/Seagate2TB/TEST/gm.sf2", -1, -1, -1, 0, 0, true, false));
         }
 
         public void NullMIDIWindow(Window death)
@@ -66,6 +68,18 @@ namespace OmniConverter
                 new ChangeBranch().ShowDialog(this);
         }
 
+        private async void CheckUnfinishedWork(object? sender, RoutedEventArgs e)
+        {
+            var convFile = AppContext.BaseDirectory + "/omniconv.temp";
+
+            if (File.Exists(Program.tempConvFilePath))
+            {
+                _midiWindow = new MIDIWindow(this, [Program.tempConvFilePath], false);
+                await _midiWindow.ShowDialog(this);
+                _midiWindow = null;
+            }
+        }
+
         private void CheckBuildTarget(object? sender, RoutedEventArgs e)
         {
 #if !WINDOWS
@@ -78,12 +92,6 @@ namespace OmniConverter
         {
             if (files == null)
                 return;
-
-            if (_midiWindow != null)
-            {
-                MessageBox.Show(this, "The converter is already rendering.", "OmniConverter - Hey");
-                return;
-            }
 
             if (files.Count() >= 1)
             {
@@ -224,9 +232,17 @@ namespace OmniConverter
             await AddMIDICheck(e.Data.GetFiles(), true);
         }
 
-        private async void ConvertMIDIs(object? sender, RoutedEventArgs e)
+        private /* async */ void ConvertMIDIs(object? sender, RoutedEventArgs e)
         {
-            await new MIDIWindow(this, null, false, false).ShowDialog(this);
+            if (_midiWindow != null)
+            {
+                MessageBox.Show(this, "The converter is already rendering.", "OmniConverter - Hey");
+                return;
+            }
+
+            // await new MIDIWindow(this, null, false, false).ShowDialog(this);
+            _midiWindow = new MIDIWindow(this, null, false, false);
+            _midiWindow.Show();
         }
 
         private async void OpenSettings(object? sender, RoutedEventArgs e)

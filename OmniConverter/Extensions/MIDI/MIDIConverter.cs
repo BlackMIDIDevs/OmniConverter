@@ -32,7 +32,7 @@ namespace OmniConverter
         }
 
         private Stopwatch _convElapsedTime = new Stopwatch();
-        private AudioEngine _audioRenderer;
+        private AudioEngine? _audioRenderer;
         private MIDIValidator _validator;
         private CancellationTokenSource _cancToken;
         private ParallelOptions _parallelOptions;
@@ -43,11 +43,13 @@ namespace OmniConverter
         private StackPanel _panelRef;
         private ObservableCollection<MIDI> _midis;
         private WaveFormat _waveFormat;
+        private Settings _cachedSettings;
 
         private string _curStatus = string.Empty;
         private double _progress = 0;
         private double _tracksProgress = 0;
         private string _outputPath = string.Empty;
+        private bool _pauseConversion = false;
 
         public MIDIConverter(string outputPath, AudioCodecType codec, int threads, Window winRef, StackPanel panel, ObservableCollection<MIDI> midis)
         {
@@ -55,16 +57,16 @@ namespace OmniConverter
             _panelRef = panel;
             _midis = midis;
             _outputPath = outputPath;
-
+            _cachedSettings = (Settings)Program.Settings.Clone();
             _cancToken = new CancellationTokenSource();
             _validator = new MIDIValidator((ulong)_midis.Count);
 
             _parallelOptions = new ParallelOptions { 
-                MaxDegreeOfParallelism = Program.Settings.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1, 
+                MaxDegreeOfParallelism = _cachedSettings.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1, 
                 CancellationToken = _cancToken.Token
             };
 
-            _waveFormat = new WaveFormat(Program.Settings.SampleRate, 32, 2, AudioEncoding.IeeeFloat);
+            _waveFormat = new WaveFormat(_cachedSettings.SampleRate, 32, 2, AudioEncoding.IeeeFloat);
         }
 
         public override void Dispose()
@@ -78,12 +80,12 @@ namespace OmniConverter
 
         public override bool StartWork()
         {
-            if (Program.Settings.MaxVoices >= 10000000)
+            if (_cachedSettings.MaxVoices >= 10000000)
             {
                 var biggestMidi = _midis.MaxBy(x => x.Tracks);
 
-                var v = Program.Settings.MaxVoices;
-                var mem = ((ulong)v * 312) * (ulong)Program.Settings.ThreadsCount;
+                var v = _cachedSettings.MaxVoices;
+                var mem = ((ulong)v * 312) * (ulong)_cachedSettings.ThreadsCount;
                 var memusage = MiscFunctions.BytesToHumanReadableSize(mem);
 
                 var re = MessageBox.Show(_winRef,
@@ -105,12 +107,12 @@ namespace OmniConverter
                 return false;
             }
 
-            if (Program.Settings.AudioCodec != AudioCodecType.PCM)
+            if (_cachedSettings.AudioCodec != AudioCodecType.PCM)
             {
                 if (!Program.FFmpegAvailable)
                 {
                     var re = MessageBox.Show(_winRef,
-                        $"You selected {Program.Settings.AudioCodec.ToExtension()} as your export format, but FFMpeg is not available!\n\n" +
+                        $"You selected {_cachedSettings.AudioCodec.ToExtension()} as your export format, but FFMpeg is not available!\n\n" +
                         $"Press Yes if you want to fall back to {AudioCodecType.PCM.ToExtension()}.",
                         "OmniConverter - Error", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Error);
                     switch (re)
@@ -119,13 +121,13 @@ namespace OmniConverter
                             return false;
 
                         default:
-                            Program.Settings.AudioCodec = AudioCodecType.PCM;
+                            _cachedSettings.AudioCodec = AudioCodecType.PCM;
                             Program.SaveConfig();
                             break;
                     }
                 }
 
-                switch (Program.Settings.AudioCodec)
+                switch (_cachedSettings.AudioCodec)
                 {
                     case AudioCodecType.LAME:
                         if (IsInvalidFormat(AudioCodecType.LAME, 48000, 320))
@@ -150,6 +152,14 @@ namespace OmniConverter
             return true;
         }
 
+        public override void RestoreWork()
+        {
+            // We trust that the deserialized stuff is fine KAPPA
+            _converterThread = new Thread(ConversionFunc);
+            _converterThread.IsBackground = true;
+            _converterThread.Start();
+        }
+
         public override void CancelWork()
         {
             _cancToken.Cancel();
@@ -161,6 +171,8 @@ namespace OmniConverter
         public double GetTracksProgress() => _tracksProgress;
 
         public override bool IsRunning() => _converterThread != null ? _converterThread.IsAlive : false;
+
+        public override void TogglePause(bool toggle) => _pauseConversion = toggle;
 
         private void ChangeInfo(string newStatus, double newProgress = 0)
         {
@@ -222,7 +234,7 @@ namespace OmniConverter
                     break;
 
                 case ConvStatus.EncodingAudio:
-                    _curStatus = $"Encoding audio to {Program.Settings.AudioCodec.ToExtension()}.\n\nPlease do not turn off the computer...";
+                    _curStatus = $"Encoding audio to {_cachedSettings.AudioCodec.ToExtension()}.\n\nPlease do not turn off the computer...";
                     _progress = Math.Round(_processed * 100.0 / _all);
                     _tracksProgress = Math.Round(_midiEvents * 100.0 / _totalMidiEvents);
                     break;
@@ -238,22 +250,28 @@ namespace OmniConverter
             {
                 ChangeInfo("Initializing renderer...\n\nPlease wait.");
 
+                _cachedSettings.Renderer = EngineID.XSynth;
+
                 // later I will add support for more engines
-                switch (Program.Settings.Renderer)
+                switch (_cachedSettings.Renderer)
                 {
+                    case EngineID.XSynth:
+                        _audioRenderer = new XSynthEngine(_waveFormat, _cachedSettings.SoundFontsList);
+                        break;
+
                     case EngineID.BASS:
                     default:
                         // do this hacky crap to get the voice change to work
-                        _audioRenderer = new BASS(_waveFormat);
+                        _audioRenderer = new BASSEngine(_waveFormat);
                         _audioRenderer.Dispose();
 
-                        _audioRenderer = new BASS(_waveFormat, Program.Settings.SoundFontsList);
+                        _audioRenderer = new BASSEngine(_waveFormat, _cachedSettings.SoundFontsList);
                         break;
                 }
 
                 if (_audioRenderer.Initialized)
                 {
-                    if (Program.Settings.PerTrackMode)
+                    if (_cachedSettings.PerTrackMode)
                     {
                         if (_midis.Count > 1)
                             Dispatcher.UIThread.Post(() => ((MIDIWindow)_winRef).EnableTrackProgress(true));
@@ -271,8 +289,7 @@ namespace OmniConverter
             }
             finally
             {
-                if (_audioRenderer.Initialized)
-                    _audioRenderer.Dispose();
+                _audioRenderer?.Dispose();
             }
         }
 
@@ -304,15 +321,15 @@ namespace OmniConverter
         {
             string error = string.Empty;
 
-            if (Program.Settings.SampleRate > maxSampleRate || Program.Settings.AudioBitrate > maxBitrate)
+            if (_cachedSettings.SampleRate > maxSampleRate || _cachedSettings.AudioBitrate > maxBitrate)
             {
-                if (Program.Settings.AudioEvents)
+                if (_cachedSettings.AudioEvents)
                     MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Error, true);
 
-                if (Program.Settings.SampleRate > maxSampleRate)
+                if (_cachedSettings.SampleRate > maxSampleRate)
                     error += $"{codec.ToExtension()} does not support sample rates above {maxSampleRate / 1000}kHz.";
 
-                if (Program.Settings.AudioBitrate > maxBitrate)
+                if (_cachedSettings.AudioBitrate > maxBitrate)
                     error += $"{(string.IsNullOrEmpty(error) ? "" : "\n\n")}{codec.ToExtension()} does not support bitrates above {maxBitrate}kbps.";
 
 
@@ -338,20 +355,23 @@ namespace OmniConverter
 
         private void PerMIDIConversion()
         {
+            if (_audioRenderer == null)
+                return;
+
             // Cache settings
-            var codec = Program.Settings.AudioCodec;
-            var audioLimiter = CheckIfCodecCanFloat(codec) ? Program.Settings.AudioLimiter : true;
+            var codec = _cachedSettings.AudioCodec;
+            var audioLimiter = CheckIfCodecCanFloat(codec) ? _cachedSettings.AudioLimiter : true;
 
             AutoFillInfo(ConvStatus.Prep);
             GetTotalEventsCount();
 
-            if (Program.Settings.AudioEvents)
+            if (_cachedSettings.AudioEvents)
                 MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start);
 
             _convElapsedTime.Reset();
             _convElapsedTime.Start();
 
-            Parallel.For(0, _midis.Count, _parallelOptions, nMidi =>
+            Parallel.For(_midis.Count, _parallelOptions, nMidi =>
             {
                 try
                 {
@@ -390,7 +410,7 @@ namespace OmniConverter
                     {
                         using (var msm = new MultiStreamMerger(_waveFormat))
                         {
-                            using (var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile))
+                            using (var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile, _cachedSettings))
                             {
                                 Dispatcher.UIThread.Post(() => midiPanel = new TaskStatus(midi.Name, _panelRef, eventsProcesser));
 
@@ -456,12 +476,17 @@ namespace OmniConverter
                                 {
                                     AutoFillInfo(ConvStatus.EncodingAudio);
 
+                                    var ffcodec = codec.ToFFMpegCodec();
+
+                                    if (ffcodec == null)
+                                        throw new Exception();
+
                                     Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
                                     FFMpegArguments
                                     .FromFileInput(outputFile1)
                                     .OutputToFile(outputFile2, true,
-                                        options => options.WithAudioCodec(codec.ToFFMpegCodec())
-                                        .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                        options => options.WithAudioCodec(ffcodec)
+                                        .WithAudioBitrate(_cachedSettings.AudioBitrate))
                                     .ProcessSynchronously();
 
                                     File.Delete(outputFile1);
@@ -485,7 +510,7 @@ namespace OmniConverter
 
             if (!_cancToken.IsCancellationRequested)
             {
-                if (Program.Settings.AudioEvents)
+                if (_cachedSettings.AudioEvents)
                     MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish);
 
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
@@ -496,12 +521,15 @@ namespace OmniConverter
 
         private void PerTrackConversion()
         {
-            // Cache settings
-            var perTrackFile = Program.Settings.PerTrackFile;
-            var codec = Program.Settings.AudioCodec;
-            var audioLimiter = CheckIfCodecCanFloat(codec) ? Program.Settings.AudioLimiter : true;
+            if (_audioRenderer == null)
+                return;
 
-            if (Program.Settings.AudioEvents)
+            // Cache settings
+            var perTrackFile = _cachedSettings.PerTrackFile;
+            var codec = _cachedSettings.AudioCodec;
+            var audioLimiter = CheckIfCodecCanFloat(codec) ? _cachedSettings.AudioLimiter : true;
+
+            if (_cachedSettings.AudioEvents)
                 MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start);
 
             GetTotalEventsCount();
@@ -542,7 +570,7 @@ namespace OmniConverter
 
                     folder += "/";
 
-                    Parallel.For(0, midiData.Count(), _parallelOptions, track =>
+                    Parallel.For(midiData.Count(), _parallelOptions, track =>
                     {
                         try
                         {
@@ -591,7 +619,7 @@ namespace OmniConverter
                                 }
                                 else sampleWriter = msm.GetWriter();
 
-                                using (var eventsProcesser = new EventsProcesser(_audioRenderer, midiData.ElementAt(track), midi.Length.TotalSeconds, midi.LoadedFile))
+                                using (var eventsProcesser = new EventsProcesser(_audioRenderer, midiData.ElementAt(track), midi.Length.TotalSeconds, midi.LoadedFile, _cachedSettings))
                                 {
                                     Dispatcher.UIThread.Post(() => trackPanel = new TaskStatus($"Track {track}", _panelRef, eventsProcesser));
 
@@ -663,11 +691,17 @@ namespace OmniConverter
                                         try
                                         {
                                             Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
+
+                                            var ffcodec = codec.ToFFMpegCodec();
+
+                                            if (ffcodec == null)
+                                                throw new Exception();
+
                                             FFMpegArguments
                                             .FromFileInput(outputFile1)
                                             .OutputToFile(outputFile2, true,
-                                                options => options.WithAudioCodec(codec.ToFFMpegCodec())
-                                                .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                                options => options.WithAudioCodec(ffcodec)
+                                                .WithAudioBitrate(_cachedSettings.AudioBitrate))
                                             .ProcessSynchronously();
 
                                             File.Delete(outputFile1);
@@ -743,12 +777,17 @@ namespace OmniConverter
                                 {
                                     AutoFillInfo(ConvStatus.EncodingAudio);
 
+                                    var ffcodec = codec.ToFFMpegCodec();
+
+                                    if (ffcodec == null)
+                                        throw new Exception();
+
                                     Debug.PrintToConsole(Debug.LogType.Message, $"Converting {outputFile1} to final user selected codec...");
                                     FFMpegArguments
                                     .FromFileInput(outputFile1)
                                     .OutputToFile(outputFile2, true,
-                                        options => options.WithAudioCodec(codec.ToFFMpegCodec())
-                                        .WithAudioBitrate(Program.Settings.AudioBitrate))
+                                        options => options.WithAudioCodec(ffcodec)
+                                        .WithAudioBitrate(_cachedSettings.AudioBitrate))
                                     .ProcessSynchronously();
 
                                     File.Delete(outputFile1);
@@ -775,7 +814,7 @@ namespace OmniConverter
 
             if (!_cancToken.IsCancellationRequested)
             {
-                if (Program.Settings.AudioEvents)
+                if (_cachedSettings.AudioEvents)
                     MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish);
 
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
@@ -791,6 +830,7 @@ namespace OmniConverter
         AudioEngine audioRenderer;
         IEnumerable<MIDIEvent>? events = new List<MIDIEvent>();
         MidiFile file;
+        Settings cachedSettings;
 
         int totalEvents = 0;
         int processedEvents = 0;
@@ -807,18 +847,22 @@ namespace OmniConverter
         public override double Length => length;
         public override void RefreshInfo() => midiRenderer?.RefreshInfo();
 
-        public int ActiveVoices => midiRenderer != null ? midiRenderer.ActiveVoices : 0;
+        public ulong ActiveVoices => midiRenderer != null ? midiRenderer.ActiveVoices : 0;
         public float RenderingTime => midiRenderer != null ? midiRenderer.RenderingTime : 0.0f;
         public ulong PlayedNotes => playedNotes;
         public bool IsRTS => rtsMode;
         public double Framerate => 1 / curFrametime;
 
-        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length, MidiFile file)
+        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length, MidiFile? file, Settings cachedSettings)
         {
+            if (file == null)
+                throw new NullReferenceException("MidiFile is null");
+
             this.audioRenderer = audioRenderer;
             this.events = events;
             this.length = length;
             this.file = file;
+            this.cachedSettings = cachedSettings;
 
             totalEvents = events.Count();
         }
@@ -844,11 +888,13 @@ namespace OmniConverter
         {
             var r = new Random();
 
-            var volume = Program.Settings.Volume;
-            rtsMode = Program.Settings.RTSMode;
+            var sampleMode = false;
+            var sampleSize = 0;
+            var volume = cachedSettings.Volume;
+            rtsMode = cachedSettings.RTSMode;
 
-            var rtsFps = Program.Settings.RTSFPS;
-            var rtsFluct = Program.Settings.RTSFluct;
+            var rtsFps = cachedSettings.RTSFPS;
+            var rtsFluct = cachedSettings.RTSFluct;
 
             var rtsFr = (1.0 / rtsFps);
             var percFps = (rtsFr / 100) * rtsFluct;
@@ -859,8 +905,13 @@ namespace OmniConverter
             {
                 switch (audioRenderer)
                 {
-                    case BASS bass:
-                        midiRenderer = new BASSMIDI(bass);
+                    case XSynthEngine xsynth:
+                        midiRenderer = new XSynthRenderer(xsynth);
+                        sampleMode = true;
+                        break;
+
+                    case BASSEngine bass:
+                        midiRenderer = new BASSRenderer(bass);
                         break;
 
                     default:
@@ -871,7 +922,10 @@ namespace OmniConverter
                 {
                     midiRenderer.ChangeVolume(volume);
 
-                    float[] buffer = new float[64 * waveFormat.BlockAlign];
+                    if (sampleMode)
+                        sampleSize = waveFormat.SampleRate * waveFormat.Channels;
+
+                    float[] buffer = new float[sampleMode ? sampleSize : 64 * waveFormat.BlockAlign];
                     long prevWriteTime = 0;
                     double deltaTime = 0;
                     byte[] scratch = new byte[16];
@@ -879,10 +933,10 @@ namespace OmniConverter
                     Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {midiRenderer.UniqueID}.");
 
                     // Prepare stream
-                    if (Program.Settings.OverrideEffects)
+                    if (cachedSettings.OverrideEffects)
                     {
                         for (int i = 0; i <= 15; i++)
-                            midiRenderer.SendCustomFXEvents(i, Program.Settings.ReverbVal, Program.Settings.ChorusVal);
+                            midiRenderer.SendCustomFXEvents(i, cachedSettings.ReverbVal, cachedSettings.ChorusVal);
                     }
 
                     if (events != null)
@@ -918,8 +972,14 @@ namespace OmniConverter
                             while (offset > 0)
                             {
                                 bool smallOffset = offset < buffer.Length;
+                                int ret = midiRenderer.Read(buffer, 0, smallOffset ? offset : buffer.Length);
 
-                                midiRenderer.Read(buffer, 0, smallOffset ? offset : buffer.Length);
+                                if (ret == MIDIRenderer.NotSupportedVal)
+                                    ret = midiRenderer.ReadSamples(buffer, 0, offset, smallOffset ? offset : buffer.Length);
+
+                                if (ret == MIDIRenderer.NotSupportedVal)
+                                    throw new NotSupportedException();
+
                                 output.Write(buffer, 0, smallOffset ? offset : buffer.Length);
                                 offset = smallOffset ? 0 : offset - buffer.Length;
                             }
@@ -927,13 +987,13 @@ namespace OmniConverter
                             switch (e)
                             {
                                 case ControlChangeEvent ev:
-                                    if (!(Program.Settings.OverrideEffects && (ev.Controller == 0x5B || ev.Controller == 0x5D)))
+                                    if (!(cachedSettings.OverrideEffects && (ev.Controller == 0x5B || ev.Controller == 0x5D)))
                                         midiRenderer.SendEvent(eb);
 
                                     break;
 
                                 case ProgramChangeEvent:
-                                    if (!Program.Settings.IgnoreProgramChanges)
+                                    if (!cachedSettings.IgnoreProgramChanges)
                                         midiRenderer.SendEvent(eb);
                                     break;
 
@@ -961,14 +1021,25 @@ namespace OmniConverter
                         }
                     }
 
+                    int read = 1;
                     // MIDI renderer does support end event,
                     // wait for the audio to reach a stop
                     if (midiRenderer.SendEndEvent())
                     {
-                        int read;
-
                         while ((read = midiRenderer.Read(buffer, 0, buffer.Length)) != 0)
                             output.Write(buffer, 0, read);
+                    }
+                    else
+                    {
+                        var fl = 1.0f;
+
+                        while (fl != 0.0f)
+                        {
+                            midiRenderer.Read(buffer, 0, buffer.Length);
+                            output.Write(buffer, 0, buffer.Length);
+
+                            fl = buffer[0];
+                        }
                     }
                 }
 
