@@ -980,7 +980,7 @@ namespace OmniConverter
                             if (writeTime < prevWriteTime)
                                 writeTime = prevWriteTime;
 
-                            var chunk = (int)((writeTime - prevWriteTime) * 2);
+                            var chunk = (int)((writeTime - prevWriteTime) * waveFormat.Channels);
 
                             // Never EVER go back in time!!!!!!
                             if (writeTime > prevWriteTime) // <<<<< EVER!!!!!!!!!
@@ -988,13 +988,13 @@ namespace OmniConverter
 
                             while (chunk > 0)
                             {
+                                if (midiRenderer is XSynthRenderer)
+                                    Array.Clear(buffer);
+
                                 bool smallChunk = chunk < buffer.Length;
                                 midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
                                 output.Write(buffer, 0, smallChunk ? chunk : buffer.Length);
                                 chunk = smallChunk ? 0 : chunk - buffer.Length;
-
-                                if (midiRenderer is XSynthRenderer)
-                                    Array.Clear(buffer);
                             }
 
                             switch (e)

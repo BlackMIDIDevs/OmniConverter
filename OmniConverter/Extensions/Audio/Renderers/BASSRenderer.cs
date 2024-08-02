@@ -210,6 +210,8 @@ namespace OmniConverter
 
         public override unsafe int Read(float[] buffer, int offset, long delta, int count)
         {
+            int ret = 0;
+
             lock (Lock)
             {
                 fixed (float* buff = buffer)
@@ -217,7 +219,7 @@ namespace OmniConverter
                     var offsetBuff = buff + offset;
                     var len = (count * sizeof(float)) | (WaveFormat.BitsPerSample == 32 ? (int)DataFlags.Float : 0);
 
-                    int ret = Bass.ChannelGetData(Handle, (nint)offsetBuff, len);
+                    ret = Bass.ChannelGetData(Handle, (nint)offsetBuff, len);
                     if (ret == 0)
                     {
                         var BE = Bass.LastError;
@@ -226,9 +228,11 @@ namespace OmniConverter
                             Debug.PrintToConsole(Debug.LogType.Warning, $"{UniqueID} - Data parsing error {BE} with length {len}");
                     }
 
-                    return ret / 4;
+                    
                 }
             }
+
+            return ret / 4;
         }
 
         public override void SystemReset()
