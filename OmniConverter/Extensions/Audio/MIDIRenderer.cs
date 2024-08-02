@@ -35,8 +35,6 @@ namespace OmniConverter
 
     public abstract class MIDIRenderer : ISampleSource
     {
-        public const int NotSupportedVal = -42069;
-
         public string UniqueID { get; protected set; } = IDGenerator.GetID();
         public bool CanSeek { get; protected set; } = false;
         public CSCore.WaveFormat WaveFormat { get; protected set; } = new(48000, 32, 2);
@@ -47,16 +45,18 @@ namespace OmniConverter
 
         public MIDIRenderer(WaveFormat waveFormat, bool defaultInt = true) { WaveFormat = waveFormat; Initialized = defaultInt; }
 
+        public abstract void SystemReset();
         public abstract void ChangeVolume(float volume);
         public abstract bool SendCustomFXEvents(int channel, short reverb, short chorus);
         public abstract void SendEvent(byte[] data);
-        public abstract unsafe int Read(float[] buffer, int offset, int count);
-        public abstract unsafe int ReadSamples(float[] buffer, int offset, long delta, int count);
+        public abstract unsafe int Read(float[] buffer, int offset, long delta, int count);
         public abstract bool SendEndEvent();
         public abstract void RefreshInfo();
+        public abstract void SetRenderingTime(float rt);
         public abstract long Position { get; set; }
         public abstract long Length { get; }
 
+        public int Read(float[] buffer, int offset, int count) => Read(buffer, offset, 0, count);
         public void Dispose()
         {
             Dispose(true);

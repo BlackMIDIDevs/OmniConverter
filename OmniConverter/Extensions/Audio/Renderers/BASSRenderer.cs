@@ -155,10 +155,6 @@ namespace OmniConverter
         private readonly BassFlags Flags;
         public int Handle { get; private set; } = 0;
 
-        // Special RTS mode
-        private Random RTSR = new Random();
-        private bool RTSMode { get; } = false;
-
         private int VolHandle;
         private VolumeFxParameters? VolParam = null;
         private MidiFontEx[]? SfArray = [];
@@ -212,7 +208,7 @@ namespace OmniConverter
             return false;
         }
 
-        public override unsafe int Read(float[] buffer, int offset, int count)
+        public override unsafe int Read(float[] buffer, int offset, long delta, int count)
         {
             lock (Lock)
             {
@@ -235,9 +231,9 @@ namespace OmniConverter
             }
         }
 
-        public override unsafe int ReadSamples(float[] buffer, int offset, long delta, int count)
+        public override void SystemReset()
         {
-            return NotSupportedVal;
+            BassMidi.StreamEvent(Handle, 0, MidiEventType.System, (int)MidiSystem.GS);
         }
 
         public override void ChangeVolume(float volume)
@@ -330,7 +326,12 @@ namespace OmniConverter
             ActiveVoices = (ulong)output;
 
             Bass.ChannelGetAttribute(Handle, ChannelAttribute.CPUUsage, out output);
-            RenderingTime = (int)output;
+            RenderingTime = output;
+        }
+
+        public override void SetRenderingTime(float rt)
+        {
+            return;
         }
 
         public override long Position

@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OmniConverter
 {
@@ -50,6 +51,7 @@ namespace OmniConverter
         private double _tracksProgress = 0;
         private string _outputPath = string.Empty;
         private bool _pauseConversion = false;
+        private int _threadsCount = 0;
 
         public MIDIConverter(string outputPath, AudioCodecType codec, int threads, Window winRef, StackPanel panel, ObservableCollection<MIDI> midis)
         {
@@ -60,9 +62,23 @@ namespace OmniConverter
             _cachedSettings = (Settings)Program.Settings.Clone();
             _cancToken = new CancellationTokenSource();
             _validator = new MIDIValidator((ulong)_midis.Count);
+            _threadsCount = _cachedSettings.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1;
+
+            switch (_cachedSettings.Renderer)
+            {
+                case EngineID.XSynth:
+                    // XSynth has built-in parallelism
+                    if (_cachedSettings.PerTrackMode)      
+                        _threadsCount = 1;
+
+                    break;
+
+                default:
+                    break;
+            }
 
             _parallelOptions = new ParallelOptions { 
-                MaxDegreeOfParallelism = _cachedSettings.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1, 
+                MaxDegreeOfParallelism = _threadsCount, 
                 CancellationToken = _cancToken.Token
             };
 
@@ -921,6 +937,7 @@ namespace OmniConverter
                 if (midiRenderer != null)
                 {
                     midiRenderer.ChangeVolume(volume);
+                    midiRenderer.SystemReset();
 
                     if (sampleMode)
                         sampleSize = waveFormat.SampleRate * waveFormat.Channels;
@@ -963,25 +980,21 @@ namespace OmniConverter
                             if (writeTime < prevWriteTime)
                                 writeTime = prevWriteTime;
 
-                            var offset = (int)((writeTime - prevWriteTime) * 2);
+                            var chunk = (int)((writeTime - prevWriteTime) * 2);
 
                             // Never EVER go back in time!!!!!!
                             if (writeTime > prevWriteTime) // <<<<< EVER!!!!!!!!!
                                 prevWriteTime = writeTime;
 
-                            while (offset > 0)
+                            while (chunk > 0)
                             {
-                                bool smallOffset = offset < buffer.Length;
-                                int ret = midiRenderer.Read(buffer, 0, smallOffset ? offset : buffer.Length);
+                                bool smallChunk = chunk < buffer.Length;
+                                midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
+                                output.Write(buffer, 0, smallChunk ? chunk : buffer.Length);
+                                chunk = smallChunk ? 0 : chunk - buffer.Length;
 
-                                if (ret == MIDIRenderer.NotSupportedVal)
-                                    ret = midiRenderer.ReadSamples(buffer, 0, offset, smallOffset ? offset : buffer.Length);
-
-                                if (ret == MIDIRenderer.NotSupportedVal)
-                                    throw new NotSupportedException();
-
-                                output.Write(buffer, 0, smallOffset ? offset : buffer.Length);
-                                offset = smallOffset ? 0 : offset - buffer.Length;
+                                if (midiRenderer is XSynthRenderer)
+                                    Array.Clear(buffer);
                             }
 
                             switch (e)
@@ -1026,7 +1039,7 @@ namespace OmniConverter
                     // wait for the audio to reach a stop
                     if (midiRenderer.SendEndEvent())
                     {
-                        while ((read = midiRenderer.Read(buffer, 0, buffer.Length)) != 0)
+                        while ((read = midiRenderer.Read(buffer, 0, 0, buffer.Length)) != 0)
                             output.Write(buffer, 0, read);
                     }
                     else
@@ -1035,10 +1048,12 @@ namespace OmniConverter
 
                         while (fl != 0.0f)
                         {
-                            midiRenderer.Read(buffer, 0, buffer.Length);
+                            midiRenderer.Read(buffer, 0, 0, buffer.Length);
                             output.Write(buffer, 0, buffer.Length);
 
                             fl = buffer[0];
+
+                            Array.Clear(buffer);
                         }
                     }
                 }
