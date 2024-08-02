@@ -266,8 +266,6 @@ namespace OmniConverter
             {
                 ChangeInfo("Initializing renderer...\n\nPlease wait.");
 
-                _cachedSettings.Renderer = EngineID.XSynth;
-
                 // later I will add support for more engines
                 switch (_cachedSettings.Renderer)
                 {
@@ -1048,12 +1046,12 @@ namespace OmniConverter
 
                         while (fl != 0.0f)
                         {
+                            Array.Clear(buffer);
+
                             midiRenderer.Read(buffer, 0, 0, buffer.Length);
                             output.Write(buffer, 0, buffer.Length);
 
                             fl = buffer[0];
-
-                            Array.Clear(buffer);
                         }
                     }
                 }

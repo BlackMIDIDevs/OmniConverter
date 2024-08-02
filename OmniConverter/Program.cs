@@ -58,10 +58,6 @@ namespace OmniConverter
 
                 LoadConfig(true);
 
-                var a = XSynth.GenDefault_StreamParams();
-
-                Debug.PrintToConsole(Debug.LogType.Message, $"{a.sample_rate}");
-
                 aval.StartWithClassicDesktopLifetime(args);
             }
         }

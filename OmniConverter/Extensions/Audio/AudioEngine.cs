@@ -7,7 +7,8 @@ namespace OmniConverter
     {
         Unknown = -1,
         BASS = 0,
-        XSynth = 1
+        XSynth = 1,
+        MAX = XSynth
     }
 
     public abstract class AudioEngine : IDisposable

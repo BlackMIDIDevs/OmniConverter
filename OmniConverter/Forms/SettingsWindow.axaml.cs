@@ -43,13 +43,14 @@ public partial class SettingsWindow : Window
         {
             var items = AudioCodec.Items.Where(item => !((ComboBoxItem)item).Name.Contains("WAV"));
 
-            foreach ( var item in items.ToList())
+            foreach (var item in items.ToList())
                 AudioCodec.Items.Remove(item);
 
             NoFFMPEGFound = true;
             AudioCodec.IsEnabled = false;
         }
 
+        SelectedRenderer.SelectedIndex = ((int)Program.Settings.Renderer).LimitToRange((int)EngineID.BASS, (int)EngineID.MAX);
         KhangMod.IsChecked = Program.Settings.MaxVoices > 100000;
         MaxVoices.Value = Program.Settings.MaxVoices;
         AudioCodec.SelectedIndex = ((int)Program.Settings.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
@@ -90,10 +91,15 @@ public partial class SettingsWindow : Window
         PerTrackFile.IsChecked = Program.Settings.PerTrackFile;
         PerTrackStorage.IsChecked = Program.Settings.PerTrackStorage;
 
-        MaxThreads.Maximum = Environment.ProcessorCount;
+        NoLimitThreadsOnCPU.IsChecked = Program.Settings.ThreadsCount > Environment.ProcessorCount;   
+        NoLimitThreadsOnCPUCheck(sender, e);
         MaxThreads.Value = Program.Settings.ThreadsCount.LimitToRange(1, (int)MaxThreads.Maximum);
 
-        LimitThreads.IsChecked = MaxThreads.Value < Environment.ProcessorCount;
+        if ((bool)NoLimitThreadsOnCPU.IsChecked)
+            LimitThreads.IsChecked = true;
+        else
+            LimitThreads.IsChecked = MaxThreads.Value < Environment.ProcessorCount;
+
         MaxThreadsPanel.IsEnabled = (bool)LimitThreads.IsChecked;
 
         AutoExportToFolder.IsChecked = Program.Settings.AutoExportToFolder;
@@ -155,7 +161,7 @@ public partial class SettingsWindow : Window
     }
 
     private void AudioCodecChanged(object? sender, SelectionChangedEventArgs e)
-    {   
+    {
         if (AudioCodec != null)
         {
             AudioBitrate.IsEnabled = AudioCodec.SelectedIndex > 1;
@@ -177,10 +183,23 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void AudioRendererChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (SelectedRenderer != null)
+            NotDesignedForThis.IsVisible = (EngineID)SelectedRenderer.SelectedIndex != EngineID.BASS;
+    }
+
     private void NoFFMPEGWarning(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         MessageBox.Show(this, "To use additional formats, you need ffmpeg.\n\n" +
             "Please install it on your system, or move the ffmpeg binary to the same folder as the converter.",
+            "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
+    }
+
+    private void NotDesignedForThisWarning(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        MessageBox.Show(this, "This converter is primarily designed around BASSMIDI.\n\n" +
+            "Some features might not be available with other audio engines.",
             "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
     }
 
@@ -246,6 +265,19 @@ public partial class SettingsWindow : Window
             MaxThreadsPanel.IsEnabled = (bool)LimitThreads.IsChecked;
     }
 
+    private void NoLimitThreadsOnCPUCheck(object? sender, RoutedEventArgs e)
+    {
+        if (NoLimitThreadsOnCPU.IsChecked != null)
+        {
+            bool val = (bool)NoLimitThreadsOnCPU.IsChecked;
+
+            MaxThreads.Maximum = val ? 65536 : Environment.ProcessorCount;
+
+            if (val && MaxThreads.Value > Environment.ProcessorCount)
+                MaxThreads.Value = Environment.ProcessorCount;
+        }
+    }
+
     private void RTSModeCheck(object? sender, RoutedEventArgs e)
     {
         if (RTSMode.IsChecked != null)
@@ -274,6 +306,7 @@ public partial class SettingsWindow : Window
         if (MaxVoices.Value != null) 
             Program.Settings.MaxVoices = (int)MaxVoices.Value;
 
+        Program.Settings.Renderer = (EngineID)SelectedRenderer.SelectedIndex;
         Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;
 
         Program.Settings.AudioCodec = (AudioCodecType)AudioCodec.SelectedIndex;
