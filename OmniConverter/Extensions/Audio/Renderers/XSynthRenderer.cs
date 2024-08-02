@@ -60,7 +60,7 @@ namespace OmniConverter
             public bool linear_release;
             [MarshalAs(UnmanagedType.U1)]
             public bool use_effects;
-            public byte interpolator;
+            public ushort interpolator;
         }
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_StreamParams", CallingConvention = CallingConvention.Cdecl)]
@@ -240,7 +240,7 @@ namespace OmniConverter
 
         private const double maxDb = 1.1220185;
         private double dbVolume = maxDb;
-        private float volume = 1.0f;
+        private double volume = 1.0f;
 
         public XSynthRenderer(XSynthEngine xsynth) : base(xsynth.WaveFormat, false)
         {
@@ -322,8 +322,8 @@ namespace OmniConverter
 
         public override void ChangeVolume(float volume)
         {
-            this.volume = volume;
-            dbVolume = Math.Pow(10.0f, (this.volume / 100.0f) * 0.05f);
+            this.volume = volume / 100.0f;
+            dbVolume = Math.Pow(10.0f, this.volume * 0.05f);
         }
 
         public override bool SendCustomFXEvents(int channel, short reverb, short chorus)

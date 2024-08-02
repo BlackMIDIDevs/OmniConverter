@@ -62,20 +62,7 @@ namespace OmniConverter
             _cachedSettings = (Settings)Program.Settings.Clone();
             _cancToken = new CancellationTokenSource();
             _validator = new MIDIValidator((ulong)_midis.Count);
-            _threadsCount = _cachedSettings.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1;
-
-            switch (_cachedSettings.Renderer)
-            {
-                case EngineID.XSynth:
-                    // XSynth has built-in parallelism
-                    if (_cachedSettings.PerTrackMode)      
-                        _threadsCount = 1;
-
-                    break;
-
-                default:
-                    break;
-            }
+            _threadsCount = _cachedSettings.MultiThreadedMode ? threads.LimitToRange(1, 65536) : 1;
 
             _parallelOptions = new ParallelOptions { 
                 MaxDegreeOfParallelism = _threadsCount, 
