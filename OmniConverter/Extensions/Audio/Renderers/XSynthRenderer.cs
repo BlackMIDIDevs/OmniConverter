@@ -1,14 +1,9 @@
-﻿using CSCore;
-using ManagedBass;
-using ManagedBass.Fx;
-using ManagedBass.Midi;
-using Octokit;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using static OmniConverter.XSynth;
 
 // Written with help from Arduano
 
@@ -30,19 +25,43 @@ namespace OmniConverter
             Pitch = 7
         }
 
+        public enum Interpolation
+        {
+            Nearest = 100,
+            Linear = Nearest + 1
+        }
+
+        public enum ChannelCount
+        {
+            Mono = 1,
+            Stereo = 2
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct XSynth_Soundfont
+        {
+            public nint soundfont;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct XSynth_ChannelGroup
+        {
+            public nint group;
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct StreamParams
         {
             public uint sample_rate;
-            public ushort audio_channels;
+            public ChannelCount audio_channels;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct GroupOptions
+        public unsafe struct GroupOptions
         {
             public StreamParams stream_params;
             public uint channels;
-            public nint drum_channels;
+            public uint* drum_channels;
             public uint drum_channels_count;
             [MarshalAs(UnmanagedType.U1)]
             public bool use_threadpool;
@@ -60,7 +79,7 @@ namespace OmniConverter
             public bool linear_release;
             [MarshalAs(UnmanagedType.U1)]
             public bool use_effects;
-            public ushort interpolator;
+            public Interpolation interpolator;
         }
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_StreamParams", CallingConvention = CallingConvention.Cdecl)]
@@ -73,40 +92,40 @@ namespace OmniConverter
         public static extern SoundfontOptions GenDefault_SoundfontOptions();
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_Create", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong ChannelGroup_Create(GroupOptions options);
+        public static extern XSynth_ChannelGroup ChannelGroup_Create(GroupOptions options);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_VoiceCount", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong ChannelGroup_VoiceCount(ulong id);
+        public static extern ulong ChannelGroup_VoiceCount(XSynth_ChannelGroup id);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendEvent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_SendEvent(ulong id, uint channel, ushort evt, ushort param);
+        public static extern void ChannelGroup_SendEvent(XSynth_ChannelGroup id, uint channel, ushort evt, ushort param);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_ReadSamples", CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe void ChannelGroup_ReadSamples(ulong id, nint buffer, ulong length);
+        public static extern unsafe void ChannelGroup_ReadSamples(XSynth_ChannelGroup id, nint buffer, ulong length);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_GetStreamParams", CallingConvention = CallingConvention.Cdecl)]
-        public static extern StreamParams ChannelGroup_GetStreamParams(ulong id);
+        public static extern StreamParams ChannelGroup_GetStreamParams(XSynth_ChannelGroup id);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SetLayerCount", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_SetLayerCount(ulong id, ulong layers);
+        public static extern void ChannelGroup_SetLayerCount(XSynth_ChannelGroup id, ulong layers);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SetSoundfonts", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_SetSoundfonts(ulong id, nint sf_ids, ulong count);
+        public static extern void ChannelGroup_SetSoundfonts(XSynth_ChannelGroup id, nint sf_ids, ulong count);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_ClearSoundfonts", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_ClearSoundfonts(ulong id);
+        public static extern void ChannelGroup_ClearSoundfonts(XSynth_ChannelGroup id);
 
-        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_Remove", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_Remove(ulong id);
+        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_Drop", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ChannelGroup_Drop(XSynth_ChannelGroup id);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_RemoveAll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ChannelGroup_RemoveAll();
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_Soundfont_LoadNew", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong Soundfont_LoadNew(string path, SoundfontOptions options);
+        public static extern XSynth_Soundfont Soundfont_LoadNew(string path, SoundfontOptions options);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_Soundfont_Remove", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void Soundfont_Remove(ulong id);
+        public static extern void Soundfont_Remove(XSynth_Soundfont id);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_Soundfont_RemoveAll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Soundfont_RemoveAll();
@@ -116,29 +135,30 @@ namespace OmniConverter
     {
         private ulong _sfCount = 0;
         private nint _sfArray = nint.Zero;
-        private List<ulong> channelGroups = new();
-        private XSynth.StreamParams _streamParams;
-        private XSynth.GroupOptions _groupOptions;
+        private List<XSynth_Soundfont> _managedSfArray = new();
+        private List<XSynth_ChannelGroup> _channelGroups = new();
+        private StreamParams _streamParams;
+        private GroupOptions _groupOptions;
 
-        public XSynthEngine(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
+        public unsafe XSynthEngine(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
         {
-            _streamParams = XSynth.GenDefault_StreamParams();
-            _groupOptions = XSynth.GenDefault_GroupOptions();
+            _streamParams = GenDefault_StreamParams();
+            _groupOptions = GenDefault_GroupOptions();
 
-            _streamParams.audio_channels = (ushort)waveFormat.Channels;
+            _streamParams.audio_channels = (ChannelCount)waveFormat.Channels;
             _streamParams.sample_rate = (uint)waveFormat.SampleRate;
 
             _groupOptions.stream_params = _streamParams;
             _groupOptions.channels = 16;
             _groupOptions.fade_out_killing = Program.Settings.KilledNoteFading;
-            _groupOptions.use_threadpool = Program.Settings.MultiThreadedMode;
+            _groupOptions.use_threadpool = !(Program.Settings.MultiThreadedMode && Program.Settings.PerTrackMode);
 
             var tmp = InitializeSoundFonts(initSFs);
 
             if (tmp != null)
             {
                 _sfCount = (ulong)tmp.Length;
-                _sfArray = Marshal.AllocHGlobal(tmp.Length * sizeof(ulong));
+                _sfArray = Marshal.AllocHGlobal(tmp.Length * sizeof(XSynth.XSynth_Soundfont));
                 MarshalExt.CopyToManaged(tmp, _sfArray, 0, tmp.Length);
             }
             
@@ -153,26 +173,23 @@ namespace OmniConverter
             if (_disposed)
                 return;
 
-            FreeSoundFontsArray();
-
             if (Initialized)
             {
-                for (int i = 0; i < channelGroups.Count(); i++)
-                    XSynth.ChannelGroup_Remove(channelGroups[i]);
+                for (int i = 0; i < _channelGroups.Count(); i++)
+                    ChannelGroup_Drop(_channelGroups[i]);
 
-                XSynth.Soundfont_RemoveAll();
+                FreeSoundFontsArray();
+
+                Initialized = false;
             }
-                
-            Initialized = false;
+
             _disposed = true;
         }
 
-        private ulong[]? InitializeSoundFonts(ObservableCollection<SoundFont>? sfList)
+        private XSynth_Soundfont[]? InitializeSoundFonts(ObservableCollection<SoundFont>? sfList)
         {
             if (sfList == null)
                 return null;
-
-            var _tmpSfArray = new List<ulong>();
 
             foreach (SoundFont sf in sfList)
             {
@@ -184,23 +201,22 @@ namespace OmniConverter
 
                 Debug.PrintToConsole(Debug.LogType.Message, $"Preparing ulong for {sf.SoundFontPath}...");
                 
-                XSynth.SoundfontOptions _soundfontOptions = XSynth.GenDefault_SoundfontOptions();
-                _soundfontOptions.stream_params.sample_rate = _streamParams.sample_rate;
-                _soundfontOptions.stream_params.audio_channels = _streamParams.audio_channels;
+                SoundfontOptions _soundfontOptions = GenDefault_SoundfontOptions();
+                _soundfontOptions.stream_params = _streamParams;
                 _soundfontOptions.bank = sf.SourceBank;
                 _soundfontOptions.preset = sf.SourcePreset;
-                _soundfontOptions.interpolator = 1;
+                _soundfontOptions.interpolator = Interpolation.Linear;
                 _soundfontOptions.linear_release = false;
                 _soundfontOptions.use_effects = !Program.Settings.DisableEffects;
 
-                ulong handle = XSynth.Soundfont_LoadNew(sf.SoundFontPath, _soundfontOptions);
+                XSynth_Soundfont handle = Soundfont_LoadNew(sf.SoundFontPath, _soundfontOptions);
 
                 Debug.PrintToConsole(Debug.LogType.Message, $"SoundFont handle initialized. Handle = {handle:X8}");
-                _tmpSfArray.Add(handle);
+                _managedSfArray.Add(handle);
             }
 
-            if (_tmpSfArray.Count > 0) 
-                return _tmpSfArray.ToArray();
+            if (_managedSfArray.Count > 0) 
+                return _managedSfArray.ToArray();
             
             return null;
         }
@@ -209,15 +225,17 @@ namespace OmniConverter
         {
             if (_sfArray != nint.Zero)
             {
-                XSynth.Soundfont_RemoveAll();
+                foreach (var sf in _managedSfArray)
+                    Soundfont_Remove(sf);
+
                 Marshal.FreeHGlobal(_sfArray);
             }
 
             _sfArray = nint.Zero;
         }
 
-        public void AddChannel(ulong channel) => channelGroups.Add(channel);
-        public void RemoveChannel(ulong channel) => channelGroups.Remove(channel);
+        public void AddChannel(XSynth_ChannelGroup channel) => _channelGroups.Add(channel);
+        public void RemoveChannel(XSynth_ChannelGroup channel) => _channelGroups.Remove(channel);
 
         public nint GetSoundFontsArray(out ulong count)
         {
@@ -225,18 +243,19 @@ namespace OmniConverter
             return _sfArray;
         }
 
-        public XSynth.GroupOptions GetGroupOptions() => _groupOptions;
+        public GroupOptions GetGroupOptions() => _groupOptions;
     }
 
     public class XSynthRenderer : MIDIRenderer
     {
         private readonly object Lock = new object();
 
-        public ulong handle { get; private set; } = 0;
+        public XSynth_ChannelGroup? handle { get; private set; } = null;
+        private long length = 0;
         private ulong sfCount = 0;
         private nint sfArray = nint.Zero;
         private XSynthEngine reference;
-        private XSynth.GroupOptions groupOptions;
+        private GroupOptions groupOptions;
 
         private const double maxDb = 1.1220185;
         private double dbVolume = maxDb;
@@ -259,13 +278,13 @@ namespace OmniConverter
 
             if (sfArray != nint.Zero)
             {
-                handle = XSynth.ChannelGroup_Create(groupOptions);
+                handle = ChannelGroup_Create(groupOptions);
 
-                reference.AddChannel(handle);
-                XSynth.ChannelGroup_SetLayerCount(handle, (ulong)Program.Settings.MaxVoices);    
-                XSynth.ChannelGroup_SetSoundfonts(handle, sfArray, sfCount);
+                reference.AddChannel((XSynth_ChannelGroup)handle);
+                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, (ulong)Program.Settings.MaxVoices);    
+                ChannelGroup_SetSoundfonts((XSynth_ChannelGroup)handle, sfArray, sfCount);
 
-                var tmp = XSynth.ChannelGroup_GetStreamParams(handle);
+                var tmp = ChannelGroup_GetStreamParams((XSynth_ChannelGroup)handle);
 
                 if (tmp.sample_rate != groupOptions.stream_params.sample_rate)
                     throw new AccessViolationException();
@@ -281,25 +300,22 @@ namespace OmniConverter
 
         private bool IsError(string Error)
         {
-            if (Bass.LastError != 0)
-            {
-                Debug.PrintToConsole(Debug.LogType.Error, $"{UniqueID} - {Error}.");
-                return true;
-            }
-
             return false;
         }
 
         public override unsafe int Read(float[] buffer, int offset, long delta, int count)
         {
+            if (handle == null)
+                return 0;
+
             lock (Lock)
             {
                 fixed (float* buff = buffer)
                 {
                     var offsetBuff = buff + offset;
-                    XSynth.ChannelGroup_ReadSamples(handle, (nint)offsetBuff, (ulong)count);
+                    ChannelGroup_ReadSamples((XSynth_ChannelGroup)handle, (nint)offsetBuff, (ulong)count);
 
-                    if (volume != 1.0f)
+                    if (volume < 1.0f)
                     {
                         for (int i = 0; i < count; i++)
                             offsetBuff[i] = offsetBuff[i] * (float)dbVolume;
@@ -307,16 +323,20 @@ namespace OmniConverter
                 }
             }
 
+            length += count;
             return count;
         }
 
         public override void SystemReset()
         {
+            if (handle == null)
+                return;
+
             for (uint i = 0; i < 16; i++)
             {
-                XSynth.ChannelGroup_SendEvent(handle, i, (ushort)XSynth.EventType.ResetControl, 0);
-                XSynth.ChannelGroup_SendEvent(handle, i, (ushort)XSynth.EventType.Control, 0);
-                XSynth.ChannelGroup_SendEvent(handle, i, (ushort)XSynth.EventType.ProgramChange, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.ResetControl, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.Control, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.ProgramChange, 0);
             }
         }
 
@@ -333,11 +353,14 @@ namespace OmniConverter
 
         public override void SendEvent(byte[] data)
         {
+            if (handle == null)
+                return;
+
             var status = data[0];
             var param1 = data[1];
             var param2 = data.Length >= 3 ? data[2] : (byte)0;
 
-            var eventType = XSynth.EventType.NoteOn;
+            var eventType = EventType.NoteOn;
             int eventParams;
 
             switch ((MIDIEventType)(status & 0xF0))
@@ -350,7 +373,7 @@ namespace OmniConverter
 
                     if (param1 == 0)
                     {
-                        eventType = XSynth.EventType.NoteOff;
+                        eventType = EventType.NoteOff;
                         eventParams = param1;
                     }
                     else eventParams = (param2 << 8) | param1;
@@ -360,22 +383,22 @@ namespace OmniConverter
                     if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
                         return;
 
-                    eventType = XSynth.EventType.NoteOff;
+                    eventType = EventType.NoteOff;
                     eventParams = param1;
                     break;
 
                 case MIDIEventType.PatchChange:
-                    eventType = XSynth.EventType.ProgramChange;
+                    eventType = EventType.ProgramChange;
                     eventParams = param1;
                     break;
 
                 case MIDIEventType.CC:
-                    eventType = XSynth.EventType.Control;
+                    eventType = EventType.Control;
                     eventParams = (param2 << 8) | param1;
                     break;
 
                 case MIDIEventType.PitchBend:
-                    eventType = XSynth.EventType.Pitch;
+                    eventType = EventType.Pitch;
                     eventParams = (param2 << 7) | param1;
                     break;
 
@@ -383,7 +406,7 @@ namespace OmniConverter
                     return;
             }
 
-            XSynth.ChannelGroup_SendEvent(handle, (uint)(status & 0xF), (ushort)eventType, (ushort)eventParams);
+            ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, (uint)(status & 0xF), (ushort)eventType, (ushort)eventParams);
         }
 
         public override bool SendEndEvent()
@@ -393,7 +416,10 @@ namespace OmniConverter
 
         public override void RefreshInfo()
         {
-            ActiveVoices = XSynth.ChannelGroup_VoiceCount(handle);
+            if (handle == null)
+                return;
+
+            ActiveVoices = ChannelGroup_VoiceCount((XSynth_ChannelGroup)handle);
         }
 
         public override void SetRenderingTime(float rt)
@@ -403,13 +429,13 @@ namespace OmniConverter
 
         public override long Position
         {
-            get { return 0; }
+            get { return length; }
             set { throw new NotSupportedException("Can't set position."); }
         }
 
         public override long Length
         {
-            get { return 0; }
+            get { return length; }
         }
 
         protected override void Dispose(bool disposing)
@@ -417,12 +443,12 @@ namespace OmniConverter
             if (Disposed)
                 return;
 
-            if (disposing)
+            if (disposing && handle != null)
             {
                 lock (Lock)
                 {
-                    reference.RemoveChannel(handle);
-                    XSynth.ChannelGroup_Remove(handle);
+                    reference.RemoveChannel((XSynth_ChannelGroup)handle);
+                    ChannelGroup_Drop((XSynth_ChannelGroup)handle);
                 }
             }
 

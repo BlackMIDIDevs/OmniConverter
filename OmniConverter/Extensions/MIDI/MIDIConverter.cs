@@ -578,6 +578,13 @@ namespace OmniConverter
                             if (_cancToken.IsCancellationRequested)
                                 throw new OperationCanceledException();
 
+                            var midiTrack = midiData.ElementAt(track);
+
+                            var notes = midiTrack.Where(x => x is NoteOnEvent);
+
+                            if (notes.Count() < 2)
+                                return;
+
                             Task cvThread;
                             string fallbackFile = string.Empty;
                             string outputFile1 = string.Empty;
@@ -620,7 +627,7 @@ namespace OmniConverter
                                 }
                                 else sampleWriter = msm.GetWriter();
 
-                                using (var eventsProcesser = new EventsProcesser(_audioRenderer, midiData.ElementAt(track), midi.Length.TotalSeconds, midi.LoadedFile, _cachedSettings))
+                                using (var eventsProcesser = new EventsProcesser(_audioRenderer, midiTrack, midi.Length.TotalSeconds, midi.LoadedFile, _cachedSettings))
                                 {
                                     Dispatcher.UIThread.Post(() => trackPanel = new TaskStatus($"Track {track}", _panelRef, eventsProcesser));
 
@@ -889,8 +896,6 @@ namespace OmniConverter
         {
             var r = new Random();
 
-            var sampleMode = false;
-            var sampleSize = 0;
             var volume = cachedSettings.Volume;
             rtsMode = cachedSettings.RTSMode;
 
@@ -908,7 +913,6 @@ namespace OmniConverter
                 {
                     case XSynthEngine xsynth:
                         midiRenderer = new XSynthRenderer(xsynth);
-                        sampleMode = true;
                         break;
 
                     case BASSEngine bass:
@@ -924,10 +928,7 @@ namespace OmniConverter
                     midiRenderer.ChangeVolume(volume);
                     midiRenderer.SystemReset();
 
-                    if (sampleMode)
-                        sampleSize = waveFormat.SampleRate * waveFormat.Channels;
-
-                    float[] buffer = new float[sampleMode ? sampleSize : 64 * waveFormat.BlockAlign];
+                    float[] buffer = new float[256 * waveFormat.BlockAlign];
                     long prevWriteTime = 0;
                     double deltaTime = 0;
                     byte[] scratch = new byte[16];
@@ -973,13 +974,14 @@ namespace OmniConverter
 
                             while (chunk > 0)
                             {
-                                if (midiRenderer is XSynthRenderer)
-                                    Array.Clear(buffer);
-
                                 bool smallChunk = chunk < buffer.Length;
-                                midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
-                                output.Write(buffer, 0, smallChunk ? chunk : buffer.Length);
-                                chunk = smallChunk ? 0 : chunk - buffer.Length;
+                                int readData = midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
+
+                                if (readData > 0)
+                                {
+                                    output.Write(buffer, 0, smallChunk ? chunk : buffer.Length);
+                                    chunk = smallChunk ? 0 : chunk - buffer.Length;
+                                }
                             }
 
                             switch (e)
