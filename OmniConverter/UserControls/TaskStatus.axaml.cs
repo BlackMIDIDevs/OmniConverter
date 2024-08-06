@@ -94,8 +94,8 @@ public partial class TaskStatus : UserControl
         var playedNotes = evProc?.PlayedNotes;
         var rtsMode = evProc?.IsRTS ?? false;
         var progress = evProc?.Progress ?? 0;
-        var processed = evProc?.Processed ?? 0;
-        var remaining = evProc?.Remaining ?? 0;
+        var processed = evProc?.ProcessedEvents ?? 0;
+        var remaining = evProc?.RemainingEvents ?? 0;
         var activeVoices = evProc?.ActiveVoices ?? 0;
         var framerate = evProc?.Framerate ?? 0;
 
@@ -110,7 +110,7 @@ public partial class TaskStatus : UserControl
         var speed = processed / (dtCurrent - _dtStart).TotalSeconds;
         if (speed > 0)
         {
-            _eta = TimeSpan.FromSeconds(remaining / speed);
+            _eta = TimeSpan.FromSeconds(Convert.ToDouble(remaining) / speed);
             etaText = MiscFunctions.TimeSpanToHumanReadableTime(_eta);
         }
 

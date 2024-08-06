@@ -53,6 +53,8 @@ public partial class MIDIWindow : Window
         if (_import && _files != null)
         {
             Title = "MIDI analysis";
+            TogglePause.IsVisible = false;
+            ControlBar.ColumnDefinitions = new("8*, 0, 140");
             _worker = new MIDIAnalysis(_files, _silent, Program.Settings.MultiThreadedMode ? Program.Settings.ThreadsCount : 1, this, LogArea, _winRef.MIDIs);
         }
         else
@@ -70,6 +72,8 @@ public partial class MIDIWindow : Window
             if (_winRef.MIDIs.Count > 0)
             {
                 Title = "MIDI converter";
+                ShowInTaskbar = true;
+                ControlBar.ColumnDefinitions = new("8*, 96, 96");
                 string outputFolder = string.Empty;
 
                 if (!Program.Settings.AutoExportToFolder)
@@ -129,6 +133,32 @@ public partial class MIDIWindow : Window
         Close();
     }
 
+    private bool ClosingCheck()
+    {
+        if (_worker != null)
+        {
+            if (_worker.IsRunning())
+            {
+                var dr = MessageBox.Show(this, "Are you sure you want to terminate the current process?", "The converter is still busy", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
+                switch (dr)
+                {
+                    case MessageBox.MsgBoxResult.Yes:
+                        _worker.CancelWork();
+                        break;
+                    default:
+                    case MessageBox.MsgBoxResult.No:
+                        return false;
+                }
+            }
+
+            while (_worker.IsRunning()) ;
+
+            _worker.Dispose();
+        }
+
+        return true;
+    }
+
     private void FeederTick(object? sender, EventArgs e)
     {
         string customTitle = _worker?.GetCustomTitle() ?? string.Empty;
@@ -163,33 +193,13 @@ public partial class MIDIWindow : Window
     private void PauseConvBtnClick(object? sender, RoutedEventArgs e)
     {
         if (_worker != null && TogglePause.IsChecked != null)
-            ((MIDIConverter)_worker).TogglePause((bool)TogglePause.IsChecked);
+            _worker.TogglePause((bool)TogglePause.IsChecked);
     }
 
     private void CancelBtnClick(object? sender, RoutedEventArgs e)
     {
-        if (_worker != null)
-        {
-            if (_worker.IsRunning())
-            {
-                var dr = MessageBox.Show(this, "Are you sure you want to terminate the current process?", "The converter is still busy", MsBox.Avalonia.Enums.ButtonEnum.YesNo, MsBox.Avalonia.Enums.Icon.Warning);
-                switch (dr)
-                {
-                    case MessageBox.MsgBoxResult.Yes:
-                        _worker.CancelWork();
-                        break;
-                    default:
-                    case MessageBox.MsgBoxResult.No:
-                        return;
-                }
-            }
-
-            while (_worker.IsRunning()) ;
-
-            _worker.Dispose();
-        }
-
-        Close();
+        if (ClosingCheck())
+            Close();
     }
 
     public void EnableTrackProgress(bool enable)
@@ -202,14 +212,17 @@ public partial class MIDIWindow : Window
     {
         e.Cancel = true;
 
-        if (_winRef != null)
-            _winRef.NullMIDIWindow(this);
-        
-        _feeder.Tick -= FeederTick;
-        _feeder.Stop();
-        Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.NoProgress);
+        if (e.IsProgrammatic ? true : ClosingCheck())
+        {
+            if (_winRef != null)
+                _winRef.NullMIDIWindow(this);
 
-        Closing -= MIDIWindow_OnClosing;
-        Close();
+            _feeder.Tick -= FeederTick;
+            _feeder.Stop();
+            Platform.SetTaskbarProgress(_winRef, Platform.TaskbarState.NoProgress);
+
+            Closing -= MIDIWindow_OnClosing;
+            Close(34643);
+        }
     }
 }

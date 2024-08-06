@@ -257,16 +257,16 @@ namespace OmniConverter
                 switch (_cachedSettings.Renderer)
                 {
                     case EngineID.XSynth:
-                        _audioRenderer = new XSynthEngine(_waveFormat, _cachedSettings.SoundFontsList);
+                        _audioRenderer = new XSynthEngine(_waveFormat, _cachedSettings);
                         break;
 
                     case EngineID.BASS:
                     default:
                         // do this hacky crap to get the voice change to work
-                        _audioRenderer = new BASSEngine(_waveFormat);
+                        _audioRenderer = new BASSEngine(_waveFormat, _cachedSettings);
                         _audioRenderer.Dispose();
 
-                        _audioRenderer = new BASSEngine(_waveFormat, _cachedSettings.SoundFontsList);
+                        _audioRenderer = new BASSEngine(_waveFormat, _cachedSettings);
                         break;
                 }
 
@@ -360,6 +360,7 @@ namespace OmniConverter
                 return;
 
             // Cache settings
+            var autoDevice = _audioRenderer is BASSEngine;
             var codec = _cachedSettings.AudioCodec;
             var audioLimiter = CheckIfCodecCanFloat(codec) ? _cachedSettings.AudioLimiter : true;
 
@@ -367,7 +368,7 @@ namespace OmniConverter
             GetTotalEventsCount();
 
             if (_cachedSettings.AudioEvents)
-                MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start);
+                MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start, !autoDevice);
 
             _convElapsedTime.Reset();
             _convElapsedTime.Start();
@@ -383,7 +384,6 @@ namespace OmniConverter
                     midi.EnablePooling();
 
                     // Begin conversion
-                    AutoFillInfo(ConvStatus.SingleConv);
                     _validator.SetCurrentMIDI(midi.Path);
 
                     // Prepare the filename
@@ -411,8 +411,10 @@ namespace OmniConverter
                     {
                         using (var msm = new MultiStreamMerger(_waveFormat))
                         {
-                            using (var eventsProcesser = new EventsProcesser(_audioRenderer, evs, midi.Length.TotalSeconds, midi.LoadedFile, _cachedSettings))
+                            using (var eventsProcesser = new EventsProcesser(_cachedSettings, _audioRenderer, evs, midi))
                             {
+                                AutoFillInfo(ConvStatus.SingleConv);
+
                                 Dispatcher.UIThread.Post(() => midiPanel = new TaskStatus(midi.Name, _panelRef, eventsProcesser));
 
                                 var cvThread = Task.Run(() => eventsProcesser.Process(msm.GetWriter(), _waveFormat, _cancToken.Token, f => _validator.AddEvent()));
@@ -423,6 +425,7 @@ namespace OmniConverter
                                         throw new OperationCanceledException();
 
                                     eventsProcesser.RefreshInfo();
+                                    eventsProcesser.TogglePause(_pauseConversion);
 
                                     Thread.Sleep(100);
                                 }
@@ -512,10 +515,11 @@ namespace OmniConverter
             if (!_cancToken.IsCancellationRequested)
             {
                 if (_cachedSettings.AudioEvents)
-                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish);
+                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish, !autoDevice);
 
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
             }
+            else MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Error, !autoDevice);
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -526,12 +530,13 @@ namespace OmniConverter
                 return;
 
             // Cache settings
+            var autoDevice = _audioRenderer is BASSEngine;
             var perTrackFile = _cachedSettings.PerTrackFile;
             var codec = _cachedSettings.AudioCodec;
             var audioLimiter = CheckIfCodecCanFloat(codec) ? _cachedSettings.AudioLimiter : true;
 
             if (_cachedSettings.AudioEvents)
-                MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start);
+                MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Start, !autoDevice);
 
             GetTotalEventsCount();
 
@@ -627,7 +632,7 @@ namespace OmniConverter
                                 }
                                 else sampleWriter = msm.GetWriter();
 
-                                using (var eventsProcesser = new EventsProcesser(_audioRenderer, midiTrack, midi.Length.TotalSeconds, midi.LoadedFile, _cachedSettings))
+                                using (var eventsProcesser = new EventsProcesser(_cachedSettings, _audioRenderer, midiTrack, midi, track))
                                 {
                                     Dispatcher.UIThread.Post(() => trackPanel = new TaskStatus($"Track {track}", _panelRef, eventsProcesser));
 
@@ -644,6 +649,7 @@ namespace OmniConverter
                                             throw new OperationCanceledException();
 
                                         eventsProcesser.RefreshInfo();
+                                        eventsProcesser.TogglePause(_pauseConversion);
 
                                         AutoFillInfo(ConvStatus.MultiConv);
 
@@ -823,10 +829,11 @@ namespace OmniConverter
             if (!_cancToken.IsCancellationRequested)
             {
                 if (_cachedSettings.AudioEvents)
-                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish);
+                    MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Finish, !autoDevice);
 
                 MiscFunctions.PerformShutdownCheck(_convElapsedTime);
             }
+            else MiscFunctions.PlaySound(MiscFunctions.ConvSounds.Error, !autoDevice);
 
             Dispatcher.UIThread.Post(_winRef.Close);
         }
@@ -834,45 +841,52 @@ namespace OmniConverter
 
     public class EventsProcesser : OmniTask
     {
-        MIDIRenderer? midiRenderer = null;
-        AudioEngine audioRenderer;
-        IEnumerable<MIDIEvent>? events = new List<MIDIEvent>();
-        MidiFile file;
-        Settings cachedSettings;
+        MIDIRenderer? _midiRenderer = null;
+        AudioEngine _audioRenderer;
+        IEnumerable<MIDIEvent>? _events = new List<MIDIEvent>();
+        MidiFile _file;
+        Settings _cachedSettings;
 
-        int totalEvents = 0;
-        int processedEvents = 0;
+        ulong _eventsCount = 0;
+        ulong _processedEvents = 0;
 
-        double length = 0;
+        double _length = 0;
+        double _converted = 0;
 
         ulong playedNotes = 0;
         bool rtsMode = false;
+        bool pauseConversion = false;
         double curFrametime = 0.0;
 
-        public override double Progress => ((double)processedEvents / totalEvents) * 100;
-        public override double Remaining => totalEvents - processedEvents;
-        public override double Processed => processedEvents;
-        public override double Length => length;
-        public override void RefreshInfo() => midiRenderer?.RefreshInfo();
+        public override double Progress => (_converted / _length) * 100;
+        public override double Remaining => _length - _converted;
+        public override double Processed => _converted;
+        public override double Length => _length;
+        public override void RefreshInfo() => _midiRenderer?.RefreshInfo();
+        public override void TogglePause(bool toggle) { if (pauseConversion != toggle) pauseConversion = toggle; }
 
-        public ulong ActiveVoices => midiRenderer != null ? midiRenderer.ActiveVoices : 0;
-        public float RenderingTime => midiRenderer != null ? midiRenderer.RenderingTime : 0.0f;
+        public ulong RemainingEvents => _eventsCount - _processedEvents;
+        public ulong ProcessedEvents => _processedEvents;
+        public ulong ActiveVoices => _midiRenderer != null ? _midiRenderer.ActiveVoices : 0;
+        public float RenderingTime => _midiRenderer != null ? _midiRenderer.RenderingTime : 0.0f;
         public ulong PlayedNotes => playedNotes;
         public bool IsRTS => rtsMode;
         public double Framerate => 1 / curFrametime;
 
-        public EventsProcesser(AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, double length, MidiFile? file, Settings cachedSettings)
+        public EventsProcesser(Settings cachedSettings, AudioEngine audioRenderer, IEnumerable<MIDIEvent> events, MIDI? midi, int track = -1)
         {
-            if (file == null)
+            if (midi == null)
+                throw new NullReferenceException("MIDI is null");
+
+            if (midi.LoadedFile == null)
                 throw new NullReferenceException("MidiFile is null");
 
-            this.audioRenderer = audioRenderer;
-            this.events = events;
-            this.length = length;
-            this.file = file;
-            this.cachedSettings = cachedSettings;
-
-            totalEvents = events.Count();
+            _file = midi.LoadedFile;
+            _audioRenderer = audioRenderer;
+            _events = events;
+            _eventsCount = track < 0 ? midi.TotalEventCount : midi.EventCounts[track];
+            _cachedSettings = cachedSettings;
+            _length = midi.Length.TotalSeconds;
         }
 
         double RoundToNearest(double n, double x)
@@ -884,9 +898,9 @@ namespace OmniConverter
         {
             if (disposing)
             {
-                events?.GetEnumerator().Dispose();
-                events = null;
-                midiRenderer?.Dispose();
+                _events?.GetEnumerator().Dispose();
+                _events = null;
+                _midiRenderer?.Dispose();
             }
 
             _disposed = true;
@@ -896,11 +910,11 @@ namespace OmniConverter
         {
             var r = new Random();
 
-            var volume = cachedSettings.Volume;
-            rtsMode = cachedSettings.RTSMode;
+            var volume = _cachedSettings.Volume;
+            rtsMode = _cachedSettings.RTSMode;
 
-            var rtsFps = cachedSettings.RTSFPS;
-            var rtsFluct = cachedSettings.RTSFluct;
+            var rtsFps = _cachedSettings.RTSFPS;
+            var rtsFluct = _cachedSettings.RTSFluct;
 
             var rtsFr = (1.0 / rtsFps);
             var percFps = (rtsFr / 100) * rtsFluct;
@@ -909,52 +923,54 @@ namespace OmniConverter
 
             try
             {
-                switch (audioRenderer)
+                switch (_audioRenderer)
                 {
                     case XSynthEngine xsynth:
-                        midiRenderer = new XSynthRenderer(xsynth);
+                        _midiRenderer = new XSynthRenderer(xsynth);
                         break;
 
                     case BASSEngine bass:
-                        midiRenderer = new BASSRenderer(bass);
+                        _midiRenderer = new BASSRenderer(bass);
                         break;
 
                     default:
                         break;
                 }
 
-                if (midiRenderer != null)
+                if (_midiRenderer != null)
                 {
-                    midiRenderer.ChangeVolume(volume);
-                    midiRenderer.SystemReset();
+                    _midiRenderer.ChangeVolume(volume);
+                    _midiRenderer.SystemReset();
 
                     float[] buffer = new float[256 * waveFormat.BlockAlign];
                     long prevWriteTime = 0;
                     double deltaTime = 0;
                     byte[] scratch = new byte[16];
 
-                    Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {midiRenderer.UniqueID}.");
+                    Debug.PrintToConsole(Debug.LogType.Message, $"Initialized {_midiRenderer.UniqueID}.");
 
                     // Prepare stream
-                    if (cachedSettings.OverrideEffects)
+                    if (_cachedSettings.OverrideEffects)
                     {
                         for (int i = 0; i <= 15; i++)
-                            midiRenderer.SendCustomFXEvents(i, cachedSettings.ReverbVal, cachedSettings.ChorusVal);
+                            _midiRenderer.SendCustomFXEvents(i, _cachedSettings.ReverbVal, _cachedSettings.ChorusVal);
                     }
 
-                    if (events != null)
+                    if (_events != null)
                     {
-                        foreach (MIDIEvent e in events)
+                        foreach (MIDIEvent e in _events)
                         {
                             if (cancToken.IsCancellationRequested)
                                 return;
 
-                            processedEvents++;
+                            while (pauseConversion)
+                                Thread.Sleep(500);
 
                             if (e is UndefinedEvent)
                                 continue;
 
                             deltaTime += e.DeltaTime;
+                            _converted = deltaTime;
                             var eb = e.GetData(scratch);
 
                             if (rtsMode)
@@ -975,7 +991,7 @@ namespace OmniConverter
                             while (chunk > 0)
                             {
                                 bool smallChunk = chunk < buffer.Length;
-                                int readData = midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
+                                int readData = _midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
 
                                 if (readData > 0)
                                 {
@@ -987,29 +1003,27 @@ namespace OmniConverter
                             switch (e)
                             {
                                 case ControlChangeEvent ev:
-                                    if (!(cachedSettings.OverrideEffects && (ev.Controller == 0x5B || ev.Controller == 0x5D)))
-                                        midiRenderer.SendEvent(eb);
+                                    if (!(_audioRenderer.CachedSettings.OverrideEffects && (ev.Controller == 0x5B || ev.Controller == 0x5D)))
+                                        goto default;
 
                                     break;
 
                                 case ProgramChangeEvent:
-                                    if (!cachedSettings.IgnoreProgramChanges)
-                                        midiRenderer.SendEvent(eb);
+                                    if (!_audioRenderer.CachedSettings.IgnoreProgramChanges)
+                                        goto default;
+
                                     break;
 
                                 case NoteOnEvent:
                                     playedNotes++;
-                                    midiRenderer.SendEvent(eb);
-                                    break;
+                                    goto default;
 
-                                case NoteOffEvent:
-                                case PitchWheelChangeEvent:
-                                case ChannelPressureEvent:
-                                case ChannelModeMessageEvent:
-                                    midiRenderer.SendEvent(eb);
+                                case MIDIPortEvent:
+                                case ChannelPrefixEvent:
                                     break;
 
                                 default:
+                                    _midiRenderer.SendEvent(eb);
                                     break;
                             }
 
@@ -1017,7 +1031,9 @@ namespace OmniConverter
                                 _ = f(1);
                             //_renderingTime = bass.RenderingTime;
 
-                            file.Return(e);
+                            _file.Return(e);
+
+                            _processedEvents++;
                         }
                     }
 
@@ -1025,7 +1041,7 @@ namespace OmniConverter
 
                     while (fl != 0.0f)
                     {
-                        midiRenderer.Read(buffer, 0, 0, buffer.Length);
+                        _midiRenderer.Read(buffer, 0, 0, buffer.Length);
                         output.Write(buffer, 0, buffer.Length);
 
                         fl = buffer[0];
@@ -1037,7 +1053,7 @@ namespace OmniConverter
             catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                Debug.PrintToConsole(Debug.LogType.Warning, $"{midiRenderer?.UniqueID} - DataParsingError {ex.Message}");
+                Debug.PrintToConsole(Debug.LogType.Warning, $"{_midiRenderer?.UniqueID} - DataParsingError {ex.Message}");
             }
         }
     }

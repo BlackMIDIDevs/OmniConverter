@@ -11,6 +11,7 @@ namespace OmniConverter
         public abstract double Length { get; }
         public abstract double Processed { get; }
         public abstract void RefreshInfo();
+        public abstract void TogglePause(bool pause);
 
         public void Dispose()
         {

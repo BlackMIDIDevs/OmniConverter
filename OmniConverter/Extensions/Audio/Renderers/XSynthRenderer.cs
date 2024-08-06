@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Octokit;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using static OmniConverter.XSynth;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // Written with help from Arduano
 
@@ -22,7 +24,9 @@ namespace OmniConverter
             ResetControl = 4,
             Control = 5,
             ProgramChange = 6,
-            Pitch = 7
+            Pitch = 7,
+            FineTune = 8,
+            CoarseTune = 9
         }
 
         public enum Interpolation
@@ -134,14 +138,19 @@ namespace OmniConverter
     public class XSynthEngine : AudioEngine
     {
         private ulong _sfCount = 0;
+        private ulong _layerCount = 0;
         private nint _sfArray = nint.Zero;
         private List<XSynth_Soundfont> _managedSfArray = new();
         private List<XSynth_ChannelGroup> _channelGroups = new();
         private StreamParams _streamParams;
         private GroupOptions _groupOptions;
 
-        public unsafe XSynthEngine(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
+        public unsafe XSynthEngine(CSCore.WaveFormat waveFormat, Settings settings) : base(waveFormat, settings, false)
         {
+            string exp = string.Empty;
+
+            Debug.PrintToConsole(Debug.LogType.Message, $"Preparing XSynth...");
+
             _streamParams = GenDefault_StreamParams();
             _groupOptions = GenDefault_GroupOptions();
 
@@ -150,20 +159,31 @@ namespace OmniConverter
 
             _groupOptions.stream_params = _streamParams;
             _groupOptions.channels = 16;
-            _groupOptions.fade_out_killing = Program.Settings.KilledNoteFading;
-            _groupOptions.use_threadpool = !(Program.Settings.MultiThreadedMode && Program.Settings.PerTrackMode);
+            _groupOptions.fade_out_killing = CachedSettings.KilledNoteFading;
+            _groupOptions.use_threadpool = !(CachedSettings.MultiThreadedMode && CachedSettings.PerTrackMode);
 
-            var tmp = InitializeSoundFonts(initSFs);
+            _layerCount = (ulong)Math.Round((decimal)(CachedSettings.MaxVoices / (128 * 16)), MidpointRounding.AwayFromZero);
+            if (_layerCount < 1)
+                _layerCount = 1;
 
-            if (tmp != null)
+            var tmp = InitializeSoundFonts();
+            if (tmp == null)
             {
-                _sfCount = (ulong)tmp.Length;
-                _sfArray = Marshal.AllocHGlobal(tmp.Length * sizeof(XSynth_Soundfont));
-                MarshalExt.CopyToManaged(tmp, _sfArray, 0, tmp.Length);
+                exp = "Failed to allocate SoundFonts!!!";
+                Debug.PrintToConsole(Debug.LogType.Error, exp);
+                throw new Exception(exp);
             }
-            
-            Debug.PrintToConsole(Debug.LogType.Message, $"XSynth >> AC: {_groupOptions.stream_params.audio_channels} | SR: {_groupOptions.stream_params.sample_rate}");
+
+            _sfCount = (ulong)tmp.Length;
+            _sfArray = Marshal.AllocHGlobal(tmp.Length * sizeof(XSynth_Soundfont));
+            MarshalExt.CopyToManaged(tmp, _sfArray, 0, tmp.Length);
+
             Initialized = true;
+
+            Debug.PrintToConsole(Debug.LogType.Message, $"XSynth set up for {_streamParams.audio_channels}ch output at {_streamParams.sample_rate}Hz ");
+            Debug.PrintToConsole(Debug.LogType.Message, $"ThreadPool = {_groupOptions.use_threadpool}");
+            Debug.PrintToConsole(Debug.LogType.Message, $"FadeOutKilling = {_groupOptions.fade_out_killing}");
+            Debug.PrintToConsole(Debug.LogType.Message, $"LayerCount = {_layerCount}");
 
             return;
         }
@@ -186,12 +206,9 @@ namespace OmniConverter
             _disposed = true;
         }
 
-        private XSynth_Soundfont[]? InitializeSoundFonts(ObservableCollection<SoundFont>? sfList)
+        private XSynth_Soundfont[]? InitializeSoundFonts()
         {
-            if (sfList == null)
-                return null;
-
-            foreach (SoundFont sf in sfList)
+            foreach (SoundFont sf in CachedSettings.SoundFontsList)
             {
                 if (!sf.Enabled)
                 {
@@ -207,7 +224,7 @@ namespace OmniConverter
                 _soundfontOptions.preset = sf.SourcePreset;
                 _soundfontOptions.interpolator = Interpolation.Linear;
                 _soundfontOptions.linear_release = false;
-                _soundfontOptions.use_effects = !Program.Settings.DisableEffects;
+                _soundfontOptions.use_effects = !CachedSettings.DisableEffects;
 
                 XSynth_Soundfont handle = Soundfont_LoadNew(sf.SoundFontPath, _soundfontOptions);
 
@@ -244,6 +261,7 @@ namespace OmniConverter
         }
 
         public GroupOptions GetGroupOptions() => _groupOptions;
+        public ulong GetLayerCount() => _layerCount;
     }
 
     public class XSynthRenderer : MIDIRenderer
@@ -281,7 +299,7 @@ namespace OmniConverter
                 handle = ChannelGroup_Create(groupOptions);
 
                 reference.AddChannel((XSynth_ChannelGroup)handle);
-                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, (ulong)Program.Settings.MaxVoices);    
+                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.GetLayerCount());    
                 ChannelGroup_SetSoundfonts((XSynth_ChannelGroup)handle, sfArray, sfCount);
 
                 var tmp = ChannelGroup_GetStreamParams((XSynth_ChannelGroup)handle);
@@ -366,9 +384,9 @@ namespace OmniConverter
             switch ((MIDIEventType)(status & 0xF0))
             {
                 case MIDIEventType.NoteOn:
-                    if (Program.Settings.FilterVelocity && param2 >= Program.Settings.VelocityLow && param2 <= Program.Settings.VelocityHigh)
+                    if (reference.CachedSettings.FilterVelocity && param2 >= reference.CachedSettings.VelocityLow && param2 <= reference.CachedSettings.VelocityHigh)
                         return;
-                    if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
+                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
                         return;
 
                     if (param1 == 0)
@@ -380,7 +398,7 @@ namespace OmniConverter
                     break;
 
                 case MIDIEventType.NoteOff:
-                    if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
+                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
                         return;
 
                     eventType = EventType.NoteOff;
@@ -432,15 +450,6 @@ namespace OmniConverter
         {
             if (Disposed)
                 return;
-
-            if (disposing && handle != null)
-            {
-                lock (Lock)
-                {
-                    reference.RemoveChannel((XSynth_ChannelGroup)handle);
-                    ChannelGroup_Drop((XSynth_ChannelGroup)handle);
-                }
-            }
 
             UniqueID = string.Empty;
             CanSeek = false;

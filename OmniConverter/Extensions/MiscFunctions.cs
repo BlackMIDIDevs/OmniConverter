@@ -17,19 +17,24 @@ namespace OmniConverter
             Error
         }
 
+        private static ulong PowerOf(int pw)
+        {
+            return (ulong)Math.Pow(2, 10 * pw);
+        }
+
         public static string BytesToHumanReadableSize(ulong length)
         {
             string size;
             try
             {
-                if (length >= Math.Pow(2, 80)) return (length / Math.Pow(2, 80)).ToString("0.00 YiB");
-                else if (length >= Math.Pow(2, 70)) return (length / Math.Pow(2, 70)).ToString("0.00 ZiB");
-                else if (length >= Math.Pow(2, 60)) return (length / Math.Pow(2, 60)).ToString("0.00 EiB");
-                else if (length >= Math.Pow(2, 50)) return (length / Math.Pow(2, 50)).ToString("0.00 PiB");
-                else if (length >= Math.Pow(2, 40)) return (length / Math.Pow(2, 40)).ToString("0.00 TiB");
-                else if (length >= Math.Pow(2, 30)) return (length / Math.Pow(2, 30)).ToString("0.00 GiB");
-                else if (length >= Math.Pow(2, 20)) return (length / Math.Pow(2, 20)).ToString("0.00 MiB");
-                else if (length >= Math.Pow(2, 10)) return (length / Math.Pow(2, 10)).ToString("0.00 KiB");
+                if (length >= PowerOf(8)) return (length / PowerOf(8)).ToString("0.00 YiB");
+                else if (length >= PowerOf(7)) return (length / PowerOf(7)).ToString("0.00 ZiB");
+                else if (length >= PowerOf(6)) return (length / PowerOf(6)).ToString("0.00 EiB");
+                else if (length >= PowerOf(5)) return (length / PowerOf(5)).ToString("0.00 PiB");
+                else if (length >= PowerOf(4)) return (length / PowerOf(4)).ToString("0.00 TiB");
+                else if (length >= PowerOf(3)) return (length / PowerOf(3)).ToString("0.00 GiB");
+                else if (length >= PowerOf(2)) return (length / PowerOf(2)).ToString("0.00 MiB");
+                else if (length >= PowerOf(1)) return (length / PowerOf(1)).ToString("0.00 KiB");
                 else size = length.ToString("0.00 B");
             }
             catch { size = "-"; }

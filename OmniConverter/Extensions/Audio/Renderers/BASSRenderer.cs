@@ -2,6 +2,7 @@
 using ManagedBass;
 using ManagedBass.Fx;
 using ManagedBass.Midi;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,7 +15,7 @@ namespace OmniConverter
     {
         private MidiFontEx[]? _bassArray;
 
-        public BASSEngine(CSCore.WaveFormat waveFormat, ObservableCollection<SoundFont>? initSFs = null) : base(waveFormat, false)
+        public BASSEngine(CSCore.WaveFormat waveFormat, Settings settings) : base(waveFormat, settings, false)
         {
             /*                                                                                                                                                                            
                                 -+++------.                             
@@ -45,16 +46,15 @@ namespace OmniConverter
 
             if (Bass.Init(Bass.NoSoundDevice, waveFormat.SampleRate, DeviceInitFlags.Default))
             {
-                if (initSFs != null)
-                    _bassArray = InitializeSoundFonts(initSFs);
+                _bassArray = InitializeSoundFonts();
 
                 var tmp = BassMidi.CreateStream(16, BassFlags.Default, 0);
 
                 if (tmp != 0)
                 {
-                    Bass.Configure(Configuration.MidiVoices, Program.Settings.MaxVoices);
-                    Bass.Configure(Configuration.SRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
-                    Bass.Configure(Configuration.SampleSRCQuality, ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
+                    Bass.Configure(Configuration.MidiVoices, CachedSettings.MaxVoices);
+                    Bass.Configure(Configuration.SRCQuality, ((int)CachedSettings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
+                    Bass.Configure(Configuration.SampleSRCQuality, ((int)CachedSettings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
 
                     Bass.StreamFree(tmp);
 
@@ -82,11 +82,11 @@ namespace OmniConverter
             _disposed = true;
         }
 
-        private MidiFontEx[]? InitializeSoundFonts(ObservableCollection<SoundFont> sfList)
+        private MidiFontEx[]? InitializeSoundFonts()
         {
             var _bassArray = new List<MidiFontEx>();
 
-            foreach (SoundFont sf in sfList)
+            foreach (SoundFont sf in CachedSettings.SoundFontsList)
             {
                 if (!sf.Enabled)
                 {
@@ -156,6 +156,7 @@ namespace OmniConverter
         public int Handle { get; private set; } = 0;
 
         private int VolHandle;
+        private BASSEngine reference;
         private VolumeFxParameters? VolParam = null;
         private MidiFontEx[]? SfArray = [];
 
@@ -164,13 +165,15 @@ namespace OmniConverter
             if (UniqueID == string.Empty)
                 return;
 
+            reference = bass;
+
             bool isFloat = WaveFormat.WaveFormatTag == AudioEncoding.IeeeFloat;
             Flags = BassFlags.Decode | BassFlags.MidiDecayEnd;
             Debug.PrintToConsole(Debug.LogType.Message, $"Stream unique ID: {UniqueID}");
 
-            Flags |= (Program.Settings.SincInter > SincInterType.Linear) ? BassFlags.SincInterpolation : BassFlags.Default;
-            Flags |= Program.Settings.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
-            Flags |= Program.Settings.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
+            Flags |= (reference.CachedSettings.SincInter > SincInterType.Linear) ? BassFlags.SincInterpolation : BassFlags.Default;
+            Flags |= reference.CachedSettings.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
+            Flags |= reference.CachedSettings.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
             Flags |= isFloat ? BassFlags.Float : BassFlags.Default;
 
             Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
@@ -183,10 +186,9 @@ namespace OmniConverter
             if (IsError("Unable to set volume FX."))
                 return;
 
-            if (Program.Settings.KilledNoteFading)
-                Bass.ChannelSetAttribute(Handle, ChannelAttribute.MidiKill, Convert.ToDouble(Program.Settings.KilledNoteFading));
+            Bass.ChannelSetAttribute(Handle, ChannelAttribute.MidiKill, Convert.ToDouble(reference.CachedSettings.KilledNoteFading));
 
-            SfArray = bass.GetSoundFontsArray();
+            SfArray = reference.GetSoundFontsArray();
             if (SfArray != null)
             {
                 BassMidi.StreamSetFonts(Handle, SfArray, SfArray.Length);
@@ -226,9 +228,7 @@ namespace OmniConverter
 
                         if (BE != Errors.Ended)
                             Debug.PrintToConsole(Debug.LogType.Warning, $"{UniqueID} - Data parsing error {BE} with length {len}");
-                    }
-
-                    
+                    }                 
                 }
             }
 
@@ -271,15 +271,15 @@ namespace OmniConverter
             switch ((MIDIEventType)(status & 0xF0))
             {
                 case MIDIEventType.NoteOn:
-                    if (Program.Settings.FilterVelocity && param2 >= Program.Settings.VelocityLow && param2 <= Program.Settings.VelocityHigh)
+                    if (reference.CachedSettings.FilterVelocity && param2 >= reference.CachedSettings.VelocityLow && param2 <= reference.CachedSettings.VelocityHigh)
                         return;
-                    if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
+                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
                         return;
                     eventParams = param2 << 8 | param1;
                     break;
 
                 case MIDIEventType.NoteOff:
-                    if (Program.Settings.FilterKey && (param1 < Program.Settings.KeyLow || param1 > Program.Settings.KeyHigh))
+                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
                         return;
                     eventParams = param1;
                     break;
