@@ -51,6 +51,7 @@ namespace OmniConverter
         public abstract void SendEvent(byte[] data);
         public abstract unsafe int Read(float[] buffer, int offset, long delta, int count);
         public abstract void RefreshInfo();
+        public abstract void SendEndEvent();
         public abstract long Position { get; set; }
         public abstract long Length { get; }
 

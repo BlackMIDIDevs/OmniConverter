@@ -322,6 +322,17 @@ namespace OmniConverter
             RenderingTime = output;
         }
 
+        public override void SendEndEvent()
+        {
+            var ev = new[]
+            {
+                new MidiEvent() {EventType = MidiEventType.EndTrack, Channel = 0, Parameter = 0, Position = 0, Ticks = 0 },
+                new MidiEvent() {EventType = MidiEventType.End, Channel = 0, Parameter = 0, Position = 0, Ticks = 0 },
+            };
+
+            BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.Struct, ev);
+        }
+
         public override long Position
         {
             get { return Bass.ChannelGetPosition(Handle) / 4; }
