@@ -51,8 +51,8 @@ public partial class SettingsWindow : Window
         }
 
         SelectedRenderer.SelectedIndex = ((int)Program.Settings.Renderer).LimitToRange((int)EngineID.BASS, (int)EngineID.MAX);
-        KhangMod.IsChecked = Program.Settings.MaxVoices > 100000;
-        MaxVoices.Value = Program.Settings.MaxVoices;
+        AudioRendererChanged(sender, new SelectionChangedEventArgs(e.RoutedEvent, null, null));
+
         AudioCodec.SelectedIndex = ((int)Program.Settings.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
         AudioBitrate.Value = Program.Settings.AudioBitrate.LimitToRange(1, (int)AudioBitrate.Maximum);
 
@@ -139,15 +139,6 @@ public partial class SettingsWindow : Window
         }
     }
 
-    private void KhangModCheck(object? sender, RoutedEventArgs e)
-    {
-        if (KhangMod.IsChecked != null)
-        {
-            MaxVoices.Maximum = (bool)KhangMod.IsChecked ? int.MaxValue : 100000;
-            MaxVoicesChanged(null, new NumericUpDownValueChangedEventArgs(e.RoutedEvent, null, null));
-        }
-    }
-
     private void AudioEventsCheck(object? sender, RoutedEventArgs e)
     {
         if (AudioEvents.IsChecked != null)
@@ -183,10 +174,53 @@ public partial class SettingsWindow : Window
         }
     }
 
+    private void KhangModCheck(object? sender, RoutedEventArgs e)
+    {
+        if (NoVoiceLimit.IsChecked != null)
+        {
+            switch ((EngineID)SelectedRenderer.SelectedIndex)
+            {
+                case EngineID.XSynth:
+                    NoVoiceLimit.Content = "Unlimited";
+                    MaxVoices.IsEnabled = !(bool)NoVoiceLimit.IsChecked;
+                    MaxVoices.Value = (bool)NoVoiceLimit.IsChecked ? 0 : Program.Settings.MaxLayers;
+                    break;
+
+                default:
+                    NoVoiceLimit.Content = "Uncap limit";
+                    MaxVoices.IsEnabled = true;
+                    MaxVoices.Maximum = (bool)NoVoiceLimit.IsChecked ? int.MaxValue : 100000;
+                    break;
+            }
+
+            MaxVoicesChanged(null, new NumericUpDownValueChangedEventArgs(e.RoutedEvent, null, null));
+        }
+    }
+
     private void AudioRendererChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (SelectedRenderer != null)
-            NotDesignedForThis.IsVisible = (EngineID)SelectedRenderer.SelectedIndex != EngineID.BASS;
+        {
+            switch ((EngineID)SelectedRenderer.SelectedIndex)
+            {
+                case EngineID.XSynth:
+                    NotDesignedForThis.IsVisible = true;
+                    MaxVoicesLabel.Content = "Layer count";
+                    NoVoiceLimit.IsChecked = Program.Settings.MaxLayers == 0;
+                    MaxVoices.Minimum = 0;
+                    MaxVoices.Value = Program.Settings.MaxLayers;
+                    KhangModCheck(sender, new RoutedEventArgs(e.RoutedEvent));
+                    break;
+
+                default:
+                    NotDesignedForThis.IsVisible = false;
+                    MaxVoicesLabel.Content = "Voice limit";
+                    NoVoiceLimit.IsChecked = Program.Settings.MaxVoices > 100000;
+                    MaxVoices.Minimum = 1;
+                    MaxVoices.Value = Program.Settings.MaxVoices;
+                    break;
+            }
+        }
     }
 
     private void NoFFMPEGWarning(object? sender, Avalonia.Input.PointerPressedEventArgs e)
@@ -303,8 +337,23 @@ public partial class SettingsWindow : Window
         object? item = SampleRate.Items[SampleRate.SelectedIndex];
         if (item != null)
             Program.Settings.SampleRate = Convert.ToInt32(((ComboBoxItem)item).Content);
-        if (MaxVoices.Value != null) 
-            Program.Settings.MaxVoices = (int)MaxVoices.Value;
+
+        if (MaxVoices.Value != null)
+        {
+            if (SelectedRenderer != null)
+            {
+                switch ((EngineID)SelectedRenderer.SelectedIndex)
+                {
+                    case EngineID.XSynth:
+                        Program.Settings.MaxLayers = (ulong)MaxVoices.Value;
+                        break;
+
+                    default:
+                        Program.Settings.MaxVoices = (int)MaxVoices.Value;
+                        break;
+                }
+            }
+        }
 
         Program.Settings.Renderer = (EngineID)SelectedRenderer.SelectedIndex;
         Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;

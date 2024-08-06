@@ -155,10 +155,6 @@ namespace OmniConverter
             _groupOptions.fade_out_killing = !CachedSettings.KilledNoteFading;
             _groupOptions.use_threadpool = !(CachedSettings.MultiThreadedMode && CachedSettings.PerTrackMode);
 
-            _layerCount = (ulong)Math.Round((decimal)(CachedSettings.MaxVoices / (128 * 16)), MidpointRounding.AwayFromZero);
-            if (_layerCount < 1)
-                _layerCount = 1;
-
             var tmp = InitializeSoundFonts();
             if (tmp == null)
             {
@@ -254,7 +250,6 @@ namespace OmniConverter
         }
 
         public GroupOptions GetGroupOptions() => _groupOptions;
-        public ulong GetLayerCount() => _layerCount;
     }
 
     public class XSynthRenderer : MIDIRenderer
@@ -292,7 +287,7 @@ namespace OmniConverter
                 handle = ChannelGroup_Create(groupOptions);
 
                 reference.AddChannel((XSynth_ChannelGroup)handle);
-                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.GetLayerCount());    
+                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.CachedSettings.MaxLayers);    
                 ChannelGroup_SetSoundfonts((XSynth_ChannelGroup)handle, sfArray, sfCount);
 
                 var tmp = ChannelGroup_GetStreamParams((XSynth_ChannelGroup)handle);

@@ -213,10 +213,13 @@ namespace OmniConverter
                     break;
 
                 case ConvStatus.SingleConv:
-                    _curStatus = 
+                    _curStatus =
                         $"{_valid + _nonvalid:N0} file(s) out of {_total:N0} have been converted.\n\n" +
-                        $"Please wait..." +
-                        $"\nElapsed time: {MiscFunctions.TimeSpanToHumanReadableTime(_convElapsedTime.Elapsed)}";
+                        $"Please wait...";
+
+                    if (_cachedSettings.AfterRenderAction == 5)
+                        _curStatus += $"\nElapsed time: {MiscFunctions.TimeSpanToHumanReadableTime(_convElapsedTime.Elapsed)}";
+
                     _progress = Math.Round(_processed * 100.0 / _all);
                     break;
 
@@ -224,8 +227,11 @@ namespace OmniConverter
                     _curStatus = 
                         $"{_valid + _nonvalid:N0} file(s) out of {_total:N0} have been converted.\n" +
                         $"Rendered {_curTrack:N0} track(s) out of {_tracks:N0}.\n" +
-                        $"Please wait..." +
-                        $"\nElapsed time: {MiscFunctions.TimeSpanToHumanReadableTime(_convElapsedTime.Elapsed)}";
+                        $"Please wait...";
+
+                    if (_cachedSettings.AfterRenderAction == 5)
+                        _curStatus += $"\nElapsed time: {MiscFunctions.TimeSpanToHumanReadableTime(_convElapsedTime.Elapsed)}";
+
                     _progress = Math.Round(_processed * 100.0 / _all);
                     _tracksProgress = Math.Round(_midiEvents * 100.0 / _totalMidiEvents);
                     break;
@@ -426,6 +432,8 @@ namespace OmniConverter
 
                                     eventsProcesser.RefreshInfo();
                                     eventsProcesser.TogglePause(_pauseConversion);
+
+                                    AutoFillInfo(ConvStatus.SingleConv);
 
                                     Thread.Sleep(100);
                                 }
@@ -976,7 +984,7 @@ namespace OmniConverter
                             if (rtsMode)
                                 curFrametime = r.NextDouble() * (maxFps - minFps) + minFps;
 
-                            long writeTime = (long)((rtsMode ? RoundToNearest(deltaTime, curFrametime) : deltaTime) * waveFormat.SampleRate);
+                            var writeTime = (long)((rtsMode ? RoundToNearest(deltaTime, curFrametime) : deltaTime) * waveFormat.SampleRate);
 
                             // If writeTime ends up being negative, clamp it to 0
                             if (writeTime < prevWriteTime)
@@ -990,8 +998,8 @@ namespace OmniConverter
 
                             while (chunk > 0)
                             {
-                                bool smallChunk = chunk < buffer.Length;
-                                int readData = _midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
+                                var smallChunk = chunk < buffer.Length;
+                                var readData = _midiRenderer.Read(buffer, 0, chunk, smallChunk ? chunk : buffer.Length);
 
                                 if (readData > 0)
                                 {
@@ -1041,8 +1049,10 @@ namespace OmniConverter
 
                     while (_midiRenderer.ActiveVoices > 0)
                     {
-                        _midiRenderer.Read(buffer, 0, 0, buffer.Length);
-                        output.Write(buffer, 0, buffer.Length);
+                        var readData = _midiRenderer.Read(buffer, 0, 0, buffer.Length);
+
+                        if (readData > 0)
+                            output.Write(buffer, 0, readData);
                     }
                 }
 

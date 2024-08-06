@@ -29,7 +29,9 @@ namespace OmniConverter
         public int AudioBitrate = 256; // kbps
 
         [JsonProperty]
-        public int MaxVoices = 1000;
+        public int MaxVoices = 2000;
+        [JsonProperty]
+        public ulong MaxLayers = 2;
         [JsonProperty]
         public bool DisableEffects = true;
         [JsonProperty]
