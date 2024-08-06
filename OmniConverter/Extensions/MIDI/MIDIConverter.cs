@@ -1021,27 +1021,14 @@ namespace OmniConverter
                         }
                     }
 
-                    int read = 1;
-                    // MIDI renderer does support end event,
-                    // wait for the audio to reach a stop
-                    if (midiRenderer.SendEndEvent())
+                    var fl = 1.0f;
+
+                    while (fl != 0.0f)
                     {
-                        while ((read = midiRenderer.Read(buffer, 0, 0, buffer.Length)) != 0)
-                            output.Write(buffer, 0, read);
-                    }
-                    else
-                    {
-                        var fl = 1.0f;
+                        midiRenderer.Read(buffer, 0, 0, buffer.Length);
+                        output.Write(buffer, 0, buffer.Length);
 
-                        while (fl != 0.0f)
-                        {
-                            Array.Clear(buffer);
-
-                            midiRenderer.Read(buffer, 0, 0, buffer.Length);
-                            output.Write(buffer, 0, buffer.Length);
-
-                            fl = buffer[0];
-                        }
+                        fl = buffer[0];
                     }
                 }
 

@@ -312,17 +312,6 @@ namespace OmniConverter
             BassMidi.StreamEvent(Handle, status & 0xF, eventType, eventParams);
         }
 
-        public override bool SendEndEvent()
-        {
-            var ev = new[]
-            {
-                new MidiEvent() {EventType = MidiEventType.EndTrack, Channel = 0, Parameter = 0, Position = 0, Ticks = 0 },
-                new MidiEvent() {EventType = MidiEventType.End, Channel = 0, Parameter = 0, Position = 0, Ticks = 0 },
-            };
-
-            return BassMidi.StreamEvents(Handle, MidiEventsMode.Raw | MidiEventsMode.Struct, ev) != -1 ? true : false;
-        }
-
         public override void RefreshInfo()
         {
             float output = 0.0f;
@@ -331,11 +320,6 @@ namespace OmniConverter
 
             Bass.ChannelGetAttribute(Handle, ChannelAttribute.CPUUsage, out output);
             RenderingTime = output;
-        }
-
-        public override void SetRenderingTime(float rt)
-        {
-            return;
         }
 
         public override long Position

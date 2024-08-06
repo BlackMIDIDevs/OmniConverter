@@ -158,7 +158,7 @@ namespace OmniConverter
             if (tmp != null)
             {
                 _sfCount = (ulong)tmp.Length;
-                _sfArray = Marshal.AllocHGlobal(tmp.Length * sizeof(XSynth.XSynth_Soundfont));
+                _sfArray = Marshal.AllocHGlobal(tmp.Length * sizeof(XSynth_Soundfont));
                 MarshalExt.CopyToManaged(tmp, _sfArray, 0, tmp.Length);
             }
             
@@ -409,22 +409,12 @@ namespace OmniConverter
             ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, (uint)(status & 0xF), (ushort)eventType, (ushort)eventParams);
         }
 
-        public override bool SendEndEvent()
-        {
-            return false;
-        }
-
         public override void RefreshInfo()
         {
             if (handle == null)
                 return;
 
             ActiveVoices = ChannelGroup_VoiceCount((XSynth_ChannelGroup)handle);
-        }
-
-        public override void SetRenderingTime(float rt)
-        {
-            RenderingTime = rt;
         }
 
         public override long Position

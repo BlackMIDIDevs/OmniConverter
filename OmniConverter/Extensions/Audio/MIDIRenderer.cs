@@ -50,9 +50,7 @@ namespace OmniConverter
         public abstract bool SendCustomFXEvents(int channel, short reverb, short chorus);
         public abstract void SendEvent(byte[] data);
         public abstract unsafe int Read(float[] buffer, int offset, long delta, int count);
-        public abstract bool SendEndEvent();
         public abstract void RefreshInfo();
-        public abstract void SetRenderingTime(float rt);
         public abstract long Position { get; set; }
         public abstract long Length { get; }
 
