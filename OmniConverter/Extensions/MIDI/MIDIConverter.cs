@@ -1037,14 +1037,12 @@ namespace OmniConverter
                         }
                     }
 
-                    var fl = 1.0f;
+                    _midiRenderer.SendEndEvent();
 
-                    while (fl != 0.0f)
+                    while (_midiRenderer.ActiveVoices > 0)
                     {
                         _midiRenderer.Read(buffer, 0, 0, buffer.Length);
                         output.Write(buffer, 0, buffer.Length);
-
-                        fl = buffer[0];
                     }
                 }
 
