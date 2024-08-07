@@ -20,7 +20,7 @@ namespace OmniConverter
         public EngineID Renderer = EngineID.BASS;
 
         [JsonProperty]
-        public float Volume = 100.0f;
+        public double Volume = 1.0;
         [JsonProperty]
         public int SampleRate = 48000;
         [JsonProperty]

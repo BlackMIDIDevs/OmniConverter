@@ -1,4 +1,5 @@
 ﻿using CSCore;
+using ManagedBass.Fx;
 using System;
 
 namespace OmniConverter
@@ -35,18 +36,18 @@ namespace OmniConverter
 
     public abstract class MIDIRenderer : ISampleSource
     {
+        protected double Volume { get; set; }
         public string UniqueID { get; protected set; } = IDGenerator.GetID();
         public bool CanSeek { get; protected set; } = false;
-        public CSCore.WaveFormat WaveFormat { get; protected set; } = new(48000, 32, 2);
+        public WaveFormat WaveFormat { get; protected set; } = new(48000, 32, 2);
         public bool Initialized { get; protected set; } = false;
         public bool Disposed { get; protected set; } = false;
         public ulong ActiveVoices { get; protected set; } = 0;
         public float RenderingTime { get; protected set; } = 0.0f;
 
-        public MIDIRenderer(WaveFormat waveFormat, bool defaultInt = true) { WaveFormat = waveFormat; Initialized = defaultInt; }
+        public MIDIRenderer(WaveFormat waveFormat, double volume, bool defaultInt = true) { WaveFormat = waveFormat; Volume = volume; Initialized = defaultInt; }
 
         public abstract void SystemReset();
-        public abstract void ChangeVolume(float volume);
         public abstract bool SendCustomFXEvents(int channel, short reverb, short chorus);
         public abstract void SendEvent(byte[] data);
         public abstract unsafe int Read(float[] buffer, int offset, long delta, int count);

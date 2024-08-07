@@ -947,7 +947,6 @@ namespace OmniConverter
 
                 if (_midiRenderer != null)
                 {
-                    _midiRenderer.ChangeVolume(volume);
                     _midiRenderer.SystemReset();
 
                     float[] buffer = new float[256 * waveFormat.BlockAlign];

@@ -29,7 +29,7 @@ namespace OmniConverter
             _volumeWatcher.Interval = TimeSpan.FromSeconds(1);
             _volumeWatcher.Tick += VolumeWatcherFunc;
 
-            OutputVolumeSlider.Value = Program.Settings.Volume * 100.0f;
+            OutputVolumeSlider.Value = Program.Settings.Volume;
 
             AddHandler(DragDrop.DropEvent, FileDropInit);
             AddHandler(DragDrop.DragEnterEvent, FileDropEnter);
@@ -132,8 +132,7 @@ namespace OmniConverter
                 if (!_volumeWatcher.IsEnabled)
                     _volumeWatcher.Start();
 
-                double v = OutputVolumeSlider.Value / 100.0f;
-                OutputVolumeLab.Content = $"({20 * Math.Log10(v):0.00}dB) {OutputVolumeSlider.Value:000.00}%";
+                OutputVolumeLab.Content = $"({20 * Math.Log10(OutputVolumeSlider.Value):0.00}dB) {OutputVolumeSlider.Value * 100.0:000.00}%";
             }             
         }
 
@@ -267,8 +266,7 @@ namespace OmniConverter
 
         private void VolumeWatcherFunc(object? sender, EventArgs e)
         {
-            double v = OutputVolumeSlider.Value / 100.0f;
-            Program.Settings.Volume = (float)v;
+            Program.Settings.Volume = OutputVolumeSlider.Value;
             Program.SaveConfig();
             _volumeWatcher.Stop();
         }

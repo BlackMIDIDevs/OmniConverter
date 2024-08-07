@@ -124,7 +124,7 @@
 							<Label>Volume:</Label>
 							<Label Name="OutputVolumeLab">100%</Label>
 						</StackPanel>
-						<Slider Name="OutputVolumeSlider" Minimum="0.0" Maximum="100.0" Value="100" PropertyChanged="OutputVolumeSliderChanged" />
+						<Slider Name="OutputVolumeSlider" Minimum="0.0" Maximum="1.0" Value="1.0" SmallChange="0.01" PropertyChanged="OutputVolumeSliderChanged" />
 					</StackPanel>
 					<Button Name="OutputSettings" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="Settings" Click="OpenSettings"/>
 					<Button Name="SoundFontConfig" Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Content="SoundFonts" Click="OpenSoundFontsManager"/>
