@@ -6,7 +6,7 @@
         xmlns:themes="using:GroupBox.Avalonia.Themes"
 		xmlns:oc="using:OmniConverter"
         mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="320"
-		Width="860" Height="320"
+		Width="860" Height="350"
         x:Class="OmniConverter.InfoWindow"
         Title="Information"
 	    WindowStartupLocation="CenterScreen"
@@ -51,6 +51,10 @@
 						<Grid ColumnDefinitions="150, 6*">
 							<Label Grid.Column="0">BASSMIDI version:</Label>
 							<Label Grid.Column="1" Name="BMIDIVersion">-</Label>
+						</Grid>
+						<Grid ColumnDefinitions="150, 6*">
+							<Label Grid.Column="0">XSynth version:</Label>
+							<Label Grid.Column="1" Name="XSynthVersion">-</Label>
 						</Grid>
 						<Grid ColumnDefinitions="150, 6*">
 							<Label Grid.Column="0">Update branch:</Label>
