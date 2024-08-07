@@ -16,7 +16,7 @@ namespace OmniConverter
     {
         private const string XSynthLib = "xsynth";
 
-        public enum EventType
+        public enum EventType : ushort
         {
             NoteOn = 0,
             NoteOff = 1,
@@ -30,13 +30,13 @@ namespace OmniConverter
             CoarseTune = 9
         }
 
-        public enum Interpolation: ushort
+        public enum Interpolation : ushort
         {
             Nearest = 100,
             Linear = 101
         }
 
-        public enum ChannelCount: ushort
+        public enum ChannelCount : ushort
         {
             Mono = 1,
             Stereo = 2
@@ -103,7 +103,7 @@ namespace OmniConverter
         public static extern ulong ChannelGroup_VoiceCount(XSynth_ChannelGroup id);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendEvent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_SendEvent(XSynth_ChannelGroup id, uint channel, ushort evt, ushort param);
+        public static extern void ChannelGroup_SendEvent(XSynth_ChannelGroup id, uint channel, EventType evt, ushort param);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_ReadSamples", CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe void ChannelGroup_ReadSamples(XSynth_ChannelGroup id, nint buffer, ulong length);
@@ -262,12 +262,9 @@ namespace OmniConverter
         private nint sfArray = nint.Zero;
         private XSynthEngine reference;
         private GroupOptions groupOptions;
+        private double dbVolume = 1.0;
 
-        private const double maxDb = 1.1220185;
-        private double dbVolume = maxDb;
-        private double volume = 1.0f;
-
-        public XSynthRenderer(XSynthEngine xsynth) : base(xsynth.WaveFormat, false)
+        public XSynthRenderer(XSynthEngine xsynth) : base(xsynth.WaveFormat, xsynth.CachedSettings.Volume, false)
         {
             reference = xsynth;
 
@@ -321,10 +318,10 @@ namespace OmniConverter
                     var offsetBuff = buff + offset;
                     ChannelGroup_ReadSamples((XSynth_ChannelGroup)handle, (nint)offsetBuff, (ulong)count);
 
-                    if (volume < 1.0f)
+                    if (Volume < 1.0)
                     {
                         for (int i = 0; i < count; i++)
-                            offsetBuff[i] = offsetBuff[i] * (float)dbVolume;
+                            offsetBuff[i] = offsetBuff[i] * (float)Volume;
                     }
                 }
             }
@@ -340,17 +337,11 @@ namespace OmniConverter
 
             for (uint i = 0; i < 16; i++)
             {
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.AllNotesKilled, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.ResetControl, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.Control, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.ProgramChange, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.AllNotesKilled, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.ResetControl, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.Control, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.ProgramChange, 0);
             }
-        }
-
-        public override void ChangeVolume(float volume)
-        {
-            this.volume = volume / 100.0f;
-            dbVolume = Math.Pow(10.0f, this.volume * 0.05f);
         }
 
         public override bool SendCustomFXEvents(int channel, short reverb, short chorus)
@@ -413,7 +404,7 @@ namespace OmniConverter
                     return;
             }
 
-            ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, (uint)(status & 0xF), (ushort)eventType, (ushort)eventParams);
+            ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, (uint)(status & 0xF), eventType, (ushort)eventParams);
         }
 
         public override void RefreshInfo()
@@ -431,8 +422,8 @@ namespace OmniConverter
 
             for (uint i = 0; i < 16; i++)
             {
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.AllNotesOff, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, (ushort)EventType.ResetControl, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.AllNotesOff, 0);
+                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.ResetControl, 0);
             }
         }
 

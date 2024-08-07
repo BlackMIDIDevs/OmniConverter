@@ -160,7 +160,7 @@ namespace OmniConverter
         private VolumeFxParameters? VolParam = null;
         private MidiFontEx[]? SfArray = [];
 
-        public BASSRenderer(BASSEngine bass) : base(bass.WaveFormat, false)
+        public BASSRenderer(BASSEngine bass) : base(bass.WaveFormat, bass.CachedSettings.Volume, false)
         {
             if (UniqueID == string.Empty)
                 return;
@@ -195,6 +195,15 @@ namespace OmniConverter
                 BassMidi.StreamLoadSamples(Handle);
                 Debug.PrintToConsole(Debug.LogType.Message, $"{UniqueID} - Loaded {SfArray.Length} SoundFonts");
             }
+
+            if (VolParam == null)
+                VolParam = new VolumeFxParameters();
+
+            VolParam.fCurrent = 1.0f;
+            VolParam.fTarget = (float)Volume;
+            VolParam.fTime = 0.0f;
+            VolParam.lCurve = 1;
+            Bass.FXSetParameters(VolHandle, VolParam);
 
             Initialized = true;
         }
@@ -238,18 +247,6 @@ namespace OmniConverter
         public override void SystemReset()
         {
             BassMidi.StreamEvent(Handle, 0, MidiEventType.System, (int)MidiSystem.GS);
-        }
-
-        public override void ChangeVolume(float volume)
-        {
-            if (VolParam == null)
-                VolParam = new VolumeFxParameters();
-
-            VolParam.fCurrent = 1.0f;
-            VolParam.fTarget = volume;
-            VolParam.fTime = 0.0f;
-            VolParam.lCurve = 1;
-            Bass.FXSetParameters(VolHandle, VolParam);
         }
 
         public override bool SendCustomFXEvents(int channel, short reverb, short chorus) 
