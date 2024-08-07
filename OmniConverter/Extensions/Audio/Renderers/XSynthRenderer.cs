@@ -87,6 +87,9 @@ namespace OmniConverter
             public Interpolation interpolator;
         }
 
+        [DllImport(XSynthLib, EntryPoint = "XSynth_GetVersion", CallingConvention = CallingConvention.Cdecl)]
+        private static extern uint GetVersionNum();
+
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_StreamParams", CallingConvention = CallingConvention.Cdecl)]
         public static extern StreamParams GenDefault_StreamParams();
 
@@ -128,6 +131,15 @@ namespace OmniConverter
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_Soundfont_Remove", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Soundfont_Remove(XSynth_Soundfont id);
+
+        public static Version GetVersion()
+        {
+            var num = (int)GetVersionNum();
+            return new Version(num >> 16 & 0xff,
+                            num >> 8 & 0xff,
+                            num & 0xff,
+                            0);
+        } 
     }
 
     public class XSynthEngine : AudioEngine
@@ -206,7 +218,7 @@ namespace OmniConverter
                 }
 
                 Debug.PrintToConsole(Debug.LogType.Message, $"Preparing ulong for {sf.SoundFontPath}...");
-                
+
                 SoundfontOptions _soundfontOptions = GenDefault_SoundfontOptions();
                 _soundfontOptions.stream_params = _streamParams;
                 _soundfontOptions.bank = sf.SourceBank;
@@ -221,9 +233,9 @@ namespace OmniConverter
                 _managedSfArray.Add(handle);
             }
 
-            if (_managedSfArray.Count > 0) 
+            if (_managedSfArray.Count > 0)
                 return _managedSfArray.ToArray();
-            
+
             return null;
         }
 
@@ -284,7 +296,7 @@ namespace OmniConverter
                 handle = ChannelGroup_Create(groupOptions);
 
                 reference.AddChannel((XSynth_ChannelGroup)handle);
-                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.CachedSettings.MaxLayers);    
+                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.CachedSettings.MaxLayers);
                 ChannelGroup_SetSoundfonts((XSynth_ChannelGroup)handle, sfArray, sfCount);
 
                 var tmp = ChannelGroup_GetStreamParams((XSynth_ChannelGroup)handle);

@@ -25,10 +25,13 @@ public partial class InfoWindow : Window
 
         try { bassVer = Bass.Version; } catch { }
         try { bmidiVer = BassMidi.Version; } catch { }
+        
+        var xsynthVer = XSynth.GetVersion();
 
         ConvBrand.Content = MiscFunctions.ReturnAssemblyVersion("OmniConverter", "CR", [convVer.Major, convVer.Minor, convVer.Build, convVer.MinorRevision]);
         BASSVersion.Content = MiscFunctions.ReturnAssemblyVersion(string.Empty, "Rev. ", [bassVer.Major, bassVer.Minor, bassVer.Build, bassVer.MinorRevision]);
         BMIDIVersion.Content = MiscFunctions.ReturnAssemblyVersion(string.Empty, "Rev. ", [bmidiVer.Major, bmidiVer.Minor, bmidiVer.Build, bmidiVer.MinorRevision]);
+        XSynthVersion.Content = MiscFunctions.ReturnAssemblyVersion(string.Empty, "Rev. ", [xsynthVer.Major, xsynthVer.Minor, xsynthVer.Build, xsynthVer.MinorRevision]);
 
         SetBranchColor();
     }
