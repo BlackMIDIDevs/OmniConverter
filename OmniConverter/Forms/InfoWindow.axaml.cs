@@ -26,7 +26,7 @@ public partial class InfoWindow : Window
         try { bassVer = Bass.Version; } catch { }
         try { bmidiVer = BassMidi.Version; } catch { }
         
-        var xsynthVer = XSynth.GetVersion();
+        var xsynthVer = MiscFunctions.ConvertIntToVersion((int)XSynth.GetVersion());
 
         ConvBrand.Content = MiscFunctions.ReturnAssemblyVersion("OmniConverter", "CR", [convVer.Major, convVer.Minor, convVer.Build, convVer.MinorRevision]);
         BASSVersion.Content = MiscFunctions.ReturnAssemblyVersion(string.Empty, "Rev. ", [bassVer.Major, bassVer.Minor, bassVer.Build, bassVer.MinorRevision]);
