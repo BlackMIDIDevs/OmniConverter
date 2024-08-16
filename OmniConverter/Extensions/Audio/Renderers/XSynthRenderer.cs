@@ -16,6 +16,8 @@ namespace OmniConverter
     {
         private const string XSynthLib = "xsynth";
 
+        public const uint APIVersion = 0x200;
+
         public enum EventType : ushort
         {
             NoteOn = 0,
@@ -62,6 +64,13 @@ namespace OmniConverter
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        public struct ParallelismOptions
+        {
+            public int channel;
+            public int key;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct GroupOptions
         {
             public StreamParams stream_params;
@@ -69,9 +78,8 @@ namespace OmniConverter
             public uint* drum_channels;
             public uint drum_channels_count;
             [MarshalAs(UnmanagedType.U1)]
-            public bool use_threadpool;
-            [MarshalAs(UnmanagedType.U1)]
             public bool fade_out_killing;
+            public ParallelismOptions parallelism;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -88,10 +96,13 @@ namespace OmniConverter
         }
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GetVersion", CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint GetVersionNum();
+        public static extern uint GetVersion();
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_StreamParams", CallingConvention = CallingConvention.Cdecl)]
         public static extern StreamParams GenDefault_StreamParams();
+
+        [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_ParallelismOptions", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ParallelismOptions GenDefault_ParallelismOptions();
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_GroupOptions", CallingConvention = CallingConvention.Cdecl)]
         public static extern GroupOptions GenDefault_GroupOptions();
@@ -131,15 +142,6 @@ namespace OmniConverter
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_Soundfont_Remove", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Soundfont_Remove(XSynth_Soundfont id);
-
-        public static Version GetVersion()
-        {
-            var num = (int)GetVersionNum();
-            return new Version(num >> 16 & 0xff,
-                            num >> 8 & 0xff,
-                            num & 0xff,
-                            0);
-        } 
     }
 
     public class XSynthEngine : AudioEngine
@@ -154,6 +156,13 @@ namespace OmniConverter
 
         public unsafe XSynthEngine(CSCore.WaveFormat waveFormat, Settings settings) : base(waveFormat, settings, false)
         {
+            var libraryVersion = GetVersion();
+            if (libraryVersion >> 8 != APIVersion >> 8)
+            {
+                var neededVer = MiscFunctions.ConvertIntToVersion((int)APIVersion);
+                throw new Exception($"Unsupported version of XSynth loaded. Please use version {neededVer.Major}.{neededVer.Minor}.x");
+            }
+
             Debug.PrintToConsole(Debug.LogType.Message, $"Preparing XSynth...");
 
             _streamParams = GenDefault_StreamParams();
@@ -165,7 +174,19 @@ namespace OmniConverter
             _groupOptions.stream_params = _streamParams;
             _groupOptions.channels = 16;
             _groupOptions.fade_out_killing = !CachedSettings.KilledNoteFading;
-            _groupOptions.use_threadpool = !(CachedSettings.MultiThreadedMode && CachedSettings.PerTrackMode);
+
+            _groupOptions.parallelism = GenDefault_ParallelismOptions();
+            if (CachedSettings.MultiThreadedMode)
+            {
+                _groupOptions.parallelism.channel = CachedSettings.ThreadsCount;
+                _groupOptions.parallelism.key = CachedSettings.ThreadsCount;
+            }
+            else if ((CachedSettings.MultiThreadedMode && CachedSettings.PerTrackMode)
+                     || !CachedSettings.MultiThreadedMode)
+            {
+                _groupOptions.parallelism.channel = -1;
+                _groupOptions.parallelism.key = -1;
+            }
 
             var tmp = InitializeSoundFonts();
             if (tmp == null)
@@ -182,7 +203,6 @@ namespace OmniConverter
             Initialized = true;
 
             Debug.PrintToConsole(Debug.LogType.Message, $"XSynth set up for {_streamParams.audio_channels}ch output at {_streamParams.sample_rate}Hz ");
-            Debug.PrintToConsole(Debug.LogType.Message, $"ThreadPool = {_groupOptions.use_threadpool}");
             Debug.PrintToConsole(Debug.LogType.Message, $"FadeOutKilling = {_groupOptions.fade_out_killing}");
             Debug.PrintToConsole(Debug.LogType.Message, $"LayerCount = {_layerCount}");
 
@@ -229,8 +249,15 @@ namespace OmniConverter
 
                 XSynth_Soundfont handle = Soundfont_LoadNew(sf.SoundFontPath, _soundfontOptions);
 
-                Debug.PrintToConsole(Debug.LogType.Message, $"SoundFont handle initialized. Handle = {handle:X8}");
-                _managedSfArray.Add(handle);
+                if (handle.soundfont != IntPtr.Zero)
+                {
+                    Debug.PrintToConsole(Debug.LogType.Message, $"SoundFont handle initialized. Handle = {handle:X8}");
+                    _managedSfArray.Add(handle);
+                }
+                else
+                {
+                    Debug.PrintToConsole(Debug.LogType.Message, $"Error loading SoundFont in XSynth: {sf.SoundFontPath}");
+                }
             }
 
             if (_managedSfArray.Count > 0)
