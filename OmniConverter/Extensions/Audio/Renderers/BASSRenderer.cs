@@ -52,9 +52,14 @@ namespace OmniConverter
 
                 if (tmp != 0)
                 {
-                    Bass.Configure(Configuration.MidiVoices, CachedSettings.MaxVoices);
-                    Bass.Configure(Configuration.SRCQuality, ((int)CachedSettings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
-                    Bass.Configure(Configuration.SampleSRCQuality, ((int)CachedSettings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max));
+                    // Subtract 1 because BASS uses -1 for no interpolation, 0 for linear and so on
+                    var interp = ((int)CachedSettings.Synth.Interpolation)
+                        .LimitToRange((int)GlobalSynthSettings.InterpolationType.None,
+                                      (int)GlobalSynthSettings.InterpolationType.Max) - 1;
+
+                    Bass.Configure(Configuration.MidiVoices, CachedSettings.BASS.MaxVoices);
+                    Bass.Configure(Configuration.SRCQuality, interp);
+                    Bass.Configure(Configuration.SampleSRCQuality, interp);
 
                     Bass.StreamFree(tmp);
 
@@ -160,7 +165,7 @@ namespace OmniConverter
         private VolumeFxParameters? VolParam = null;
         private MidiFontEx[]? SfArray = [];
 
-        public BASSRenderer(BASSEngine bass) : base(bass.WaveFormat, bass.CachedSettings.Volume, false)
+        public BASSRenderer(BASSEngine bass) : base(bass.WaveFormat, bass.CachedSettings.Synth.Volume, false)
         {
             if (UniqueID == string.Empty)
                 return;
@@ -171,9 +176,9 @@ namespace OmniConverter
             Flags = BassFlags.Decode | BassFlags.MidiDecayEnd;
             Debug.PrintToConsole(Debug.LogType.Message, $"Stream unique ID: {UniqueID}");
 
-            Flags |= (reference.CachedSettings.SincInter > SincInterType.Linear) ? BassFlags.SincInterpolation : BassFlags.Default;
-            Flags |= reference.CachedSettings.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
-            Flags |= reference.CachedSettings.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
+            Flags |= (reference.CachedSettings.Synth.Interpolation > GlobalSynthSettings.InterpolationType.Linear) ? BassFlags.SincInterpolation : BassFlags.Default;
+            Flags |= reference.CachedSettings.BASS.DisableEffects ? BassFlags.MidiNoFx : BassFlags.Default;
+            Flags |= reference.CachedSettings.BASS.NoteOff1 ? BassFlags.MidiNoteOff1 : BassFlags.Default;
             Flags |= isFloat ? BassFlags.Float : BassFlags.Default;
 
             Handle = BassMidi.CreateStream(16, Flags, WaveFormat.SampleRate);
@@ -186,7 +191,7 @@ namespace OmniConverter
             if (IsError("Unable to set volume FX."))
                 return;
 
-            Bass.ChannelSetAttribute(Handle, ChannelAttribute.MidiKill, Convert.ToDouble(reference.CachedSettings.KilledNoteFading));
+            Bass.ChannelSetAttribute(Handle, ChannelAttribute.MidiKill, Convert.ToDouble(reference.CachedSettings.Synth.KilledNoteFading));
 
             SfArray = reference.GetSoundFontsArray();
             if (SfArray != null)
@@ -268,15 +273,15 @@ namespace OmniConverter
             switch ((MIDIEventType)(status & 0xF0))
             {
                 case MIDIEventType.NoteOn:
-                    if (reference.CachedSettings.FilterVelocity && param2 >= reference.CachedSettings.VelocityLow && param2 <= reference.CachedSettings.VelocityHigh)
+                    if (reference.CachedSettings.Event.FilterVelocity && param2 >= reference.CachedSettings.Event.VelocityLow && param2 <= reference.CachedSettings.Event.VelocityHigh)
                         return;
-                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
+                    if (reference.CachedSettings.Event.FilterKey && (param1 < reference.CachedSettings.Event.KeyLow || param1 > reference.CachedSettings.Event.KeyHigh))
                         return;
                     eventParams = param2 << 8 | param1;
                     break;
 
                 case MIDIEventType.NoteOff:
-                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
+                    if (reference.CachedSettings.Event.FilterKey && (param1 < reference.CachedSettings.Event.KeyLow || param1 > reference.CachedSettings.Event.KeyHigh))
                         return;
                     eventParams = param1;
                     break;

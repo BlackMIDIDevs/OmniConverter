@@ -29,13 +29,13 @@ namespace OmniConverter
             _volumeWatcher.Interval = TimeSpan.FromSeconds(1);
             _volumeWatcher.Tick += VolumeWatcherFunc;
 
-            OutputVolumeSlider.Value = Program.Settings.Volume;
+            OutputVolumeSlider.Value = Program.Settings.Synth.Volume;
 
             AddHandler(DragDrop.DropEvent, FileDropInit);
             AddHandler(DragDrop.DragEnterEvent, FileDropEnter);
             // AddHandler(DragDrop.DragLeaveEvent, FileDropLeave);
 
-            if (Program.Settings.AutoUpdateCheck)
+            if (Program.Settings.Program.AutoUpdateCheck)
                 UpdateSystem.CheckForUpdates(false, true);
 
 #if !DEBUG
@@ -64,7 +64,7 @@ namespace OmniConverter
 
         private void CheckBranch(object? sender, RoutedEventArgs e)
         {
-            if (Program.Settings.UpdateBranch == UpdateSystem.Branch.None)
+            if (Program.Settings.Program.UpdateBranch == UpdateSystem.Branch.None)
                 new ChangeBranch().ShowDialog(this);
         }
 
@@ -266,7 +266,7 @@ namespace OmniConverter
 
         private void VolumeWatcherFunc(object? sender, EventArgs e)
         {
-            Program.Settings.Volume = OutputVolumeSlider.Value;
+            Program.Settings.Synth.Volume = OutputVolumeSlider.Value;
             Program.SaveConfig();
             _volumeWatcher.Stop();
         }

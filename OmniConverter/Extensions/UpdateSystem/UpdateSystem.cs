@@ -124,7 +124,7 @@ namespace OmniConverter
 
         public static string GetCurrentBranch()
         {
-            return Program.Settings.UpdateBranch switch
+            return Program.Settings.Program.UpdateBranch switch
             {
                 Branch.Canary => "Canary branch",
                 Branch.Release => "Release branch",
@@ -135,7 +135,7 @@ namespace OmniConverter
 
         public static Color GetCurrentBranchColor()
         {
-            return Program.Settings.UpdateBranch switch
+            return Program.Settings.Program.UpdateBranch switch
             {
                 Branch.Canary => Color.FromRgb(221, 172, 5),
                 Branch.Release => Color.FromRgb(158, 14, 204),
@@ -146,7 +146,7 @@ namespace OmniConverter
 
         public static string GetCurrentBranchToolTip()
         {
-            return Program.Settings.UpdateBranch switch
+            return Program.Settings.Program.UpdateBranch switch
             {
                 Branch.Canary => "Receive all updates.\nYou may get broken updates that haven't been fully tested.\nDesigned for testers and early adopters.",
                 Branch.Release => "Receive occasional updates and urgent bugfixes (Eg. from version x.0.x.x to x.1.x.x).\nRecommended.",
@@ -174,7 +174,7 @@ namespace OmniConverter
 
                     if (convCurrent != null && convOnline != null)
                     {
-                        switch (Program.Settings.UpdateBranch)
+                        switch (Program.Settings.Program.UpdateBranch)
                         {
                             case Branch.Canary:
                                 if (convCurrent.Major < convOnline.Major || convCurrent.Minor < convOnline.Minor)

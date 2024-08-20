@@ -173,19 +173,25 @@ namespace OmniConverter
 
             _groupOptions.stream_params = _streamParams;
             _groupOptions.channels = 16;
-            _groupOptions.fade_out_killing = !CachedSettings.KilledNoteFading;
+            _groupOptions.fade_out_killing = !CachedSettings.Synth.KilledNoteFading;
 
             _groupOptions.parallelism = GenDefault_ParallelismOptions();
-            if (CachedSettings.MultiThreadedMode)
+            switch (CachedSettings.XSynth.Threading)
             {
-                _groupOptions.parallelism.channel = CachedSettings.ThreadsCount;
-                _groupOptions.parallelism.key = CachedSettings.ThreadsCount;
-            }
-            else if ((CachedSettings.MultiThreadedMode && CachedSettings.PerTrackMode)
-                     || !CachedSettings.MultiThreadedMode)
-            {
-                _groupOptions.parallelism.channel = -1;
-                _groupOptions.parallelism.key = -1;
+                case XSynthSettings.ThreadingType.None:
+                    _groupOptions.parallelism.channel = -1;
+                    _groupOptions.parallelism.key = -1;
+                    break;
+                case XSynthSettings.ThreadingType.PerChannel:
+                    _groupOptions.parallelism.channel = CachedSettings.Render.ThreadsCount;
+                    _groupOptions.parallelism.key = -1;
+                    break;
+                case XSynthSettings.ThreadingType.PerKey:
+                    _groupOptions.parallelism.channel = CachedSettings.Render.ThreadsCount;
+                    _groupOptions.parallelism.key = CachedSettings.Render.ThreadsCount;
+                    break;
+                default:
+                    break;
             }
 
             var tmp = InitializeSoundFonts();
@@ -243,9 +249,12 @@ namespace OmniConverter
                 _soundfontOptions.stream_params = _streamParams;
                 _soundfontOptions.bank = sf.SourceBank;
                 _soundfontOptions.preset = sf.SourcePreset;
-                _soundfontOptions.interpolator = Interpolation.Linear;
                 _soundfontOptions.linear_release = false;
-                _soundfontOptions.use_effects = !CachedSettings.DisableEffects;
+                _soundfontOptions.use_effects = CachedSettings.XSynth.UseEffects;
+                _soundfontOptions.interpolator = CachedSettings.Synth.Interpolation switch {
+                    GlobalSynthSettings.InterpolationType.None => Interpolation.Nearest,
+                    _ => Interpolation.Linear,
+                };
 
                 XSynth_Soundfont handle = Soundfont_LoadNew(sf.SoundFontPath, _soundfontOptions);
 
@@ -303,7 +312,7 @@ namespace OmniConverter
         private GroupOptions groupOptions;
         private double dbVolume = 1.0;
 
-        public XSynthRenderer(XSynthEngine xsynth) : base(xsynth.WaveFormat, xsynth.CachedSettings.Volume, false)
+        public XSynthRenderer(XSynthEngine xsynth) : base(xsynth.WaveFormat, xsynth.CachedSettings.Synth.Volume, false)
         {
             reference = xsynth;
 
@@ -323,7 +332,7 @@ namespace OmniConverter
                 handle = ChannelGroup_Create(groupOptions);
 
                 reference.AddChannel((XSynth_ChannelGroup)handle);
-                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.CachedSettings.MaxLayers);
+                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.CachedSettings.XSynth.MaxLayers);
                 ChannelGroup_SetSoundfonts((XSynth_ChannelGroup)handle, sfArray, sfCount);
 
                 var tmp = ChannelGroup_GetStreamParams((XSynth_ChannelGroup)handle);
@@ -403,9 +412,9 @@ namespace OmniConverter
             switch ((MIDIEventType)(status & 0xF0))
             {
                 case MIDIEventType.NoteOn:
-                    if (reference.CachedSettings.FilterVelocity && param2 >= reference.CachedSettings.VelocityLow && param2 <= reference.CachedSettings.VelocityHigh)
+                    if (reference.CachedSettings.Event.FilterVelocity && param2 >= reference.CachedSettings.Event.VelocityLow && param2 <= reference.CachedSettings.Event.VelocityHigh)
                         return;
-                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
+                    if (reference.CachedSettings.Event.FilterKey && (param1 < reference.CachedSettings.Event.KeyLow || param1 > reference.CachedSettings.Event.KeyHigh))
                         return;
 
                     if (param1 == 0)
@@ -417,7 +426,7 @@ namespace OmniConverter
                     break;
 
                 case MIDIEventType.NoteOff:
-                    if (reference.CachedSettings.FilterKey && (param1 < reference.CachedSettings.KeyLow || param1 > reference.CachedSettings.KeyHigh))
+                    if (reference.CachedSettings.Event.FilterKey && (param1 < reference.CachedSettings.Event.KeyLow || param1 > reference.CachedSettings.Event.KeyHigh))
                         return;
 
                     eventType = EventType.NoteOff;
