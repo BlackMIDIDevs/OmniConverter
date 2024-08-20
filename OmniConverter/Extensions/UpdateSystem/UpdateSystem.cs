@@ -13,7 +13,7 @@ namespace OmniConverter
         public static GitHubClient UpdateClient = new GitHubClient(new ProductHeaderValue(ProductName));
 
         public const string ProductName = "OmniConverter";
-        public const string GitHubPage = $"https://github.com/KaleidonKep99/{ProductName}";
+        public const string GitHubPage = $"https://github.com/BlackMIDIDevs/{ProductName}";
         public const string SetupFile = $"{GitHubPage}/releases/download/{{0}}/OmniConverterSetup.exe";
         public const string UpdatePage = $"{GitHubPage}/releases/tag/{{0}}";
 
@@ -112,7 +112,7 @@ namespace OmniConverter
             {
                 try
                 {
-                    Octokit.Release Release = UpdateClient.Repository.Release.GetLatest("KaleidonKep99", "OmniConverter").Result;
+                    Octokit.Release Release = UpdateClient.Repository.Release.GetLatest("BlackMIDIDevs", "OmniConverter").Result;
                     Process.Start(String.Format(UpdatePage, Release.TagName));
                 }
                 catch (Exception ex)
@@ -166,7 +166,7 @@ namespace OmniConverter
             {
                 try
                 {
-                    Release Release = UpdateClient.Repository.Release.GetAll("KaleidonKep99", "OmniConverter").Result[0];
+                    Release Release = UpdateClient.Repository.Release.GetAll("BlackMIDIDevs", "OmniConverter").Result[0];
 
                     Version? convOnline = null;
                     Version.TryParse(Release.TagName, out convOnline);
