@@ -12,7 +12,7 @@ public partial class ChangeBranch : Window
     {
         InitializeComponent();
 
-        SelectedBranch.SelectedIndex = ((int)Program.Settings.UpdateBranch).LimitToRange((int)UpdateSystem.Branch.None, (int)UpdateSystem.Branch.Total);
+        SelectedBranch.SelectedIndex = ((int)Program.Settings.Program.UpdateBranch).LimitToRange((int)UpdateSystem.Branch.None, (int)UpdateSystem.Branch.Total);
 
         SolidColorBrush brchCol = new SolidColorBrush();
         brchCol.Color = UpdateSystem.GetCurrentBranchColor();
@@ -22,7 +22,7 @@ public partial class ChangeBranch : Window
 
     private void ConfirmBranchChange(object? sender, RoutedEventArgs e)
     {
-        Program.Settings.UpdateBranch = (UpdateSystem.Branch)SelectedBranch.SelectedIndex;
+        Program.Settings.Program.UpdateBranch = (UpdateSystem.Branch)SelectedBranch.SelectedIndex;
         Program.SaveConfig();
         Close();
     }

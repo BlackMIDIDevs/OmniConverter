@@ -40,7 +40,7 @@ namespace OmniConverter
             _cancToken = new CancellationTokenSource();
             _parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = Program.Settings.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1,
+                MaxDegreeOfParallelism = Program.Settings.Render.MultiThreadedMode ? threads.LimitToRange(1, Environment.ProcessorCount) : 1,
                 CancellationToken = _cancToken.Token
             };
         }

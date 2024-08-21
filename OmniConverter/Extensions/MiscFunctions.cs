@@ -69,15 +69,15 @@ namespace OmniConverter
             switch (selectedSound)
             {
                 case ConvSounds.Finish:
-                    sound = Program.Settings.OldKMCScheme ? "convfinold.wav" : "convfin.wav";
+                    sound = Program.Settings.Program.OldKMCScheme ? "convfinold.wav" : "convfin.wav";
                     break;
 
                 case ConvSounds.Error:
-                    sound = Program.Settings.OldKMCScheme ? "convfailold.wav" : "convfail.wav";
+                    sound = Program.Settings.Program.OldKMCScheme ? "convfailold.wav" : "convfail.wav";
                     break;
 
                 case ConvSounds.Start:
-                    sound = Program.Settings.OldKMCScheme ? "convstartold.wav" : "convstart.wav";
+                    sound = Program.Settings.Program.OldKMCScheme ? "convstartold.wav" : "convstart.wav";
                     break;
 
                 default:
@@ -110,7 +110,7 @@ namespace OmniConverter
 
         public static void PerformShutdownCheck(Stopwatch stopwatch)
         {
-            var action = Program.Settings.AfterRenderAction;
+            var action = Program.Settings.Program.AfterRenderAction;
 
             // Currently only under Windows, sorry!
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action < 4)

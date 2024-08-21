@@ -15,75 +15,85 @@
 		RequestedThemeVariant="Dark">
 	<Grid RowDefinitions="1*, 80">
 		<TabControl Grid.Row="0">
-			<TabItem Header="Audio renderer">
+			<TabItem Header="Synthesizer">
 				<ScrollViewer VerticalScrollBarVisibility="Visible">
 					<StackPanel Margin="4">
 						<Grid Name="RendererPanel" Margin="2"  ColumnDefinitions="2*, 1*">
-							<Label Grid.Column="0" Content="Audio renderer" VerticalAlignment="Center"/>
+							<Label Grid.Column="0" Content="Synthesizer" VerticalAlignment="Center"/>
 							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
-								<Image Name="NotDesignedForThis" Width="24" Source="/Assets/Warning.png" Margin="0, 0, 4, 0" IsVisible="False" PointerPressed="NotDesignedForThisWarning" />
 								<ComboBox Name="SelectedRenderer" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioRendererChanged" >
-									<ComboBoxItem Name="BASS">BASS</ComboBoxItem>
-									<ComboBoxItem Name="XSynth">XSynth</ComboBoxItem>
+									<ComboBoxItem>BASS</ComboBoxItem>
+									<ComboBoxItem>XSynth</ComboBoxItem>
 								</ComboBox>
 							</StackPanel>
 						</Grid>
-						<Grid ColumnDefinitions="1*, 2*" Margin="2">
-							<Label Name="MaxVoicesLabel" Grid.Column="0" Content="Voice limit" VerticalAlignment="Center"/>
-							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
-								<CheckBox Name="NoVoiceLimit" Content="Uncap limit" Margin="0, 0, 10, 0" IsCheckedChanged="KhangModCheck"/>
-								<NumericUpDown Name="MaxVoices" HorizontalAlignment="Right" Width="180" FormatString="0" Value="100000" Minimum="1" Maximum="100000" ValueChanged="MaxVoicesChanged" />
+						<ctrl:GroupBox Header="Global Settings" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
+							<StackPanel>
+								<Grid ColumnDefinitions="4*, 1*" Margin="2">
+									<Label Grid.Column="0" Content="Sample rate" VerticalAlignment="Center"/>
+									<ComboBox Name="SampleRate" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="5" MaxDropDownHeight="200">
+										<ComboBoxItem>384000</ComboBoxItem>
+										<ComboBoxItem>192000</ComboBoxItem>
+										<ComboBoxItem>96000</ComboBoxItem>
+										<ComboBoxItem>88200</ComboBoxItem>
+										<ComboBoxItem>64000</ComboBoxItem>
+										<ComboBoxItem>48000</ComboBoxItem>
+										<ComboBoxItem>44100</ComboBoxItem>
+										<ComboBoxItem>32000</ComboBoxItem>
+										<ComboBoxItem>22050</ComboBoxItem>
+										<ComboBoxItem>11025</ComboBoxItem>
+										<ComboBoxItem>8000</ComboBoxItem>
+										<ComboBoxItem>4000</ComboBoxItem>
+									</ComboBox>
+								</Grid>
+								<Grid Name="InterpolationPanel" Margin="2" ColumnDefinitions="2*, 1*">
+									<Label Content="Interpolation mode" VerticalAlignment="Center"/>
+									<ComboBox Name="InterpolationSelection" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" >
+										<ComboBoxItem>None</ComboBoxItem>
+										<ComboBoxItem>Linear inter.</ComboBoxItem>
+										<ComboBoxItem>8 point sinc inter.</ComboBoxItem>
+										<ComboBoxItem>16 point sinc inter.</ComboBoxItem>
+										<ComboBoxItem>32 point sinc inter.</ComboBoxItem>
+										<ComboBoxItem>64 point sinc inter.</ComboBoxItem>
+									</ComboBox>
+								</Grid>
+								<CheckBox Name="KilledNoteFading" Content="Disable sample fade out when killing a note" Margin="2" />
 							</StackPanel>
-						</Grid>
-						<Grid ColumnDefinitions="4*, 1*" Margin="2">
-							<Label Grid.Column="0" Content="Sample rate" VerticalAlignment="Center"/>
-							<ComboBox Name="SampleRate" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="5" MaxDropDownHeight="200">
-								<ComboBoxItem>384000</ComboBoxItem>
-								<ComboBoxItem>192000</ComboBoxItem>
-								<ComboBoxItem>96000</ComboBoxItem>
-								<ComboBoxItem>88200</ComboBoxItem>
-								<ComboBoxItem>64000</ComboBoxItem>
-								<ComboBoxItem>48000</ComboBoxItem>
-								<ComboBoxItem>44100</ComboBoxItem>
-								<ComboBoxItem>32000</ComboBoxItem>
-								<ComboBoxItem>22050</ComboBoxItem>
-								<ComboBoxItem>11025</ComboBoxItem>
-								<ComboBoxItem>8000</ComboBoxItem>
-								<ComboBoxItem>4000</ComboBoxItem>
-							</ComboBox>
-						</Grid>
-						<Grid Name="SincInterPanel" Margin="2" ColumnDefinitions="2*, 1*">
-							<Label Content="Sinc interpolation mode" VerticalAlignment="Center"/>
-							<ComboBox Name="SincInterSelection" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="0" MaxDropDownHeight="200" >
-								<ComboBoxItem>Linear inter. (OFF)</ComboBoxItem>
-								<ComboBoxItem>8 point sinc inter.</ComboBoxItem>
-								<ComboBoxItem>16 point sinc inter.</ComboBoxItem>
-								<ComboBoxItem>32 point sinc inter.</ComboBoxItem>
-								<ComboBoxItem>64 point sinc inter.</ComboBoxItem>
-							</ComboBox>
-						</Grid>
-						<Grid Name="AudioCodecPanel" Margin="2, 16, 0, 0"  ColumnDefinitions="2*, 1*">
-							<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
-							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
-								<Image Name="NoFFMPEG" Width="24" Source="/Assets/Warning.png" Margin="0, 0, 4, 0" IsVisible="False" PointerPressed="NoFFMPEGWarning" />
-								<ComboBox Name="AudioCodec" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
-									<ComboBoxItem Name="WAV">.wav (IEEE, lossless)</ComboBoxItem>
-									<ComboBoxItem Name="FLAC">.flac (FLAC, lossless)</ComboBoxItem>
-									<ComboBoxItem Name="MP3">.mp3 (LAME, lossy)</ComboBoxItem>
-									<ComboBoxItem Name="OGG">.ogg (Vorbis, lossy)</ComboBoxItem>
-								</ComboBox>
+						</ctrl:GroupBox>
+						<ctrl:GroupBox Name="BASSSettingsPanel" Header="BASS Settings" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
+							<StackPanel>
+								<Grid ColumnDefinitions="1*, 2*" Margin="2">
+									<Label Grid.Column="0" Content="Voice limit" VerticalAlignment="Center"/>
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+										<CheckBox Name="BASS_NoVoiceLimit" Content="Uncap limit" Margin="0, 0, 10, 0" IsCheckedChanged="KhangModCheck"/>
+										<NumericUpDown Name="BASS_MaxVoices" HorizontalAlignment="Right" Width="180" FormatString="0" Value="100000" Minimum="1" Maximum="100000" ValueChanged="MaxVoicesChanged" />
+									</StackPanel>
+								</Grid>
+								<CheckBox Name="BASS_DisableFX" Content="Disable sound FXs (Reverb, Chorus etc.)" Margin="2" />
+								<CheckBox Name="BASS_NoteOff1" Content="Follow overlaps when processing note off events" Margin="2" />
 							</StackPanel>
-						</Grid>
-						<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
-							<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
-							<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="1000" FormatString="0" IsEnabled="False"/>
+						</ctrl:GroupBox>
+						<ctrl:GroupBox Name="XSynthSettingsPanel" Header="XSynth Settings" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
+							<StackPanel>
+								<Grid ColumnDefinitions="1*, 2*" Margin="2">
+									<Label Grid.Column="0" Content="Layer limit" VerticalAlignment="Center"/>
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+										<CheckBox Name="XSynth_NoLayerLimit" Content="Unlimited" Margin="0, 0, 10, 0" IsCheckedChanged="UnlimitedLayersCheck"/>
+										<NumericUpDown Name="XSynth_MaxLayers" HorizontalAlignment="Right" Width="180" FormatString="0" Value="32" Minimum="1" Maximum="10000000" />
+									</StackPanel>
+								</Grid>
+								<Grid Margin="2" ColumnDefinitions="2*, 1*">
+									<Label Content="Multithreading mode" VerticalAlignment="Center"/>
+									<ComboBox Name="XSynth_ThreadingSelection" HorizontalAlignment="Right" Grid.Column="1" Width="180" SelectedIndex="2" MaxDropDownHeight="200" >
+										<ComboBoxItem>None</ComboBoxItem>
+										<ComboBoxItem>Per channel</ComboBoxItem>
+										<ComboBoxItem>Per key</ComboBoxItem>
+									</ComboBox>
+								</Grid>
+								<CheckBox Name="XSynth_UseEffects" Content="Use sound effects (Cutoff etc.)" Margin="2" />
+								<CheckBox Name="XSynth_LinearEnv" Content="Use linear decay and release phases in volume envelopes" Margin="2" />
 							</StackPanel>
-						</Grid>
-						<CheckBox Name="DisableFX" Content="Disable sound FXs (Reverb, Chorus etc.)" Margin="2, 16, 0, 0" />
-						<CheckBox Name="NoteOff1" Content="Follow overlaps when processing note off events" Margin="2" />
-						<CheckBox Name="KilledNoteFading" Content="Disable sample fade out when killing a note" Margin="2" />
-						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent distortion" Margin="2" />
+						</ctrl:GroupBox>
 						<ctrl:GroupBox Header="Real Time Playback Simulation" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
 							<Grid ColumnDefinitions="1*, 1*" >
 								<CheckBox Name="RTSMode" Grid.Column="0" Content="Enable real time playback simulation" IsCheckedChanged="RTSModeCheck" />
@@ -135,32 +145,69 @@
 				</StackPanel>
 			</TabItem>
 			<TabItem Header="Export">
-				<StackPanel Margin="4">
-					<CheckBox Name="MTMode" Content="Enable multi-threaded rendering mode, and render one MIDI (or MIDI track) per thread" Margin="2" IsCheckedChanged="MTModeCheck" />
-					<CheckBox Name="NoLimitThreadsOnCPU" Content="Allow allocation of more threads than what's available on the processor" Margin="2" IsCheckedChanged="NoLimitThreadsOnCPUCheck" />
-					<Grid Name="LimitThreadsPanel" ColumnDefinitions="2*, 1*" Margin="2" >
-						<CheckBox Name="LimitThreads" Content="Limit the amount of system threads available to the app" Grid.Column="0" IsCheckedChanged="LimitThreadsCheck" />
-						<StackPanel Name="MaxThreadsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >
-							<Label Content="Threads" VerticalAlignment="Center"/>
-							<NumericUpDown Name="MaxThreads" HorizontalAlignment="Right" Width="160" FormatString="0" Minimum="1" Maximum="65536" />
-						</StackPanel>
-					</Grid>
-					<CheckBox Name="PerTrackMode" Content="Render each track separately, then merge all of them in one audio file" Margin="2, 16, 0, 0" IsCheckedChanged="PerTrackModeCheck" />
-					<CheckBox Name="PerTrackFile" IsEnabled="False" Content="Disable automatic merging of the tracks, and export all in separate files" Margin="2" IsCheckedChanged="PerTrackFileCheck"  />
-					<CheckBox Name="PerTrackStorage" IsEnabled="False" Content="Store each exported track into a folder with the same name as the MIDI" Margin="2" />
-					<CheckBox Name="AutoExportToFolder" Content="Do not ask for an export folder, and export renders directly to this folder:" Margin="2, 16, 0, 0" IsCheckedChanged="AutoExportFolderCheck" />
-					<Grid Name="AutoExportFolderPanel" ColumnDefinitions="1*, 96" Margin="2" >
-						<TextBox Name="AutoExportFolderPath" Grid.Column="0" Margin="0, 0, 10, 0" />
-						<Button Content="Browse" HorizontalContentAlignment="Center" Grid.Column="1" Width="96" Click="AutoExportFolderSelection"/>
-					</Grid>
-					<CheckBox Name="AfterRenderAction" Content="Do one of the following actions once the computer is done rendering" Margin="2, 16, 0, 0" IsCheckedChanged="AfterRenderActionCheck"/>
+				<ScrollViewer VerticalScrollBarVisibility="Visible">
+				<StackPanel>
+				<ctrl:GroupBox Header="Multithreading" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
+					<StackPanel>
+						<CheckBox Name="MTMode" Content="Enable multi-threaded rendering mode, and render one MIDI (or MIDI track) per thread" Margin="2" IsCheckedChanged="MTModeCheck" />
+						<CheckBox Name="NoLimitThreadsOnCPU" Content="Allow allocation of more threads than what's available on the processor" Margin="2" IsCheckedChanged="NoLimitThreadsOnCPUCheck" />
+						<Grid Name="LimitThreadsPanel" ColumnDefinitions="2*, 1*" Margin="2" >
+							<CheckBox Name="LimitThreads" Content="Limit the amount of system threads available to the app" Grid.Column="0" IsCheckedChanged="LimitThreadsCheck" />
+							<StackPanel Name="MaxThreadsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" >
+								<Label Content="Threads" VerticalAlignment="Center"/>
+								<NumericUpDown Name="MaxThreads" HorizontalAlignment="Right" Width="160" FormatString="0" Minimum="1" Maximum="65536" />
+							</StackPanel>
+						</Grid>
+					</StackPanel>
+				</ctrl:GroupBox>
+				<ctrl:GroupBox Header="Render settings" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
+					<StackPanel>
+						<CheckBox Name="PerTrackMode" Content="Render each track separately, then merge all of them in one audio file" Margin="2" IsCheckedChanged="PerTrackModeCheck" />
+						<CheckBox Name="PerTrackFile" IsEnabled="False" Content="Disable automatic merging of the tracks, and export all in separate files" Margin="2" IsCheckedChanged="PerTrackFileCheck"  />
+						<CheckBox Name="PerTrackStorage" IsEnabled="False" Content="Store each exported track into a folder with the same name as the MIDI" Margin="2" />
+						<CheckBox Name="AutoExportToFolder" Content="Do not ask for an export folder, and export renders directly to this folder:" Margin="2, 16, 0, 0" IsCheckedChanged="AutoExportFolderCheck" />
+						<Grid Name="AutoExportFolderPanel" ColumnDefinitions="1*, 96" Margin="2" >
+							<TextBox Name="AutoExportFolderPath" Grid.Column="0" Margin="0, 0, 10, 0" />
+							<Button Content="Browse" HorizontalContentAlignment="Center" Grid.Column="1" Width="96" Click="AutoExportFolderSelection"/>
+						</Grid>
+					</StackPanel>
+				</ctrl:GroupBox>
+				<ctrl:GroupBox Header="Audio encoding" Theme="{StaticResource GroupBoxClassic}" Margin="0, 16, 0, 0" >
+					<StackPanel>
+						<CheckBox Name="AudioLimiter" Content="Enable audio limiter, to prevent distortion" Margin="2" />
+						<Grid Name="AudioCodecPanel" Margin="2"  ColumnDefinitions="2*, 1*">
+							<Label Grid.Column="0" Content="Audio codec" VerticalAlignment="Center"/>
+							<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
+								<Image Name="NoFFMPEG" Width="24" Source="/Assets/Warning.png" Margin="0, 0, 4, 0" IsVisible="False" PointerPressed="NoFFMPEGWarning" />
+								<ComboBox Name="AudioCodec" Width="180" SelectedIndex="0" MaxDropDownHeight="200" SelectionChanged="AudioCodecChanged" >
+									<ComboBoxItem Name="WAV">.wav (IEEE, lossless)</ComboBoxItem>
+									<ComboBoxItem Name="FLAC">.flac (FLAC, lossless)</ComboBoxItem>
+									<ComboBoxItem Name="MP3">.mp3 (LAME, lossy)</ComboBoxItem>
+									<ComboBoxItem Name="OGG">.ogg (Vorbis, lossy)</ComboBoxItem>
+								</ComboBox>
+							</StackPanel>
+						</Grid>
+						<Grid Name="AudioBitratePanel" Margin="2" ColumnDefinitions="2*, 1*">
+							<Label Grid.Column="0" Content="Audio bitrate (kbps)" VerticalAlignment="Center"/>
+							<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+								<NumericUpDown Name="AudioBitrate" HorizontalAlignment="Right" Width="180" Value="256" Minimum="0" Maximum="1000" FormatString="0" IsEnabled="False"/>
+							</StackPanel>
+						</Grid>
+					</StackPanel>
+				</ctrl:GroupBox>
+				</StackPanel>
+				</ScrollViewer>
+			</TabItem>
+			<TabItem Header="General">
+				<StackPanel>
+					<CheckBox Name="AfterRenderAction" Content="Do one of the following actions once the computer is done rendering" Margin="2" IsCheckedChanged="AfterRenderActionCheck"/>
 					<ComboBox Name="AfterRenderSelectedAction" Width="320" SelectedIndex="1" MaxDropDownHeight="200" Margin="2" IsEnabled="False">
 						<ComboBoxItem>Put the computer into sleep mode</ComboBoxItem>
 						<ComboBoxItem>Put the computer into hibernation mode</ComboBoxItem>
 						<ComboBoxItem>Turn the computer off</ComboBoxItem>
 						<ComboBoxItem>Restart the computer</ComboBoxItem>
-                        <ComboBoxItem>Close the application</ComboBoxItem>
-                        <ComboBoxItem>Show completion time</ComboBoxItem>
+						<ComboBoxItem>Close the application</ComboBoxItem>
+						<ComboBoxItem>Show completion time</ComboBoxItem>
 					</ComboBox>
 					<CheckBox Name="AudioEvents" Content="Enable sound notifications for the conversion status" Margin="2, 16, 0, 0" IsCheckedChanged="AudioEventsCheck" />
 					<CheckBox Name="OldKMCScheme" Content="Use old KMC sound scheme" Margin="2" />

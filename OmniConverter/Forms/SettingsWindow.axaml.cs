@@ -30,7 +30,7 @@ public partial class SettingsWindow : Window
             {
                 int freq = Convert.ToInt32(((ComboBoxItem)item).Content);
 
-                if (freq == Program.Settings.SampleRate)
+                if (freq == Program.Settings.Synth.SampleRate)
                 {
                     SampleRate.SelectedIndex = i;
                     break;
@@ -53,47 +53,56 @@ public partial class SettingsWindow : Window
         SelectedRenderer.SelectedIndex = ((int)Program.Settings.Renderer).LimitToRange((int)EngineID.BASS, (int)EngineID.MAX);
         AudioRendererChanged(sender, new SelectionChangedEventArgs(e.RoutedEvent, null, null));
 
-        AudioCodec.SelectedIndex = ((int)Program.Settings.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
-        AudioBitrate.Value = Program.Settings.AudioBitrate.LimitToRange(1, (int)AudioBitrate.Maximum);
+        AudioCodec.SelectedIndex = ((int)Program.Settings.Encoder.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
+        AudioBitrate.Value = Program.Settings.Encoder.AudioBitrate.LimitToRange(1, (int)AudioBitrate.Maximum);
+        
+        InterpolationSelection.SelectedIndex = ((int)Program.Settings.Synth.Interpolation)
+            .LimitToRange((int)GlobalSynthSettings.InterpolationType.None,
+                          (int)GlobalSynthSettings.InterpolationType.Max);
 
-        SincInterSelection.SelectedIndex = ((int)Program.Settings.SincInter).LimitToRange((int)SincInterType.Linear, (int)SincInterType.Max);
+        XSynth_ThreadingSelection.SelectedIndex = ((int)Program.Settings.XSynth.Threading)
+            .LimitToRange((int)XSynthSettings.ThreadingType.None, (int)XSynthSettings.ThreadingType.Max);
 
-        DisableFX.IsChecked = Program.Settings.DisableEffects;
-        NoteOff1.IsChecked = Program.Settings.NoteOff1;
-        KilledNoteFading.IsChecked = Program.Settings.KilledNoteFading;
-        AudioLimiter.IsChecked = Program.Settings.AudioLimiter;
+        BASS_MaxVoices.Value = Program.Settings.BASS.MaxVoices;
+        XSynth_MaxLayers.Value = Program.Settings.XSynth.MaxLayers;
+        BASS_DisableFX.IsChecked = Program.Settings.BASS.DisableEffects;
+        BASS_NoteOff1.IsChecked = Program.Settings.BASS.NoteOff1;
+        XSynth_UseEffects.IsChecked = Program.Settings.XSynth.UseEffects;
+        XSynth_LinearEnv.IsChecked = Program.Settings.XSynth.LinearEnvelope;
+        KilledNoteFading.IsChecked = Program.Settings.Synth.KilledNoteFading;
+        AudioLimiter.IsChecked = Program.Settings.Synth.AudioLimiter;
         AudioCodecChanged(sender, new SelectionChangedEventArgs(e.RoutedEvent, null, null));
 
-        RTSMode.IsChecked = Program.Settings.RTSMode;
-        RTSFPS.Value = (decimal)Program.Settings.RTSFPS;
-        RTSFluct.Value = (decimal)Program.Settings.RTSFluct;
+        RTSMode.IsChecked = Program.Settings.Synth.RTSMode;
+        RTSFPS.Value = (decimal)Program.Settings.Synth.RTSFPS;
+        RTSFluct.Value = (decimal)Program.Settings.Synth.RTSFluct;
         RTSModeCheck(sender, e);
 
-        FilterVelocity.IsChecked = Program.Settings.FilterVelocity;
-        VelocityLowValue.Value = Program.Settings.VelocityLow;
-        VelocityHighValue.Value = Program.Settings.VelocityHigh;
+        FilterVelocity.IsChecked = Program.Settings.Event.FilterVelocity;
+        VelocityLowValue.Value = Program.Settings.Event.VelocityLow;
+        VelocityHighValue.Value = Program.Settings.Event.VelocityHigh;
         FilterVelocityCheck(sender, e);
 
-        FilterKey.IsChecked = Program.Settings.FilterKey;
-        KeyLowValue.Value = Program.Settings.KeyLow;
-        KeyHighValue.Value = Program.Settings.KeyHigh;
+        FilterKey.IsChecked = Program.Settings.Event.FilterKey;
+        KeyLowValue.Value = Program.Settings.Event.KeyLow;
+        KeyHighValue.Value = Program.Settings.Event.KeyHigh;
         FilterKeyCheck(sender, e);
 
-        OverrideEffects.IsChecked = Program.Settings.OverrideEffects;
-        ReverbValue.Value = Program.Settings.ReverbVal;
-        ChorusValue.Value = Program.Settings.ChorusVal;
+        OverrideEffects.IsChecked = Program.Settings.Event.OverrideEffects;
+        ReverbValue.Value = Program.Settings.Event.ReverbVal;
+        ChorusValue.Value = Program.Settings.Event.ChorusVal;
         OverrideEffectsCheck(sender, e);
 
-        IgnoreProgramChanges.IsChecked = Program.Settings.IgnoreProgramChanges;
+        IgnoreProgramChanges.IsChecked = Program.Settings.Event.IgnoreProgramChanges;
 
-        MTMode.IsChecked = Program.Settings.MultiThreadedMode;
-        PerTrackMode.IsChecked = Program.Settings.PerTrackMode;
-        PerTrackFile.IsChecked = Program.Settings.PerTrackFile;
-        PerTrackStorage.IsChecked = Program.Settings.PerTrackStorage;
+        MTMode.IsChecked = Program.Settings.Render.MultiThreadedMode;
+        PerTrackMode.IsChecked = Program.Settings.Render.PerTrackMode;
+        PerTrackFile.IsChecked = Program.Settings.Render.PerTrackFile;
+        PerTrackStorage.IsChecked = Program.Settings.Render.PerTrackStorage;
 
-        NoLimitThreadsOnCPU.IsChecked = Program.Settings.ThreadsCount > Environment.ProcessorCount;   
+        NoLimitThreadsOnCPU.IsChecked = Program.Settings.Render.ThreadsCount > Environment.ProcessorCount;   
         NoLimitThreadsOnCPUCheck(sender, e);
-        MaxThreads.Value = Program.Settings.ThreadsCount.LimitToRange(1, (int)MaxThreads.Maximum);
+        MaxThreads.Value = Program.Settings.Render.ThreadsCount.LimitToRange(1, (int)MaxThreads.Maximum);
 
         if ((bool)NoLimitThreadsOnCPU.IsChecked)
             LimitThreads.IsChecked = true;
@@ -102,17 +111,17 @@ public partial class SettingsWindow : Window
 
         MaxThreadsPanel.IsEnabled = (bool)LimitThreads.IsChecked;
 
-        AutoExportToFolder.IsChecked = Program.Settings.AutoExportToFolder;
-        AutoExportFolderPath.Text = Program.Settings.AutoExportFolderPath;
+        AutoExportToFolder.IsChecked = Program.Settings.Render.AutoExportToFolder;
+        AutoExportFolderPath.Text = Program.Settings.Render.AutoExportFolderPath;
         AutoExportFolderCheck(sender, e);
 
-        AfterRenderAction.IsChecked = Program.Settings.AfterRenderAction >= 0;
-        AfterRenderSelectedAction.SelectedIndex = Program.Settings.AfterRenderAction.LimitToRange(0, AfterRenderSelectedAction.Items.Count);
+        AfterRenderAction.IsChecked = Program.Settings.Program.AfterRenderAction >= 0;
+        AfterRenderSelectedAction.SelectedIndex = Program.Settings.Program.AfterRenderAction.LimitToRange(0, AfterRenderSelectedAction.Items.Count);
         AfterRenderActionCheck(sender, e);
 
         NoFFMPEG.IsVisible = NoFFMPEGFound;
-        AudioEvents.IsChecked = Program.Settings.AudioEvents;
-        OldKMCScheme.IsChecked = Program.Settings.OldKMCScheme;
+        AudioEvents.IsChecked = Program.Settings.Program.AudioEvents;
+        OldKMCScheme.IsChecked = Program.Settings.Program.OldKMCScheme;
         AudioEventsCheck(sender, e);
     }
 
@@ -147,8 +156,8 @@ public partial class SettingsWindow : Window
 
     private void MaxVoicesChanged(object? sender, NumericUpDownValueChangedEventArgs e)
     {
-        if (MaxVoices.Value > MaxVoices.Maximum)
-            MaxVoices.Value = MaxVoices.Maximum;
+        if (BASS_MaxVoices.Value > BASS_MaxVoices.Maximum)
+            BASS_MaxVoices.Value = BASS_MaxVoices.Maximum;
     }
 
     private void AudioCodecChanged(object? sender, SelectionChangedEventArgs e)
@@ -166,7 +175,7 @@ public partial class SettingsWindow : Window
 
                 default:
                     ForceLimitAudio = false;
-                    AudioLimiter.IsChecked = Program.Settings.AudioLimiter;
+                    AudioLimiter.IsChecked = Program.Settings.Synth.AudioLimiter;
                     break;
             }
 
@@ -176,24 +185,23 @@ public partial class SettingsWindow : Window
 
     private void KhangModCheck(object? sender, RoutedEventArgs e)
     {
-        if (NoVoiceLimit.IsChecked != null)
+        if (BASS_NoVoiceLimit.IsChecked != null)
         {
-            switch ((EngineID)SelectedRenderer.SelectedIndex)
-            {
-                case EngineID.XSynth:
-                    NoVoiceLimit.Content = "Unlimited";
-                    MaxVoices.IsEnabled = !(bool)NoVoiceLimit.IsChecked;
-                    MaxVoices.Value = (bool)NoVoiceLimit.IsChecked ? 0 : Program.Settings.MaxLayers;
-                    break;
-
-                default:
-                    NoVoiceLimit.Content = "Uncap limit";
-                    MaxVoices.IsEnabled = true;
-                    MaxVoices.Maximum = (bool)NoVoiceLimit.IsChecked ? int.MaxValue : 100000;
-                    break;
-            }
-
+            BASS_MaxVoices.Maximum = (bool)BASS_NoVoiceLimit.IsChecked ? int.MaxValue : 100000;
             MaxVoicesChanged(null, new NumericUpDownValueChangedEventArgs(e.RoutedEvent, null, null));
+        }
+    }
+
+    private void UnlimitedLayersCheck(object? sender, RoutedEventArgs e)
+    {
+        if (XSynth_NoLayerLimit.IsChecked != null)
+        {
+            if ((bool)XSynth_NoLayerLimit.IsChecked)
+                XSynth_MaxLayers.Minimum = 0;
+            else
+                XSynth_MaxLayers.Minimum = 1;
+            XSynth_MaxLayers.Value = (bool)XSynth_NoLayerLimit.IsChecked ? 0 : Program.Settings.XSynth.MaxLayers;
+            XSynth_MaxLayers.IsEnabled = !(bool)XSynth_NoLayerLimit.IsChecked;
         }
     }
 
@@ -204,20 +212,20 @@ public partial class SettingsWindow : Window
             switch ((EngineID)SelectedRenderer.SelectedIndex)
             {
                 case EngineID.XSynth:
-                    NotDesignedForThis.IsVisible = true;
-                    MaxVoicesLabel.Content = "Layer count";
-                    NoVoiceLimit.IsChecked = Program.Settings.MaxLayers == 0;
-                    MaxVoices.Minimum = 0;
-                    MaxVoices.Value = Program.Settings.MaxLayers;
-                    KhangModCheck(sender, new RoutedEventArgs(e.RoutedEvent));
+                    XSynth_NoLayerLimit.IsChecked = Program.Settings.XSynth.MaxLayers == 0;
+                    XSynth_MaxLayers.Value = Program.Settings.XSynth.MaxLayers;
+                    BASSSettingsPanel.IsVisible = false;
+                    XSynthSettingsPanel.IsVisible = true;
                     break;
 
+                case EngineID.BASS:
+                    BASS_NoVoiceLimit.IsChecked = Program.Settings.BASS.MaxVoices > 100000;
+                    BASS_MaxVoices.Value = Program.Settings.BASS.MaxVoices;
+                    BASSSettingsPanel.IsVisible = true;
+                    XSynthSettingsPanel.IsVisible = false;
+                    break;
+                
                 default:
-                    NotDesignedForThis.IsVisible = false;
-                    MaxVoicesLabel.Content = "Voice limit";
-                    NoVoiceLimit.IsChecked = Program.Settings.MaxVoices > 100000;
-                    MaxVoices.Minimum = 1;
-                    MaxVoices.Value = Program.Settings.MaxVoices;
                     break;
             }
         }
@@ -227,13 +235,6 @@ public partial class SettingsWindow : Window
     {
         MessageBox.Show(this, "To use additional formats, you need ffmpeg.\n\n" +
             "Please install it on your system, or move the ffmpeg binary to the same folder as the converter.",
-            "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
-    }
-
-    private void NotDesignedForThisWarning(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        MessageBox.Show(this, "This converter is primarily designed around BASSMIDI.\n\n" +
-            "Some features might not be available with other audio engines.",
             "OmniConverter - Warning", MsBox.Avalonia.Enums.ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
     }
 
@@ -336,104 +337,94 @@ public partial class SettingsWindow : Window
 
         object? item = SampleRate.Items[SampleRate.SelectedIndex];
         if (item != null)
-            Program.Settings.SampleRate = Convert.ToInt32(((ComboBoxItem)item).Content);
+            Program.Settings.Synth.SampleRate = Convert.ToInt32(((ComboBoxItem)item).Content);
 
-        if (MaxVoices.Value != null)
-        {
-            if (SelectedRenderer != null)
-            {
-                switch ((EngineID)SelectedRenderer.SelectedIndex)
-                {
-                    case EngineID.XSynth:
-                        Program.Settings.MaxLayers = (ulong)MaxVoices.Value;
-                        break;
-
-                    default:
-                        Program.Settings.MaxVoices = (int)MaxVoices.Value;
-                        break;
-                }
-            }
-        }
+        if (BASS_MaxVoices.Value != null)
+            Program.Settings.BASS.MaxVoices = (int)BASS_MaxVoices.Value;
+        if (XSynth_MaxLayers.Value != null)
+            Program.Settings.XSynth.MaxLayers = (ulong)XSynth_MaxLayers.Value;
 
         Program.Settings.Renderer = (EngineID)SelectedRenderer.SelectedIndex;
-        Program.Settings.SincInter = (SincInterType)SincInterSelection.SelectedIndex;
 
-        Program.Settings.AudioCodec = (AudioCodecType)AudioCodec.SelectedIndex;
+        Program.Settings.Synth.Interpolation = (GlobalSynthSettings.InterpolationType)InterpolationSelection.SelectedIndex;
+        Program.Settings.XSynth.Threading = (XSynthSettings.ThreadingType)XSynth_ThreadingSelection.SelectedIndex;
+
+        Program.Settings.Encoder.AudioCodec = (AudioCodecType)AudioCodec.SelectedIndex;
         if (AudioBitrate.Value != null)
-            Program.Settings.AudioBitrate = (int)AudioBitrate.Value;
+            Program.Settings.Encoder.AudioBitrate = (int)AudioBitrate.Value;
 
-        if (DisableFX.IsChecked != null)
-            Program.Settings.DisableEffects = (bool)DisableFX.IsChecked;
-        if (NoteOff1.IsChecked != null)
-            Program.Settings.NoteOff1 = (bool)NoteOff1.IsChecked;
+        if (BASS_DisableFX.IsChecked != null)
+            Program.Settings.BASS.DisableEffects = (bool)BASS_DisableFX.IsChecked;
+        if (BASS_NoteOff1.IsChecked != null)
+            Program.Settings.BASS.NoteOff1 = (bool)BASS_NoteOff1.IsChecked;
         if (KilledNoteFading.IsChecked != null)
-            Program.Settings.KilledNoteFading = (bool)KilledNoteFading.IsChecked;
+            Program.Settings.Synth.KilledNoteFading = (bool)KilledNoteFading.IsChecked;
 
         if (AudioLimiter.IsChecked != null && !ForceLimitAudio)
-            Program.Settings.AudioLimiter = (bool)AudioLimiter.IsChecked;
+            Program.Settings.Synth.AudioLimiter = (bool)AudioLimiter.IsChecked;
 
         if (RTSMode.IsChecked != null)
-            Program.Settings.RTSMode = (bool)RTSMode.IsChecked;
+            Program.Settings.Synth.RTSMode = (bool)RTSMode.IsChecked;
         if (RTSFPS.Value != null)
-            Program.Settings.RTSFPS = (double)RTSFPS.Value;
+            Program.Settings.Synth.RTSFPS = (double)RTSFPS.Value;
         if (RTSFluct.Value != null)
-            Program.Settings.RTSFluct = (double)RTSFluct.Value;
+            Program.Settings.Synth.RTSFluct = (double)RTSFluct.Value;
 
         if (FilterVelocity.IsChecked != null)
-            Program.Settings.FilterVelocity = (bool)FilterVelocity.IsChecked;
+            Program.Settings.Event.FilterVelocity = (bool)FilterVelocity.IsChecked;
         if (VelocityLowValue.Value != null)
-            Program.Settings.VelocityLow = (int)VelocityLowValue.Value;
+            Program.Settings.Event.VelocityLow = (int)VelocityLowValue.Value;
         if (VelocityHighValue.Value != null)
-            Program.Settings.VelocityHigh = (int)VelocityHighValue.Value;
+            Program.Settings.Event.VelocityHigh = (int)VelocityHighValue.Value;
         
         if (FilterKey.IsChecked != null)
-            Program.Settings.FilterKey = (bool)FilterKey.IsChecked;
+            Program.Settings.Event.FilterKey = (bool)FilterKey.IsChecked;
         if (KeyLowValue.Value != null)
-            Program.Settings.KeyLow = (int)KeyLowValue.Value;
+            Program.Settings.Event.KeyLow = (int)KeyLowValue.Value;
         if (KeyHighValue.Value != null)
-            Program.Settings.KeyHigh = (int)KeyHighValue.Value;
+            Program.Settings.Event.KeyHigh = (int)KeyHighValue.Value;
 
         if (OverrideEffects.IsChecked != null)
-            Program.Settings.OverrideEffects = (bool)OverrideEffects.IsChecked;
+            Program.Settings.Event.OverrideEffects = (bool)OverrideEffects.IsChecked;
         if (ReverbValue.Value != null)
-            Program.Settings.ReverbVal = (short)ReverbValue.Value;
+            Program.Settings.Event.ReverbVal = (short)ReverbValue.Value;
         if (ChorusValue.Value != null)
-            Program.Settings.ChorusVal = (short)ChorusValue.Value;
+            Program.Settings.Event.ChorusVal = (short)ChorusValue.Value;
 
         if (IgnoreProgramChanges.IsChecked != null)
-            Program.Settings.IgnoreProgramChanges = (bool)IgnoreProgramChanges.IsChecked;
+            Program.Settings.Event.IgnoreProgramChanges = (bool)IgnoreProgramChanges.IsChecked;
 
         if (MTMode.IsChecked != null)
-            Program.Settings.MultiThreadedMode = (bool)MTMode.IsChecked;
+            Program.Settings.Render.MultiThreadedMode = (bool)MTMode.IsChecked;
         if (PerTrackMode.IsChecked != null)
-            Program.Settings.PerTrackMode = (bool)PerTrackMode.IsChecked;
+            Program.Settings.Render.PerTrackMode = (bool)PerTrackMode.IsChecked;
         if (PerTrackFile.IsChecked != null)
-            Program.Settings.PerTrackFile = (bool)PerTrackFile.IsChecked;
+            Program.Settings.Render.PerTrackFile = (bool)PerTrackFile.IsChecked;
         if (PerTrackStorage.IsChecked != null)
-            Program.Settings.PerTrackStorage = (bool)PerTrackStorage.IsChecked;
+            Program.Settings.Render.PerTrackStorage = (bool)PerTrackStorage.IsChecked;
 
         if (LimitThreads.IsChecked != null)
         {
             if ((bool)LimitThreads.IsChecked && MaxThreads.Value != null)
-                Program.Settings.ThreadsCount = (int)MaxThreads.Value;
-            else Program.Settings.ThreadsCount = Environment.ProcessorCount;
+                Program.Settings.Render.ThreadsCount = (int)MaxThreads.Value;
+            else Program.Settings.Render.ThreadsCount = Environment.ProcessorCount;
         }
 
         if (AutoExportToFolder.IsChecked != null)
-            Program.Settings.AutoExportToFolder = (bool)AutoExportToFolder.IsChecked;
+            Program.Settings.Render.AutoExportToFolder = (bool)AutoExportToFolder.IsChecked;
 
         if (AfterRenderAction.IsChecked != null && (bool)AfterRenderAction.IsChecked)
-            Program.Settings.AfterRenderAction = AfterRenderSelectedAction.SelectedIndex;
-        else Program.Settings.AfterRenderAction = -1;
+            Program.Settings.Program.AfterRenderAction = AfterRenderSelectedAction.SelectedIndex;
+        else Program.Settings.Program.AfterRenderAction = -1;
 
         if (AudioEvents.IsChecked != null)
-            Program.Settings.AudioEvents = (bool)AudioEvents.IsChecked;
+            Program.Settings.Program.AudioEvents = (bool)AudioEvents.IsChecked;
 
         if (OldKMCScheme.IsChecked != null)
-            Program.Settings.OldKMCScheme = (bool)OldKMCScheme.IsChecked;
+            Program.Settings.Program.OldKMCScheme = (bool)OldKMCScheme.IsChecked;
 
         var newExportPath = AutoExportFolderPath.Text;
-        if (newExportPath != null && !newExportPath.Equals(Program.Settings.AutoExportFolderPath))
+        if (newExportPath != null && !newExportPath.Equals(Program.Settings.Render.AutoExportFolderPath))
         {
             if (!Directory.Exists(newExportPath))
             {
@@ -468,7 +459,7 @@ public partial class SettingsWindow : Window
                         File.Delete(testFile);
                     }
 
-                    if (success) Program.Settings.AutoExportFolderPath = newExportPath;
+                    if (success) Program.Settings.Render.AutoExportFolderPath = newExportPath;
                 }
             }
         }

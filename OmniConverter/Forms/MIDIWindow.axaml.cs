@@ -55,7 +55,7 @@ public partial class MIDIWindow : Window
             Title = "MIDI analysis";
             TogglePause.IsVisible = false;
             ControlBar.ColumnDefinitions = new("8*, 0, 140");
-            _worker = new MIDIAnalysis(_files, _silent, Program.Settings.MultiThreadedMode ? Program.Settings.ThreadsCount : 1, this, LogArea, _winRef.MIDIs);
+            _worker = new MIDIAnalysis(_files, _silent, Program.Settings.Render.MultiThreadedMode ? Program.Settings.Render.ThreadsCount : 1, this, LogArea, _winRef.MIDIs);
         }
         else
         {
@@ -76,7 +76,7 @@ public partial class MIDIWindow : Window
                 ControlBar.ColumnDefinitions = new("8*, 96, 96");
                 string outputFolder = string.Empty;
 
-                if (!Program.Settings.AutoExportToFolder)
+                if (!Program.Settings.Render.AutoExportToFolder)
                 {
                     var topLevel = GetTopLevel(this);
 
@@ -104,10 +104,10 @@ public partial class MIDIWindow : Window
                         }
                     }
                 }
-                else outputFolder = Program.Settings.AutoExportFolderPath;
+                else outputFolder = Program.Settings.Render.AutoExportFolderPath;
 
                 if (!string.IsNullOrEmpty(outputFolder))
-                    _worker = new MIDIConverter(outputFolder, Program.Settings.AudioCodec, Program.Settings.MultiThreadedMode ? Program.Settings.ThreadsCount : 1, this, LogArea, _winRef.MIDIs);
+                    _worker = new MIDIConverter(outputFolder, Program.Settings.Encoder.AudioCodec, Program.Settings.Render.MultiThreadedMode ? Program.Settings.Render.ThreadsCount : 1, this, LogArea, _winRef.MIDIs);
             }
             else MessageBox.Show(this, "There are no MIDIs to convert.", "OmniConverter - Information");
         }
@@ -177,7 +177,7 @@ public partial class MIDIWindow : Window
         return;
 
         // Not yet
-        if (Program.Settings.AutoSaveState && _convBackup.Elapsed.TotalSeconds >= 3 && _worker is MIDIConverter)
+        if (Program.Settings.Program.AutoSaveState && _convBackup.Elapsed.TotalSeconds >= 3 && _worker is MIDIConverter)
         {
             _convBackup.Restart();
 

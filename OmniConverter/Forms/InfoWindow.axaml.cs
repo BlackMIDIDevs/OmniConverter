@@ -46,12 +46,12 @@ public partial class InfoWindow : Window
 
     private void GitHubPage(object? sender, PointerPressedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo("https://github.com/KaleidonKep99/OmniConverter") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo("https://github.com/BlackMIDIDevs/OmniConverter") { UseShellExecute = true });
     }
 
     private void LicensePage(object? sender, PointerPressedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo("https://github.com/KaleidonKep99/OmniConverter/blob/master/LICENSE.md") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo("https://github.com/BlackMIDIDevs/OmniConverter/blob/master/LICENSE.md") { UseShellExecute = true });
     }
 
     private async void ChangeBranch(object? sender, RoutedEventArgs e)
