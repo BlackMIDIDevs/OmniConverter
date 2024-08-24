@@ -21,7 +21,7 @@ ManagedBass: https://github.com/ManagedBass/ManagedBass
 <br />
 MIDIModificationFramework: https://github.com/arduano/MIDIModificationFramework
 <br />
-XSynth-clib: https://github.com/BlackMIDIDevs/xsynth-clib
+XSynth: https://github.com/BlackMIDIDevs/xsynth
 <br />
 FLParser (This project uses [Kaydax's](https://github.com/Kaydax/FLParser) fork): https://github.com/monadgroup/FLParser
 <br />
