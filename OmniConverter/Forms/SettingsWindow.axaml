@@ -78,6 +78,7 @@
 								<Grid ColumnDefinitions="1*, 2*" Margin="2">
 									<Label Grid.Column="0" Content="Layer limit" VerticalAlignment="Center"/>
 									<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" >
+										<Label Content="&#x2753;" ToolTip.Tip="One layer is one voice per key per channel" Margin="0, 0, 10, 0" />
 										<CheckBox Name="XSynth_NoLayerLimit" Content="Unlimited" Margin="0, 0, 10, 0" IsCheckedChanged="UnlimitedLayersCheck"/>
 										<NumericUpDown Name="XSynth_MaxLayers" HorizontalAlignment="Right" Width="180" FormatString="0" Value="32" Minimum="1" Maximum="10000000" />
 									</StackPanel>

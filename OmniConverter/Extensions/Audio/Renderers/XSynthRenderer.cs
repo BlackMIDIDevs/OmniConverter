@@ -11,9 +11,9 @@ namespace OmniConverter
     {
         private const string XSynthLib = "xsynth";
 
-        public const uint APIVersion = 0x200;
+        public const uint APIVersion = 0x300;
 
-        public enum EventType : ushort
+        public enum AudioEvent : ushort
         {
             NoteOn = 0,
             NoteOff = 1,
@@ -27,16 +27,28 @@ namespace OmniConverter
             CoarseTune = 9
         }
 
+        public enum ConfigEvent : ushort
+        {
+            SetLayers = 0,
+            SetPercussionMode = 1,
+        }
+
         public enum Interpolation : ushort
         {
-            Nearest = 100,
-            Linear = 101
+            Nearest = 0,
+            Linear = 1
         }
 
         public enum ChannelCount : ushort
         {
             Mono = 1,
             Stereo = 2
+        }
+
+        public enum EnvelopeCurve : byte
+        {
+            Linear = 0,
+            Exponential = 1,
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -66,15 +78,21 @@ namespace OmniConverter
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct GroupOptions
+        public struct GroupOptions
         {
             public StreamParams stream_params;
             public uint channels;
-            public uint* drum_channels;
-            public uint drum_channels_count;
             [MarshalAs(UnmanagedType.U1)]
             public bool fade_out_killing;
             public ParallelismOptions parallelism;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct EnvelopeOptions
+        {
+            public EnvelopeCurve attack_curve;
+            public EnvelopeCurve decay_curve;
+            public EnvelopeCurve release_curve;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -83,8 +101,7 @@ namespace OmniConverter
             public StreamParams stream_params;
             public short bank;
             public short preset;
-            [MarshalAs(UnmanagedType.U1)]
-            public bool linear_release;
+            public EnvelopeOptions vol_envelope_options;
             [MarshalAs(UnmanagedType.U1)]
             public bool use_effects;
             public Interpolation interpolator;
@@ -102,6 +119,9 @@ namespace OmniConverter
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_GroupOptions", CallingConvention = CallingConvention.Cdecl)]
         public static extern GroupOptions GenDefault_GroupOptions();
 
+        [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_EnvelopeOptions", CallingConvention = CallingConvention.Cdecl)]
+        public static extern EnvelopeOptions GenDefault_EnvelopeOptions();
+
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_SoundfontOptions", CallingConvention = CallingConvention.Cdecl)]
         public static extern SoundfontOptions GenDefault_SoundfontOptions();
 
@@ -111,17 +131,23 @@ namespace OmniConverter
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_VoiceCount", CallingConvention = CallingConvention.Cdecl)]
         public static extern ulong ChannelGroup_VoiceCount(XSynth_ChannelGroup id);
 
-        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendEvent", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_SendEvent(XSynth_ChannelGroup id, uint channel, EventType evt, ushort param);
+        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendAudioEvent", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ChannelGroup_SendAudioEvent(XSynth_ChannelGroup id, uint channel, AudioEvent evt, ushort param);
+
+        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendAudioEventAll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ChannelGroup_SendAudioEventAll(XSynth_ChannelGroup id, AudioEvent evt, ushort param);
+
+        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendConfigEvent", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ChannelGroup_SendConfigEvent(XSynth_ChannelGroup id, uint channel, ConfigEvent evt, uint param);
+
+        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SendAudioEventAll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ChannelGroup_SendConfigEventAll(XSynth_ChannelGroup id, ConfigEvent evt, uint param);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_ReadSamples", CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe void ChannelGroup_ReadSamples(XSynth_ChannelGroup id, nint buffer, ulong length);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_GetStreamParams", CallingConvention = CallingConvention.Cdecl)]
         public static extern StreamParams ChannelGroup_GetStreamParams(XSynth_ChannelGroup id);
-
-        [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SetLayerCount", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ChannelGroup_SetLayerCount(XSynth_ChannelGroup id, ulong layers);
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_ChannelGroup_SetSoundfonts", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ChannelGroup_SetSoundfonts(XSynth_ChannelGroup id, nint sf_ids, ulong count);
@@ -246,7 +272,11 @@ namespace OmniConverter
                 _soundfontOptions.stream_params = _streamParams;
                 _soundfontOptions.bank = sf.SourceBank;
                 _soundfontOptions.preset = sf.SourcePreset;
-                _soundfontOptions.linear_release = false;
+                if (CachedSettings.XSynth.LinearEnvelope) {
+                    // Linear in amplitude -> Exponential in dB (XSynth uses dB units)
+                    _soundfontOptions.vol_envelope_options.decay_curve = EnvelopeCurve.Exponential;
+                    _soundfontOptions.vol_envelope_options.release_curve = EnvelopeCurve.Exponential;
+                }
                 _soundfontOptions.use_effects = CachedSettings.XSynth.UseEffects;
                 _soundfontOptions.interpolator = CachedSettings.Synth.Interpolation switch {
                     GlobalSynthSettings.InterpolationType.None => Interpolation.Nearest,
@@ -327,7 +357,7 @@ namespace OmniConverter
                 handle = ChannelGroup_Create(groupOptions);
 
                 reference.AddChannel((XSynth_ChannelGroup)handle);
-                ChannelGroup_SetLayerCount((XSynth_ChannelGroup)handle, reference.CachedSettings.XSynth.MaxLayers);
+                ChannelGroup_SendConfigEventAll((XSynth_ChannelGroup)handle, ConfigEvent.SetLayers, (uint)reference.CachedSettings.XSynth.MaxLayers);
                 ChannelGroup_SetSoundfonts((XSynth_ChannelGroup)handle, sfArray, sfCount);
 
                 var tmp = ChannelGroup_GetStreamParams((XSynth_ChannelGroup)handle);
@@ -378,13 +408,10 @@ namespace OmniConverter
             if (handle == null)
                 return;
 
-            for (uint i = 0; i < 16; i++)
-            {
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.AllNotesKilled, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.ResetControl, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.Control, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.ProgramChange, 0);
-            }
+            ChannelGroup_SendAudioEventAll((XSynth_ChannelGroup)handle, AudioEvent.AllNotesKilled, 0);
+            ChannelGroup_SendAudioEventAll((XSynth_ChannelGroup)handle, AudioEvent.ResetControl, 0);
+            ChannelGroup_SendAudioEventAll((XSynth_ChannelGroup)handle, AudioEvent.Control, 0);
+            ChannelGroup_SendAudioEventAll((XSynth_ChannelGroup)handle, AudioEvent.ProgramChange, 0);
         }
 
         public override bool SendCustomFXEvents(int channel, short reverb, short chorus)
@@ -401,7 +428,7 @@ namespace OmniConverter
             var param1 = data[1];
             var param2 = data.Length >= 3 ? data[2] : (byte)0;
 
-            var eventType = EventType.NoteOn;
+            var eventType = AudioEvent.NoteOn;
             int eventParams;
 
             switch ((MIDIEventType)(status & 0xF0))
@@ -414,7 +441,7 @@ namespace OmniConverter
 
                     if (param1 == 0)
                     {
-                        eventType = EventType.NoteOff;
+                        eventType = AudioEvent.NoteOff;
                         eventParams = param1;
                     }
                     else eventParams = (param2 << 8) | param1;
@@ -424,22 +451,22 @@ namespace OmniConverter
                     if (reference.CachedSettings.Event.FilterKey && (param1 < reference.CachedSettings.Event.KeyLow || param1 > reference.CachedSettings.Event.KeyHigh))
                         return;
 
-                    eventType = EventType.NoteOff;
+                    eventType = AudioEvent.NoteOff;
                     eventParams = param1;
                     break;
 
                 case MIDIEventType.PatchChange:
-                    eventType = EventType.ProgramChange;
+                    eventType = AudioEvent.ProgramChange;
                     eventParams = param1;
                     break;
 
                 case MIDIEventType.CC:
-                    eventType = EventType.Control;
+                    eventType = AudioEvent.Control;
                     eventParams = (param2 << 8) | param1;
                     break;
 
                 case MIDIEventType.PitchBend:
-                    eventType = EventType.Pitch;
+                    eventType = AudioEvent.Pitch;
                     eventParams = (param2 << 7) | param1;
                     break;
 
@@ -447,7 +474,7 @@ namespace OmniConverter
                     return;
             }
 
-            ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, (uint)(status & 0xF), eventType, (ushort)eventParams);
+            ChannelGroup_SendAudioEvent((XSynth_ChannelGroup)handle, (uint)(status & 0xF), eventType, (ushort)eventParams);
         }
 
         public override void RefreshInfo()
@@ -463,11 +490,8 @@ namespace OmniConverter
             if (handle == null)
                 return;
 
-            for (uint i = 0; i < 16; i++)
-            {
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.AllNotesOff, 0);
-                ChannelGroup_SendEvent((XSynth_ChannelGroup)handle, i, EventType.ResetControl, 0);
-            }
+            ChannelGroup_SendAudioEventAll((XSynth_ChannelGroup)handle, AudioEvent.AllNotesOff, 0);
+            ChannelGroup_SendAudioEventAll((XSynth_ChannelGroup)handle, AudioEvent.ResetControl, 0);
         }
 
         public override long Position

@@ -358,6 +358,12 @@ public partial class SettingsWindow : Window
             Program.Settings.BASS.DisableEffects = (bool)BASS_DisableFX.IsChecked;
         if (BASS_NoteOff1.IsChecked != null)
             Program.Settings.BASS.NoteOff1 = (bool)BASS_NoteOff1.IsChecked;
+
+        if (XSynth_LinearEnv.IsChecked != null)
+            Program.Settings.XSynth.LinearEnvelope = (bool)XSynth_LinearEnv.IsChecked;
+        if (XSynth_UseEffects.IsChecked != null)
+            Program.Settings.XSynth.UseEffects = (bool)XSynth_UseEffects.IsChecked;
+
         if (KilledNoteFading.IsChecked != null)
             Program.Settings.Synth.KilledNoteFading = (bool)KilledNoteFading.IsChecked;
 
