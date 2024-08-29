@@ -15,7 +15,6 @@ public partial class SettingsWindow : Window
     public SettingsWindow()
     {
         InitializeComponent();
-
         Loaded += CheckSettings;
     }
 
@@ -50,18 +49,18 @@ public partial class SettingsWindow : Window
             AudioCodec.IsEnabled = false;
         }
 
-        SelectedRenderer.SelectedIndex = ((int)Program.Settings.Renderer).LimitToRange((int)EngineID.BASS, (int)EngineID.MAX);
+        SelectedRenderer.SelectedIndex = ((int)Program.Settings.Renderer).LimitToRange(EngineID.BASS, EngineID.MAX);
         AudioRendererChanged(sender, new SelectionChangedEventArgs(e.RoutedEvent, null, null));
 
-        AudioCodec.SelectedIndex = ((int)Program.Settings.Encoder.AudioCodec).LimitToRange((int)AudioCodecType.PCM, (int)maxCodec);
-        AudioBitrate.Value = Program.Settings.Encoder.AudioBitrate.LimitToRange(1, (int)AudioBitrate.Maximum);
+        AudioCodec.SelectedIndex = ((int)Program.Settings.Encoder.AudioCodec).LimitToRange(AudioCodecType.PCM, maxCodec);
+        AudioBitrate.Value = Program.Settings.Encoder.AudioBitrate.LimitToRange(1, AudioBitrate.Maximum);
         
         InterpolationSelection.SelectedIndex = ((int)Program.Settings.Synth.Interpolation)
-            .LimitToRange((int)GlobalSynthSettings.InterpolationType.None,
-                          (int)GlobalSynthSettings.InterpolationType.Max);
+            .LimitToRange(GlobalSynthSettings.InterpolationType.None,
+                          GlobalSynthSettings.InterpolationType.Max);
 
         XSynth_ThreadingSelection.SelectedIndex = ((int)Program.Settings.XSynth.Threading)
-            .LimitToRange((int)XSynthSettings.ThreadingType.None, (int)XSynthSettings.ThreadingType.Max);
+            .LimitToRange(XSynthSettings.ThreadingType.None, XSynthSettings.ThreadingType.Max);
 
         BASS_MaxVoices.Value = Program.Settings.BASS.MaxVoices;
         XSynth_MaxLayers.Value = Program.Settings.XSynth.MaxLayers;
@@ -102,7 +101,7 @@ public partial class SettingsWindow : Window
 
         NoLimitThreadsOnCPU.IsChecked = Program.Settings.Render.ThreadsCount > Environment.ProcessorCount;   
         NoLimitThreadsOnCPUCheck(sender, e);
-        MaxThreads.Value = Program.Settings.Render.ThreadsCount.LimitToRange(1, (int)MaxThreads.Maximum);
+        MaxThreads.Value = Program.Settings.Render.ThreadsCount.LimitToRange(1, MaxThreads.Maximum);
 
         if ((bool)NoLimitThreadsOnCPU.IsChecked)
             LimitThreads.IsChecked = true;
@@ -211,20 +210,22 @@ public partial class SettingsWindow : Window
         {
             switch ((EngineID)SelectedRenderer.SelectedIndex)
             {
+                case EngineID.BASS:
+                    BASS_NoVoiceLimit.IsChecked = Program.Settings.BASS.MaxVoices > 100000;
+                    BASS_MaxVoices.Value = Program.Settings.BASS.MaxVoices;
+
+                    BASSSettingsPanel.IsVisible = true;
+                    XSynthSettingsPanel.IsVisible = false;
+                    break;
+
                 case EngineID.XSynth:
                     XSynth_NoLayerLimit.IsChecked = Program.Settings.XSynth.MaxLayers == 0;
                     XSynth_MaxLayers.Value = Program.Settings.XSynth.MaxLayers;
+
                     BASSSettingsPanel.IsVisible = false;
                     XSynthSettingsPanel.IsVisible = true;
                     break;
 
-                case EngineID.BASS:
-                    BASS_NoVoiceLimit.IsChecked = Program.Settings.BASS.MaxVoices > 100000;
-                    BASS_MaxVoices.Value = Program.Settings.BASS.MaxVoices;
-                    BASSSettingsPanel.IsVisible = true;
-                    XSynthSettingsPanel.IsVisible = false;
-                    break;
-                
                 default:
                     break;
             }

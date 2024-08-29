@@ -21,12 +21,13 @@ public partial class InfoWindow : Window
         var dummy = new Version(0, 0, 0, 0);
         Version? bassVer = dummy;
         Version? bmidiVer = dummy;
+        Version? xsynthVer = dummy;
         Version convVer = cv != null ? cv : dummy;
 
         try { bassVer = Bass.Version; } catch { }
         try { bmidiVer = BassMidi.Version; } catch { }
-        
-        var xsynthVer = MiscFunctions.ConvertIntToVersion((int)XSynth.GetVersion());
+        try { xsynthVer = XSynth.Version; } catch { }
+
 
         ConvBrand.Content = MiscFunctions.ReturnAssemblyVersion("OmniConverter", "CR", [convVer.Major, convVer.Minor, convVer.Build, convVer.MinorRevision]);
         BASSVersion.Content = MiscFunctions.ReturnAssemblyVersion(string.Empty, "Rev. ", [bassVer.Major, bassVer.Minor, bassVer.Build, bassVer.MinorRevision]);

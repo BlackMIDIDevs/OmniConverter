@@ -36,6 +36,8 @@ namespace OmniConverter
 
     public abstract class MIDIRenderer : ISampleSource
     {
+        protected readonly object Lock = new object();
+
         protected double Volume { get; set; }
         public string UniqueID { get; protected set; } = IDGenerator.GetID();
         public bool CanSeek { get; protected set; } = false;

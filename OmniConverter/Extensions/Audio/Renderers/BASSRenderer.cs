@@ -156,7 +156,6 @@ namespace OmniConverter
 
     public class BASSRenderer : MIDIRenderer
     {
-        private readonly object Lock = new object();
         private readonly BassFlags Flags;
         public int Handle { get; private set; } = 0;
 

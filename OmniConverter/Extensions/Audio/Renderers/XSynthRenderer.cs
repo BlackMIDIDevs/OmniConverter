@@ -1,12 +1,7 @@
-﻿using Octokit;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using static OmniConverter.XSynth;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // Written with help from Arduano
 
@@ -96,7 +91,7 @@ namespace OmniConverter
         }
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GetVersion", CallingConvention = CallingConvention.Cdecl)]
-        public static extern uint GetVersion();
+        public static extern uint GetVersionInt();
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_GenDefault_StreamParams", CallingConvention = CallingConvention.Cdecl)]
         public static extern StreamParams GenDefault_StreamParams();
@@ -142,6 +137,8 @@ namespace OmniConverter
 
         [DllImport(XSynthLib, EntryPoint = "XSynth_Soundfont_Remove", CallingConvention = CallingConvention.Cdecl)]
         public static extern void Soundfont_Remove(XSynth_Soundfont id);
+
+        public static Version Version => MiscFunctions.ConvertIntToVersion((int)GetVersionInt());
     }
 
     public class XSynthEngine : AudioEngine
@@ -156,7 +153,7 @@ namespace OmniConverter
 
         public unsafe XSynthEngine(CSCore.WaveFormat waveFormat, Settings settings) : base(waveFormat, settings, false)
         {
-            var libraryVersion = GetVersion();
+            var libraryVersion = GetVersionInt();
             if (libraryVersion >> 8 != APIVersion >> 8)
             {
                 var neededVer = MiscFunctions.ConvertIntToVersion((int)APIVersion);
@@ -302,8 +299,6 @@ namespace OmniConverter
 
     public class XSynthRenderer : MIDIRenderer
     {
-        private readonly object Lock = new object();
-
         public XSynth_ChannelGroup? handle { get; private set; } = null;
         private long length = 0;
         private ulong sfCount = 0;

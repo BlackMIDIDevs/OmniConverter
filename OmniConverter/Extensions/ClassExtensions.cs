@@ -67,10 +67,20 @@ namespace OmniConverter
     internal static class InputExtensions
     {
         public static int LimitToRange(
-            this int value, int inclusiveMinimum, int inclusiveMaximum)
+            this int value, object inclusiveMinimum, object inclusiveMaximum)
         {
-            if (value < inclusiveMinimum) { return inclusiveMinimum; }
-            if (value > inclusiveMaximum) { return inclusiveMaximum; }
+            int? iMin = null;
+            int? iMax = null;
+
+            try { iMin = Convert.ToInt32(inclusiveMinimum); } catch { }
+            try { iMax = Convert.ToInt32(inclusiveMaximum); } catch { }
+
+            if (iMin == null || iMax == null)
+                throw new NullReferenceException("iMin or iMax weren't parsed properly.");
+
+            if (value < iMin) { return (int)iMin; }
+            if (value > iMax) { return (int)iMax; }
+
             return value;
         }
     }

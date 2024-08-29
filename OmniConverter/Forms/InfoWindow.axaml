@@ -5,15 +5,15 @@
 		xmlns:ctrl="using:GroupBox.Avalonia.Controls"
         xmlns:themes="using:GroupBox.Avalonia.Themes"
 		xmlns:oc="using:OmniConverter"
-        mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="320"
-		Width="860" Height="350"
+        mc:Ignorable="d" d:DesignWidth="885" d:DesignHeight="350"
+		Width="885" Height="350"
         x:Class="OmniConverter.InfoWindow"
         Title="Information"
 	    WindowStartupLocation="CenterScreen"
 		CanResize="False"
         RequestedThemeVariant="Dark">
-	<Grid ColumnDefinitions="300, 1*" Margin="10" >
-		<Image Grid.Column="0" Source="/Assets/OmniConverter.png" />
+	<Grid ColumnDefinitions="325, 1*" Margin="10" >
+		<Image Grid.Column="0" Source="/Assets/OmniConverter.png" RenderOptions.BitmapInterpolationMode="HighQuality" />
 		<Grid Grid.Column="1" RowDefinitions="1*, 1*">
 			<StackPanel Grid.Row="0" Margin="10, 0, 0, 0">
 				<Grid ColumnDefinitions="8*, 1*" Margin="0, 0, 0, 0">

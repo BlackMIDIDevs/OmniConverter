@@ -44,7 +44,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
@@ -62,7 +62,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
@@ -91,7 +91,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
@@ -106,7 +106,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
@@ -145,18 +145,18 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
      [JsonObject]
     public class RenderSettings : ICloneable
     {
-        // Threads count is set to ProcessorCount / 2 ,
-        // to avoid having the converter hog up all the resources
         [JsonProperty]
         public bool MultiThreadedMode = true;
 
+        // Threads count is set to ProcessorCount / 2,
+        // to avoid having the converter hog up all the resources
         [JsonProperty]
         public int ThreadsCount = Environment.ProcessorCount / 2;
 
@@ -177,7 +177,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
@@ -207,7 +207,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 
@@ -251,7 +251,7 @@ namespace OmniConverter
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
     }
 }

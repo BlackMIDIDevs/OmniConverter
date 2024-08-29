@@ -12,7 +12,7 @@ public partial class ChangeBranch : Window
     {
         InitializeComponent();
 
-        SelectedBranch.SelectedIndex = ((int)Program.Settings.Program.UpdateBranch).LimitToRange((int)UpdateSystem.Branch.None, (int)UpdateSystem.Branch.Total);
+        SelectedBranch.SelectedIndex = ((int)Program.Settings.Program.UpdateBranch).LimitToRange(UpdateSystem.Branch.None, UpdateSystem.Branch.Total);
 
         SolidColorBrush brchCol = new SolidColorBrush();
         brchCol.Color = UpdateSystem.GetCurrentBranchColor();
