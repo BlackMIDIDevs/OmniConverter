@@ -19,12 +19,8 @@ namespace OmniConverter
         {
             if (Bass.Init(Bass.NoSoundDevice, _waveFormat.SampleRate, DeviceInitFlags.Default))
             {
-                _bassArray = InitializeSoundFonts();
-
                 var tmp = BassMidi.CreateStream(16, BassFlags.Default, 0);
                 var unixPrefix = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-                FlacPlug = Bass.PluginLoad($"{AppContext.BaseDirectory}/{(unixPrefix ? "lib" : "")}bassflac");
 
                 if (tmp != 0)
                 {
@@ -39,12 +35,21 @@ namespace OmniConverter
 
                     Bass.StreamFree(tmp);
 
-                    _init = true;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        FlacPlug = Bass.PluginLoad("bassflac.dll");
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                        FlacPlug = Bass.PluginLoad("libbassflac.so");
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                        FlacPlug = Bass.PluginLoad("libbassflac.dylib");
 
                     if (FlacPlug == 0)
                         Debug.PrintToConsole(Debug.LogType.Warning, "BASSFLAC failed to load, this could lead to incorrect opcode handling when using SFZ based SoundFonts using FLAC samples.");
                     else
                         Debug.PrintToConsole(Debug.LogType.Message, "BASSFLAC loaded");
+
+                    _bassArray = InitializeSoundFonts();
+
+                    _init = true;
 
                     return;
                 }
