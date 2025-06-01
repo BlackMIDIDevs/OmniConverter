@@ -28,9 +28,7 @@ namespace OmniConverter
             if (Bass.Init(Bass.NoSoundDevice, _waveFormat.SampleRate, DeviceInitFlags.Default))
             {
                 var tmp = BassMidi.CreateStream(16, BassFlags.Default, 0);
-                var unixPrefix = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-                FlacPlug = Bass.PluginLoad($"{AppContext.BaseDirectory}/{(unixPrefix ? "lib" : "")}bassflac");
+                FlacPlug = Bass.PluginLoad("bassflac");
 
                 if (tmp != 0)
                 {
