@@ -410,7 +410,7 @@ namespace OmniConverter
                             if (_audLimiter && waveFormat.BitsPerSample == 32)
                             {
                                 Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                                BAC = new Limiter(msm, 0.1);
+                                BAC = new Limiter(msm, 0.1f);
                                 MStream = BAC.ToWaveSource(waveFormat.BitsPerSample);
                             }
                             else MStream = msm.ToWaveSource(waveFormat.BitsPerSample);
@@ -631,7 +631,7 @@ namespace OmniConverter
                                     if (_audLimiter && waveFormat.BitsPerSample == 32)
                                     {
                                         Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                                        var BAC = new Limiter(trackMsm, 0.1);
+                                        var BAC = new Limiter(trackMsm, 0.1f);
                                         exportSource = BAC.ToWaveSource(waveFormat.BitsPerSample);
                                     }
                                     else exportSource = trackMsm.ToWaveSource(waveFormat.BitsPerSample);
@@ -713,7 +713,7 @@ namespace OmniConverter
                             if (_audLimiter && waveFormat.BitsPerSample == 32)
                             {
                                 Debug.PrintToConsole(Debug.LogType.Message, "LoudMax enabled.");
-                                var BAC = new Limiter(msm, 0.1);
+                                var BAC = new Limiter(msm, 0.1f);
                                 MStream = BAC.ToWaveSource(waveFormat.BitsPerSample);
                             }
                             else MStream = msm.ToWaveSource(waveFormat.BitsPerSample);
